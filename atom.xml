@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-05T16:42:12.331Z</updated>
+  <updated>2022-05-08T19:12:55.094Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -17,24 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>post name</title>
-    <link href="https://brendaoo.github.io/2022/05/06/post-name/"/>
-    <id>https://brendaoo.github.io/2022/05/06/post-name/</id>
-    <published>2022-05-05T16:42:12.000Z</published>
-    <updated>2022-05-05T16:42:12.331Z</updated>
-    
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
     <title>Hello World</title>
-    <link href="https://brendaoo.github.io/2022/05/05/hello-world/"/>
-    <id>https://brendaoo.github.io/2022/05/05/hello-world/</id>
-    <published>2022-05-05T15:12:48.507Z</published>
-    <updated>2022-05-05T15:12:48.507Z</updated>
+    <link href="https://brendaoo.github.io/2022/05/09/hello-world/"/>
+    <id>https://brendaoo.github.io/2022/05/09/hello-world/</id>
+    <published>2022-05-08T19:15:51.803Z</published>
+    <updated>2022-05-08T19:12:55.094Z</updated>
     
     
       
