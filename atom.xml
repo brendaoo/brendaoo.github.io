@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-09T00:34:07.832Z</updated>
+  <updated>2022-05-09T00:43:13.059Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>AWS Organizations账户管理服务&amp;SCP</title>
+    <link href="https://brendaoo.github.io/2022/05/09/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&amp;SCP/"/>
+    <id>https://brendaoo.github.io/2022/05/09/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&amp;SCP/</id>
+    <published>2022-05-09T00:43:13.059Z</published>
+    <updated>2022-05-09T00:43:13.059Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;AWS-Organizations账户管理服务-amp-SCP&quot;&gt;&lt;a href=&quot;#AWS-Organizations账户管理服务-amp-SCP&quot; class=&quot;headerlink&quot; title=&quot;AWS</summary>
+        
+      
+    
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="IAM" scheme="https://brendaoo.github.io/tags/IAM/"/>
+    
+    <category term="Organizations" scheme="https://brendaoo.github.io/tags/Organizations/"/>
+    
+  </entry>
   
   <entry>
     <title>AWS IAM小结</title>

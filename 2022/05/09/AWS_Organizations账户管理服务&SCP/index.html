@@ -20,28 +20,52 @@
     var CONFIG = {"hostname":"brendaoo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Logs">
-<meta property="og:url" content="https://brendaoo.github.io/index.html">
+  <meta name="description" content="AWS Organizations账户管理服务&amp;SCPPart1 介绍AWS OrganizationsAWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS Organizations账户管理服务&amp;SCP">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/09/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/index.html">
 <meta property="og:site_name" content="Logs">
+<meta property="og:description" content="AWS Organizations账户管理服务&amp;SCPPart1 介绍AWS OrganizationsAWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412004932107.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412005002268.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412011458396.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412011633785.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412011714385.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412011914453.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412102406807.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412102431828.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412102504986.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412103202634.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412132453499.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412133347888.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412133545337.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412133640477.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412133717996.png">
+<meta property="og:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412133938873.png">
+<meta property="article:published_time" content="2022-05-09T00:43:13.059Z">
+<meta property="article:modified_time" content="2022-05-09T00:43:13.059Z">
 <meta property="article:author" content="Brenda">
+<meta property="article:tag" content="AWS">
+<meta property="article:tag" content="IAM">
+<meta property="article:tag" content="Organizations">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brendaoo.github.io/images/images-AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%5Cimage-20220412004932107.png">
 
-<link rel="canonical" href="https://brendaoo.github.io/">
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/09/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>Logs</title>
+  <title>AWS Organizations账户管理服务&SCP | Logs</title>
   
 
 
@@ -150,9 +174,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -168,10 +193,9 @@
       <meta itemprop="name" content="Logs">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/09/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/" class="post-title-link" itemprop="url">AWS Organizations账户管理服务&SCP</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          AWS Organizations账户管理服务&SCP
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -208,7 +232,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="AWS-Organizations账户管理服务-amp-SCP"><a href="#AWS-Organizations账户管理服务-amp-SCP" class="headerlink" title="AWS Organizations账户管理服务&amp;SCP"></a>AWS Organizations账户管理服务&amp;SCP</h1><h2 id="Part1-介绍AWS-Organizations"><a href="#Part1-介绍AWS-Organizations" class="headerlink" title="Part1 介绍AWS Organizations"></a>Part1 介绍AWS Organizations</h2><p>AWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户加入组织。</p>
+        <h1 id="AWS-Organizations账户管理服务-amp-SCP"><a href="#AWS-Organizations账户管理服务-amp-SCP" class="headerlink" title="AWS Organizations账户管理服务&amp;SCP"></a>AWS Organizations账户管理服务&amp;SCP</h1><h2 id="Part1-介绍AWS-Organizations"><a href="#Part1-介绍AWS-Organizations" class="headerlink" title="Part1 介绍AWS Organizations"></a>Part1 介绍AWS Organizations</h2><p>AWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户加入组织。</p>
 <p><strong>AWS Organizations功能</strong></p>
 <ul>
 <li>集中管理您的所有AWS账户</li>
@@ -273,282 +297,60 @@
 <li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/zh_cn/organizations/latest/userguide/orgs_introduction.html">什么是AWS Organizations</a></li>
 </ul>
 
-      
     </div>
 
     
     
     
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/09/AWS_IAM小结/" rel="bookmark">AWS IAM小结</a></div>
+    </li>
+  </ul>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Brenda
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://brendaoo.github.io/2022/05/09/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/" title="AWS Organizations账户管理服务&amp;SCP">https://brendaoo.github.io/2022/05/09/AWS_Organizations账户管理服务&SCP/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/AWS/" rel="tag"># AWS</a>
+              <a href="/tags/IAM/" rel="tag"># IAM</a>
+              <a href="/tags/Organizations/" rel="tag"># Organizations</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/09/AWS_IAM%E5%B0%8F%E7%BB%93/">
+        
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Brenda">
-      <meta itemprop="description" content="">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Logs">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/09/AWS_IAM%E5%B0%8F%E7%BB%93/" class="post-title-link" itemprop="url">AWS IAM小结</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-09 08:34:07" itemprop="dateCreated datePublished" datetime="2022-05-09T08:34:07+08:00">2022-05-09</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>854</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="AWS-IAM小结"><a href="#AWS-IAM小结" class="headerlink" title="AWS IAM小结"></a>AWS IAM小结</h1><h2 id="PART1-问题及总结"><a href="#PART1-问题及总结" class="headerlink" title="PART1 问题及总结"></a>PART1 问题及总结</h2><h3 id="什么是AWS-IAM？"><a href="#什么是AWS-IAM？" class="headerlink" title="什么是AWS IAM？"></a>什么是AWS IAM？</h3><p>AWS Identity and Access Management (IAM) 是一种 Web 服务，可以帮助您安全地控制对 AWS 资源的访问。<strong>可以使用 IAM 来控制谁通过了身份验证（准许登录）并获得授权（拥有权限）来使用资源。</strong></p>
-<h3 id="跟账户用户"><a href="#跟账户用户" class="headerlink" title="跟账户用户"></a>跟账户用户</h3><p>当您首次创建AWS 账户时，最初使用的是一个对账户中所有AWS服务和资源有完全访问权限的单点登录身份。此身份称为<strong>AWS 账户根用户</strong>，使用您创建账户时所用的电子邮件地址和密码登录，即可获得该身份。强烈建议您不使用根用户执行日常任务，即使是管理任务。相反，请遵循<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users">仅使用根用户创建您的第一个 IAM 用户的最佳实践</a>。然后请妥善保存根用户凭证，仅用它们执行少数账户和服务管理任务。</p>
-<h3 id="IAM用户的密钥设计"><a href="#IAM用户的密钥设计" class="headerlink" title="IAM用户的密钥设计"></a>IAM用户的密钥设计</h3><ul>
-<li>所需账户：一个账户</li>
-<li>涉及服务：IAM、S3</li>
-<li>描述：只给用户分配STSAssumeRole的权限，没有访问S3的权限，用户需要通过AssumeRole返回的临时凭证去访问S3.</li>
-</ul>
-<h3 id="多账户—中央账户管理"><a href="#多账户—中央账户管理" class="headerlink" title="多账户—中央账户管理"></a>多账户—中央账户管理</h3><p>中央账户与成员账户使用AWS Organizations服务</p>
-<ul>
-<li><p>加入组织：中央账户邀请成员账户加入Organizations</p>
-</li>
-<li><p>服务控制策略：中央账户可以对成员账户实行策略上的限制，比如说，限制成员账户访问自己账户的S3存储桶。策略生效之后，成员账户的根账户也无法访问自己账户下的S3存储桶。</p>
-</li>
-</ul>
-<h3 id="多账户—跨账户IAM角色访问"><a href="#多账户—跨账户IAM角色访问" class="headerlink" title="多账户—跨账户IAM角色访问"></a>多账户—跨账户IAM角色访问</h3><ul>
-<li><p>所需账户：至少2个账户</p>
-</li>
-<li><p>涉及服务：S3存储桶、IAM</p>
-</li>
-<li><p>描述：两个账户，eg Account A和Account B，A赋予B当中的用户访问A账户S3存储桶的权限</p>
-</li>
-</ul>
-<p>2个账户场景，2个账户不需要有什么关联，即2个账户不需要在同一个组织中。</p>
-<h3 id="多账户—集中式日志存储"><a href="#多账户—集中式日志存储" class="headerlink" title="多账户—集中式日志存储"></a>多账户—集中式日志存储</h3><ul>
-<li><p>账户要求：至少需要2个账户，eg Account A 和 Account B，需要选定一个账户作为中央账户</p>
-</li>
-<li><p>涉及服务：S3存储桶、IAM、AWS CloudWatch、AWS Config等</p>
-</li>
-<li><p>描述：中央账户的S3存储桶存储其他账户的CloudWatch以及AWS Config等服务的日志</p>
-</li>
-</ul>
-<h2 id="PART2-参考文献"><a href="#PART2-参考文献" class="headerlink" title="PART2 参考文献"></a>PART2 参考文献</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/IAM/latest/UserGuide/introduction.html">什么是AWS IAM</a></li>
-</ul>
-
-      
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/09/AWS_IAM%E5%B0%8F%E7%BB%93/" rel="prev" title="AWS IAM小结">
+      <i class="fa fa-chevron-left"></i> AWS IAM小结
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/09/post-name/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Brenda">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Logs">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/09/post-name/" class="post-title-link" itemprop="url">post name</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-09 03:17:11" itemprop="dateCreated datePublished" datetime="2022-05-09T03:17:11+08:00">2022-05-09</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/09/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Brenda">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Logs">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/09/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-05-09 03:15:51 / 修改时间：03:12:55" itemprop="dateCreated datePublished" datetime="2022-05-09T03:15:51+08:00">2022-05-09</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>367</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
   
 
 
@@ -601,6 +403,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AWS-Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1-amp-SCP"><span class="nav-number">1.</span> <span class="nav-text">AWS Organizations账户管理服务&amp;SCP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Part1-%E4%BB%8B%E7%BB%8DAWS-Organizations"><span class="nav-number">1.1.</span> <span class="nav-text">Part1 介绍AWS Organizations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part2-%E5%AE%9E%E9%AA%8C%E5%9C%BA%E6%99%AF"><span class="nav-number">1.2.</span> <span class="nav-text">Part2 实验场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part3-%E5%AE%9E%E9%AA%8C%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.3.</span> <span class="nav-text">Part3 实验步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%AE%9E%E9%AA%8C%E8%B4%A6%E6%88%B7%E8%AF%B4%E6%98%8E"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 实验账户说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%88%9B%E5%BB%BA%E7%BB%84%E7%BB%87"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 创建组织</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E9%82%80%E8%AF%B7%E8%B4%A6%E6%88%B7"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3 邀请账户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%88%9B%E5%BB%BAS3%E7%AD%96%E7%95%A5"><span class="nav-number">1.3.4.</span> <span class="nav-text">3.4 创建S3策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E5%89%8D-Account-B%E8%AE%BF%E9%97%AES3%E6%B5%8B%E8%AF%95"><span class="nav-number">1.3.5.</span> <span class="nav-text">3.5 [前]Account B访问S3测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E5%B0%86%E7%AD%96%E7%95%A5%E5%BA%94%E7%94%A8%E5%88%B0Account-B"><span class="nav-number">1.3.6.</span> <span class="nav-text">3.6 将策略应用到Account B</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-7-%E5%90%8E-Account-B%E8%AE%BF%E9%97%AES3%E6%B5%8B%E8%AF%95"><span class="nav-number">1.3.7.</span> <span class="nav-text">3.7 [后]Account B访问S3测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part4-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">1.4.</span> <span class="nav-text">Part4 参考文献</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
