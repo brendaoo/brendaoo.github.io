@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-13T00:45:41.094Z</updated>
+  <updated>2022-05-09T00:43:13.059Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,19 +15,6 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>photo_test</title>
-    <link href="https://brendaoo.github.io/2022/05/13/photo-test/"/>
-    <id>https://brendaoo.github.io/2022/05/13/photo-test/</id>
-    <published>2022-05-13T00:45:41.000Z</published>
-    <updated>2022-05-13T00:45:41.094Z</updated>
-    
-    
-    
-    
-    
-  </entry>
   
   <entry>
     <title>AWS Organizations账户管理服务&amp;SCP</title>
@@ -78,19 +65,6 @@
     <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
     
     <category term="IAM" scheme="https://brendaoo.github.io/tags/IAM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>post name</title>
-    <link href="https://brendaoo.github.io/2022/05/09/post-name/"/>
-    <id>https://brendaoo.github.io/2022/05/09/post-name/</id>
-    <published>2022-05-08T19:17:11.000Z</published>
-    <updated>2022-05-08T19:17:11.208Z</updated>
-    
-    
-    
-    
     
   </entry>
   
