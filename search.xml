@@ -952,6 +952,8 @@
 </ul>
 <p>AWS 的 VPC 网络配置关系是：<em><strong>实例与子网关联，子网关联路由表，路由表设置网关</strong></em>。</p>
 </blockquote>
+<span id="more"></span>
+
 <h2 id="公共子网联网"><a href="#公共子网联网" class="headerlink" title="公共子网联网"></a>公共子网联网</h2><h3 id="介绍IGW"><a href="#介绍IGW" class="headerlink" title="介绍IGW"></a>介绍IGW</h3><p>公共子网通过IGW(Internet gateway)组件来实现VPC和Internet的相互通信。</p>
 <p>IGW提供两项功能：</p>
 <ol>
@@ -1096,7 +1098,6 @@
 <li>NAT网关通Internet的话，要把NAT网关创建在公共子网中，并为其分配弹性IP</li>
 <li>子网（公共子网&amp;私有子网）会有一定的地址保留。Amazon会保留各个子网的前面4个IP地址和最后1个IP地址，以作IP联网之用。</li>
 </ol>
-<span id="more"></span>
 ]]></content>
       <categories>
         <category>AWS</category>
