@@ -136,11 +136,16 @@
 ]]></content>
   </entry>
   <entry>
+    <title>test-pic</title>
+    <url>/2022/05/15/test-pic/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title>配置CloudTrial和Config日志跨AWS账户日志存储</title>
     <url>/2022/05/15/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/</url>
     <content><![CDATA[<h1 id="配置CloudTrial和Config日志跨AWS账户日志存储"><a href="#配置CloudTrial和Config日志跨AWS账户日志存储" class="headerlink" title="配置CloudTrial和Config日志跨AWS账户日志存储"></a>配置CloudTrial和Config日志跨AWS账户日志存储</h1><h2 id="Part1-集中式日志存储架构"><a href="#Part1-集中式日志存储架构" class="headerlink" title="Part1 集中式日志存储架构"></a>Part1 集中式日志存储架构</h2><p>集中式日志存储架构：将所有账户的所需日志都集中存储在一个中心区域，在这个中心区域中对日志进行定期监控和分析。架构图如下所示：</p>
 <p><img src="/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8%5Cimage-20220415115536224.png" alt="image-20220415115536224"></p>
-<p>**集中日志管理注意事项： ** </p>
+<p><strong>集中日志管理注意事项：</strong> </p>
 <ul>
 <li>尽早定义日志保留的要求以及日志生命周期策略。选择合适的生命周期策略以节省成本。</li>
 <li>日志生命周期策略自动化。</li>
