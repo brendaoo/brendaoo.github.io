@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-15T03:39:37.229Z</updated>
+  <updated>2022-05-15T06:38:04.078Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,58 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>AWS WorkSpaces入门2</title>
+    <link href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/"/>
+    <id>https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/</id>
+    <published>2022-05-15T06:38:04.078Z</published>
+    <updated>2022-05-15T06:38:04.078Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;本节主要讲述的就是在AWS上创建WorkSpaces。&lt;/p&gt;
+&lt;p&gt;流程：创建VPC–&amp;gt;创建目录–&amp;gt;创建WorkSpaces&lt;/p&gt;
+&lt;h1 id=&quot;Part1-创建VPC&quot;&gt;&lt;a href=&quot;#Part1-创建VPC&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="WorkSpaces" scheme="https://brendaoo.github.io/tags/WorkSpaces/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>AWS WorkSpaces入门1</title>
+    <link href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/"/>
+    <id>https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/</id>
+    <published>2022-05-15T06:38:02.483Z</published>
+    <updated>2022-05-15T06:38:02.483Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;AWS-WorkSpaces入门1&quot;&gt;&lt;a href=&quot;#AWS-WorkSpaces入门1&quot; class=&quot;headerlink&quot; title=&quot;AWS WorkSpaces入门1&quot;&gt;&lt;/a&gt;AWS</summary>
+        
+      
+    
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="WorkSpaces" scheme="https://brendaoo.github.io/tags/WorkSpaces/"/>
+    
+  </entry>
   
   <entry>
     <title>AWS STS正确设计IAM用户密钥（二）</title>

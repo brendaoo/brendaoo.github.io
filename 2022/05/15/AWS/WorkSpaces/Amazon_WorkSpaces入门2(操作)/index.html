@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"brendaoo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本节主要讲述的就是在AWS上创建WorkSpaces。 流程：创建VPC–&gt;创建目录–&gt;创建WorkSpaces Part1 创建VPC网络环境说明： WorkSpaces对网络有一定的要求，以下条件中需要满足一个。  为的 WorkSpaces 创建具有两个私有子网的 VPC 以及一个 NAT 网关。 为 WorkSpaces 创建具有两个公有子网的 VPC，并将弹性 IP 地址与各">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS WorkSpaces入门2">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/index.html">
+<meta property="og:site_name" content="Logs">
+<meta property="og:description" content="本节主要讲述的就是在AWS上创建WorkSpaces。 流程：创建VPC–&gt;创建目录–&gt;创建WorkSpaces Part1 创建VPC网络环境说明： WorkSpaces对网络有一定的要求，以下条件中需要满足一个。  为的 WorkSpaces 创建具有两个私有子网的 VPC 以及一个 NAT 网关。 为 WorkSpaces 创建具有两个公有子网的 VPC，并将弹性 IP 地址与各">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193448187.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193550529.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193136799.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193936839.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194022952.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194309938.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194358522.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194706257.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194808415.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194848469.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195051300.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195131076.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195224231.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195255850.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195606749.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200012669.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200149701.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200354863.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200428274.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200521776.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225037491.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225158332.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225341599.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225604139.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225713198.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225804281.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230126866.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233230361.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233337005.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233424717.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230937596.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233455467.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233551423.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418235256704.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001017275-16502982176861.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001141871.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001449239.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001705940.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001730160.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001816693.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002503835.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002608340.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001945730.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002304486.png">
+<meta property="article:published_time" content="2022-05-15T06:38:04.078Z">
+<meta property="article:modified_time" content="2022-05-15T06:38:04.078Z">
+<meta property="article:author" content="Brenda">
+<meta property="article:tag" content="AWS">
+<meta property="article:tag" content="WorkSpaces">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193448187.png">
+
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>AWS WorkSpaces入门2 | Logs</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Logs" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Logs</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-cloud">
+
+    <a href="/cloud/" rel="section"><i class="fa fa-cloud fa-fw"></i>cloud</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Brenda">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Logs">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWS WorkSpaces入门2
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-15 14:38:04" itemprop="dateCreated datePublished" datetime="2022-05-15T14:38:04+08:00">2022-05-15</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本节主要讲述的就是在AWS上创建WorkSpaces。</p>
+<p>流程：创建VPC–&gt;创建目录–&gt;创建WorkSpaces</p>
+<h1 id="Part1-创建VPC"><a href="#Part1-创建VPC" class="headerlink" title="Part1 创建VPC"></a>Part1 创建VPC</h1><p><strong>网络环境说明：</strong></p>
+<p>WorkSpaces对网络有一定的要求，以下条件中需要满足一个。</p>
+<ol>
+<li>为的 WorkSpaces 创建具有两个私有子网的 VPC 以及一个 NAT 网关。</li>
+<li>为 WorkSpaces 创建具有两个公有子网的 VPC，并将弹性 IP 地址与各个 WorkSpace 关联。</li>
+</ol>
+<p>本实验采取第2个做法，创建2个具有公有子网的VPC。</p>
+<h2 id="1-1-创建VPC"><a href="#1-1-创建VPC" class="headerlink" title="1.1 创建VPC"></a>1.1 创建VPC</h2><p>进入到控制台的VPC界面，点击创建VPC</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193448187.png" alt="image-20220418193448187"></p>
+<p>创建VPC</p>
+<ul>
+<li>选择“仅VPC”</li>
+<li>命名为test-wk-vpc-01</li>
+<li>IPv4 CIDR：192.168.0.0&#x2F;22</li>
+</ul>
+<p>点击创建VPC</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193550529.png" alt="image-20220418193550529"></p>
+<h2 id="1-2-创建子网"><a href="#1-2-创建子网" class="headerlink" title="1.2 创建子网"></a>1.2 创建子网</h2><p>进入子网页面，点击创建子网</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193136799.png" alt="image-20220418193136799"></p>
+<p>子网配置</p>
+<ul>
+<li>VPC：选择test-wk-vpc-01</li>
+<li>子网1<ul>
+<li>名称：test-wk-pub-01</li>
+<li>可用区：ap-southeast-1a</li>
+<li>IPv4 CIDR块：192.168.0.0&#x2F;24</li>
+</ul>
+</li>
+<li>子网2<ul>
+<li>名称：test-wk-pub-02</li>
+<li>可用区：ap-southeast-1b</li>
+<li>IPv4 CIDR块：192.168.1.0&#x2F;24</li>
+</ul>
+</li>
+</ul>
+<p>配置完成后点击创建子网</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193936839.png" alt="image-20220418193936839"></p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194022952.png" alt="image-20220418194022952"></p>
+<h2 id="1-3-创建互联网网关"><a href="#1-3-创建互联网网关" class="headerlink" title="1.3 创建互联网网关"></a>1.3 创建互联网网关</h2><p>进入到互联网网关页面，点击创建互联网网关</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194309938.png" alt="image-20220418194309938"></p>
+<p>给要创建的互联网网关命名为test-wk-igw，点击创建互联网网关</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194358522.png" alt="image-20220418194358522"></p>
+<p>将创建好的IGW附加到VPC，点击操作，点击附加到VPC</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194706257.png" alt="image-20220418194706257"></p>
+<p>选择test-wk-vpc-01，点击连接互联网网关</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194808415.png" alt="image-20220418194808415"></p>
+<p>查看IGW，已经成功附加到VPC上</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194848469.png" alt="image-20220418194848469"></p>
+<h2 id="1-4-配置路由表"><a href="#1-4-配置路由表" class="headerlink" title="1.4 配置路由表"></a>1.4 配置路由表</h2><p>进入Web控制台的路由表页面，根据VPC选中刚刚新建VPC的路由表。命名称为test-wk-rt，点击保存。</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195051300.png" alt="image-20220418195051300"></p>
+<p>选中路由表，点击路由，点击编辑路由</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195131076.png" alt="image-20220418195131076"></p>
+<p>点击添加路由，添加的路由条目，点击保存更改</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195224231.png" alt="image-20220418195224231"></p>
+<p>路由表中有2个路由条目</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195255850.png" alt="image-20220418195255850"></p>
+<h1 id="Part2-创建目录"><a href="#Part2-创建目录" class="headerlink" title="Part2 创建目录"></a>Part2 创建目录</h1><h2 id="2-1-创建目录"><a href="#2-1-创建目录" class="headerlink" title="2.1 创建目录"></a>2.1 创建目录</h2><p>进入到控制台的目录页面，点击设置目录</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195606749.png" alt="image-20220418195606749"></p>
+<p>选中AWS Managed Microsoft AD，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200012669.png" alt="image-20220418200012669"></p>
+<p>目录信息</p>
+<ul>
+<li>版本：标准版</li>
+<li>DNS名称：testwk01.com</li>
+<li>设置管理员密码并确认</li>
+</ul>
+<p>配置完成之后点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200149701.png" alt="image-20220418200149701"></p>
+<p>选中VPC和子网</p>
+<ul>
+<li>VPC：test-wk-vpc-01</li>
+<li>子网<ul>
+<li>test-wk-pub-01</li>
+<li>test-wk-pub-02</li>
+</ul>
+</li>
+</ul>
+<p>配置完成之后点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200354863.png" alt="image-20220418200354863"></p>
+<p>审核无误之后点击创建目录</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200428274.png" alt="image-20220418200428274"></p>
+<p>目录正在创建，创建过程略长，需要30分钟左右</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200521776.png" alt="image-20220418200521776"></p>
+<h2 id="2-2-目录注册"><a href="#2-2-目录注册" class="headerlink" title="2.2 目录注册"></a>2.2 目录注册</h2><p>目录创建完成之后，从WorkSpaces页面进入目录，选中创建好的目录进行注册</p>
+<p>选中目录</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225037491.png" alt="image-20220418225037491"></p>
+<p>点击操作，点击注册</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225158332.png" alt="image-20220418225158332"></p>
+<p>注册目录需要填入子网，分别填入ap-southeast-1a和ap-southeast-1b，点击注册</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225341599.png" alt="image-20220418225341599"></p>
+<p>注册的其实状态是Registering</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225604139.png" alt="image-20220418225604139"></p>
+<p>刷新之后注册完成后，已注册列显示“是”</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225713198.png" alt="image-20220418225713198"></p>
+<h1 id="Part3-启动WorkSpaces"><a href="#Part3-启动WorkSpaces" class="headerlink" title="Part3 启动WorkSpaces"></a>Part3 启动WorkSpaces</h1><h2 id="3-1-WorkSpaces配置"><a href="#3-1-WorkSpaces配置" class="headerlink" title="3.1 WorkSpaces配置"></a>3.1 WorkSpaces配置</h2><p>进入到WorkSpaces页面，点击启动WorkSpaces</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225804281.png" alt="image-20220418225804281"></p>
+<p>选择创建的目录testwk01.com，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230126866.png" alt="image-20220418230126866"></p>
+<p>添加用户，填写用户信息，填完之后点击创建用户</p>
+<ul>
+<li>TestUser01 User01 Test</li>
+</ul>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233230361.png" alt="image-20220418233230361"></p>
+<p>添加完成之后可以在下边的列表查看用户，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233337005.png" alt="image-20220418233337005"></p>
+<p>选择服务包，选择公用服务包、Performance，选中Windows 10 Server 2016 ，协议为PCoIP，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233424717.png" alt="image-20220418233424717"></p>
+<p>WorkSpaces的配置页面直接点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230937596.png" alt="image-20220418230937596"></p>
+<p>审核，审核完成之后点击启动WorkSpaces</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233455467.png" alt="image-20220418233455467"></p>
+<h2 id="3-2-WorkSpaces状态"><a href="#3-2-WorkSpaces状态" class="headerlink" title="3.2 WorkSpaces状态"></a>3.2 WorkSpaces状态</h2><p>新创建的这个WorkSpaces正在启动，目前的状态是Pending，WorkSpaces起来的时间大概需要30分钟左右。</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233551423.png" alt="image-20220418233551423"></p>
+<p>之后WorkSpaces的状态会变为Available，与此同时，用户的邮箱会收到邮件</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418235256704.png" alt="image-20220418235256704"></p>
+<h2 id="3-3-用户邮件"><a href="#3-3-用户邮件" class="headerlink" title="3.3 用户邮件"></a>3.3 用户邮件</h2><p>邮件如下</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001017275-16502982176861.png" alt="image-20220419001017275"></p>
+<h2 id="3-4-创建用户密码"><a href="#3-4-创建用户密码" class="headerlink" title="3.4 创建用户密码"></a>3.4 创建用户密码</h2><p>访问邮件链接，需要为用户设置密码</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001141871.png" alt="image-20220419001141871"></p>
+<h2 id="3-5-通过客户端访问"><a href="#3-5-通过客户端访问" class="headerlink" title="3.5 通过客户端访问"></a>3.5 通过客户端访问</h2><p>设置完成之后，使用AWS的远程桌面访问工具进行访问</p>
+<p>打开Amazon WorkSpaces软件，输入注册码，点击注册</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001449239.png" alt="image-20220419001449239"></p>
+<p>输入用户名和密码，点击Sign In</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001705940.png" alt="image-20220419001705940"></p>
+<p>正在连接</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001730160.png" alt="image-20220419001730160"></p>
+<h2 id="3-6-连接云桌面"><a href="#3-6-连接云桌面" class="headerlink" title="3.6 连接云桌面"></a>3.6 连接云桌面</h2><p>连接上之后就能进行远程桌面访问</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001816693.png" alt="image-20220419001816693"></p>
+<p>查看IP，有2张网卡</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002503835.png" alt="image-20220419002503835"></p>
+<p>Server只有一个D盘</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002608340.png" alt="image-20220419002608340"></p>
+<h1 id="Part4-其他"><a href="#Part4-其他" class="headerlink" title="Part4 其他"></a>Part4 其他</h1><p>查看WorkSpaces，它有一个公有子网内的iP</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001945730.png" alt="image-20220419001945730"></p>
+<p>通过VPC筛选，看到WorkSpaces创建了安全组，并指定了一些规则</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002304486.png" alt="image-20220419002304486"></p>
+<h1 id="Part5-注意事项"><a href="#Part5-注意事项" class="headerlink" title="Part5 注意事项"></a>Part5 注意事项</h1><p>WorkSpaces创建之后，创建的虚拟机会一直启动。</p>
+<p>WorkSpaces停止之后，WorkSpaces就无法再次重启，只能重新创建。所以，一定要确认不会再用到WorkSpaces之后再把WorkSpaces停止掉。</p>
+<h1 id="Part6-参考文献"><a href="#Part6-参考文献" class="headerlink" title="Part6 参考文献"></a>Part6 参考文献</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/directoryservice/latest/admin-guide/directory_microsoft_ad.html">AWS托管的Microsoft AD</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/workspaces/latest/adminguide/amazon-workspaces.html">什么是Amazon WorkSpaces？</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces入门1(理论)/" rel="bookmark">AWS WorkSpaces入门1</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_IAM小结/" rel="bookmark">AWS IAM小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_Organizations账户管理服务&SCP/" rel="bookmark">AWS Organizations账户管理服务&SCP</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_STS正确设计IAM用户密钥1/" rel="bookmark">AWS STS正确设计IAM用户密钥（一）</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_STS正确设计IAM用户密钥2/" rel="bookmark">AWS STS正确设计IAM用户密钥（二）</a></div>
+    </li>
+  </ul>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Brenda
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/" title="AWS WorkSpaces入门2">https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces入门2(操作)/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AWS/" rel="tag"># AWS</a>
+              <a href="/tags/WorkSpaces/" rel="tag"># WorkSpaces</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/" rel="prev" title="AWS WorkSpaces入门1">
+      <i class="fa fa-chevron-left"></i> AWS WorkSpaces入门1
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Part1-%E5%88%9B%E5%BB%BAVPC"><span class="nav-number">1.</span> <span class="nav-text">Part1 创建VPC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E5%88%9B%E5%BB%BAVPC"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 创建VPC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E5%88%9B%E5%BB%BA%E5%AD%90%E7%BD%91"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 创建子网</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-%E5%88%9B%E5%BB%BA%E4%BA%92%E8%81%94%E7%BD%91%E7%BD%91%E5%85%B3"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 创建互联网网关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-%E9%85%8D%E7%BD%AE%E8%B7%AF%E7%94%B1%E8%A1%A8"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 配置路由表</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part2-%E5%88%9B%E5%BB%BA%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">Part2 创建目录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E5%88%9B%E5%BB%BA%E7%9B%AE%E5%BD%95"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 创建目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E7%9B%AE%E5%BD%95%E6%B3%A8%E5%86%8C"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 目录注册</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part3-%E5%90%AF%E5%8A%A8WorkSpaces"><span class="nav-number">3.</span> <span class="nav-text">Part3 启动WorkSpaces</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-WorkSpaces%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 WorkSpaces配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-WorkSpaces%E7%8A%B6%E6%80%81"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 WorkSpaces状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-%E7%94%A8%E6%88%B7%E9%82%AE%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 用户邮件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 创建用户密码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-%E9%80%9A%E8%BF%87%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BF%E9%97%AE"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 通过客户端访问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-6-%E8%BF%9E%E6%8E%A5%E4%BA%91%E6%A1%8C%E9%9D%A2"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 连接云桌面</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part4-%E5%85%B6%E4%BB%96"><span class="nav-number">4.</span> <span class="nav-text">Part4 其他</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part5-%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">Part5 注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part6-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">6.</span> <span class="nav-text">Part6 参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Brenda</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Brenda</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">16k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">15 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
