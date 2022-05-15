@@ -23,36 +23,36 @@
   <meta name="description" content="AWS Organizations账户管理服务&amp;SCPPart1 介绍AWS OrganizationsAWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户">
 <meta property="og:type" content="article">
 <meta property="og:title" content="AWS Organizations账户管理服务&amp;SCP">
-<meta property="og:url" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/index.html">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/index.html">
 <meta property="og:site_name" content="Logs">
 <meta property="og:description" content="AWS Organizations账户管理服务&amp;SCPPart1 介绍AWS OrganizationsAWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412005002268.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011458396.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011633785.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011714385.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011914453.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102406807.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102431828.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102504986.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412103202634.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412132453499.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133347888.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133545337.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133640477.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133717996.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133938873.png">
-<meta property="article:published_time" content="2022-05-15T03:25:22.589Z">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412005002268.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011458396.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011633785.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011714385.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011914453.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102406807.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102431828.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102504986.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412103202634.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412132453499.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133347888.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133545337.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133640477.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133717996.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133938873.png">
+<meta property="article:published_time" content="2022-05-15T03:31:30.718Z">
 <meta property="article:modified_time" content="2022-05-15T03:25:22.589Z">
 <meta property="article:author" content="Brenda">
 <meta property="article:tag" content="AWS">
 <meta property="article:tag" content="IAM">
 <meta property="article:tag" content="Organizations">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png">
+<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png">
 
-<link rel="canonical" href="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/">
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/">
 
 
 <script id="page-configurations">
@@ -191,7 +191,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -213,8 +213,9 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2022-05-15 11:25:22" itemprop="dateCreated datePublished" datetime="2022-05-15T11:25:22+08:00">2022-05-15</time>
+              <time title="创建时间：2022-05-15 11:31:30 / 修改时间：11:25:22" itemprop="dateCreated datePublished" datetime="2022-05-15T11:31:30+08:00">2022-05-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -277,43 +278,43 @@
 <h2 id="Part3-实验步骤"><a href="#Part3-实验步骤" class="headerlink" title="Part3 实验步骤"></a>Part3 实验步骤</h2><h3 id="3-1-实验账户说明"><a href="#3-1-实验账户说明" class="headerlink" title="3.1 实验账户说明"></a>3.1 实验账户说明</h3><p>本实验demo的Account A的ID尾号为5283，Account B的ID尾号为8124</p>
 <p>实验会在Account A账户中创建组织，即Account A是主账户，Account B是成员账户。</p>
 <h3 id="3-2-创建组织"><a href="#3-2-创建组织" class="headerlink" title="3.2 创建组织"></a>3.2 创建组织</h3><p>在Account A账户中创建组织。在Organization主页，点击“创建组织”。</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png" alt="image-20220412004932107"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png" alt="image-20220412004932107"></p>
 <p>点击之后直接就能创建组织，创建组织需要邮箱验证。</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412005002268.png" alt="image-20220412005002268"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412005002268.png" alt="image-20220412005002268"></p>
 <h3 id="3-3-邀请账户"><a href="#3-3-邀请账户" class="headerlink" title="3.3 邀请账户"></a>3.3 邀请账户</h3><p>输入账户ID和要创建的键值，点击发送邀请。</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011458396.png" alt="image-20220412011458396"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011458396.png" alt="image-20220412011458396"></p>
 <p>在Account B中可以看到邀请</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011633785.png" alt="image-20220412011633785"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011633785.png" alt="image-20220412011633785"></p>
 <p>点开邀请链接之后，接受邀请</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011714385.png" alt="image-20220412011714385"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011714385.png" alt="image-20220412011714385"></p>
 <p>在Account A上查看组织的账户，一个主账户，一个成员账户</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011914453.png" alt="image-20220412011914453"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011914453.png" alt="image-20220412011914453"></p>
 <h3 id="3-4-创建S3策略"><a href="#3-4-创建S3策略" class="headerlink" title="3.4 创建S3策略"></a>3.4 创建S3策略</h3><p>进入策略页面，点击“服务控制策略”</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102406807.png" alt="image-20220412102406807"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102406807.png" alt="image-20220412102406807"></p>
 <p>启用服务控制策略</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102431828.png" alt="image-20220412102431828"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102431828.png" alt="image-20220412102431828"></p>
 <p>加载完成之后，如下所示</p>
 <p>新创建一个策略，来阻止对S3的访问，点击创建策略</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102504986.png" alt="image-20220412102504986"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102504986.png" alt="image-20220412102504986"></p>
 <p>策略设置</p>
 <ul>
 <li>名称：denyS3</li>
 <li>选择服务：S3，动作：All Actions</li>
 </ul>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412103202634.png" alt="image-20220412103202634"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412103202634.png" alt="image-20220412103202634"></p>
 <p>添加资源，添加完成之后点击创建策略</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412132453499.png" alt="image-20220412132453499"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412132453499.png" alt="image-20220412132453499"></p>
 <h3 id="3-5-前-Account-B访问S3测试"><a href="#3-5-前-Account-B访问S3测试" class="headerlink" title="3.5 [前]Account B访问S3测试"></a>3.5 [前]Account B访问S3测试</h3><p>目前没有给Account B账户做任何限制，Account B可以正常访问S3存储桶</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133347888.png" alt="image-20220412133347888"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133347888.png" alt="image-20220412133347888"></p>
 <h3 id="3-6-将策略应用到Account-B"><a href="#3-6-将策略应用到Account-B" class="headerlink" title="3.6 将策略应用到Account B"></a>3.6 将策略应用到Account B</h3><p>在Account A账户的Organizations中，将denyS3策略附加到Account B</p>
 <p>选中denyS3策略，点击操作。点击附加策略</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133545337.png" alt="image-20220412133545337"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133545337.png" alt="image-20220412133545337"></p>
 <p>选中要附加的这个账户，点击附加策略</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133640477.png" alt="image-20220412133640477"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133640477.png" alt="image-20220412133640477"></p>
 <p>Okay，策略附加成功</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133717996.png" alt="image-20220412133717996"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133717996.png" alt="image-20220412133717996"></p>
 <h3 id="3-7-后-Account-B访问S3测试"><a href="#3-7-后-Account-B访问S3测试" class="headerlink" title="3.7 [后]Account B访问S3测试"></a>3.7 [后]Account B访问S3测试</h3><p>Account A为Account B添加了限制S3所有权限的策略，现在Account B账户上访问S3进行测试。</p>
-<p><img src="/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133938873.png" alt="image-20220412133938873"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133938873.png" alt="image-20220412133938873"></p>
 <p>Account B再次访问S3时出现提示：无权列出存储桶。所以可以看出策略附加成功，在Account B上已经生效。</p>
 <p>总结：本实验是一个简单的AWS Organizations创建以及测试，主要测试的服务控制策略SCP。Organizations还有很多别的功能。</p>
 <h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
@@ -329,10 +330,19 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/2022/05/15/AWS_IAM小结/" rel="bookmark">AWS IAM小结</a></div>
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_IAM小结/" rel="bookmark">AWS IAM小结</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/2022/05/15/配置CloudTrial和Config日志跨AWS账户日志存储/" rel="bookmark">配置CloudTrial和Config日志跨AWS账户日志存储</a></div>
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_STS正确设计IAM用户密钥1/" rel="bookmark">AWS STS正确设计IAM用户密钥（一）</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_STS正确设计IAM用户密钥2/" rel="bookmark">AWS STS正确设计IAM用户密钥（二）</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/跨账户IAM角色访问/" rel="bookmark">跨账户IAM角色访问</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/配置CloudTrial和Config日志跨AWS账户日志存储/" rel="bookmark">配置CloudTrial和Config日志跨AWS账户日志存储</a></div>
     </li>
   </ul>
 
@@ -345,7 +355,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://brendaoo.github.io/2022/05/15/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/" title="AWS Organizations账户管理服务&amp;SCP">https://brendaoo.github.io/2022/05/15/AWS_Organizations账户管理服务&SCP/</a>
+    <a href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/" title="AWS Organizations账户管理服务&amp;SCP">https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations账户管理服务&SCP/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -367,12 +377,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/05/15/AWS_IAM%E5%B0%8F%E7%BB%93/" rel="prev" title="AWS IAM小结">
+    <a href="/2022/05/15/AWS/IAM/AWS_IAM%E5%B0%8F%E7%BB%93/" rel="prev" title="AWS IAM小结">
       <i class="fa fa-chevron-left"></i> AWS IAM小结
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/05/15/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/" rel="next" title="配置CloudTrial和Config日志跨AWS账户日志存储">
-      配置CloudTrial和Config日志跨AWS账户日志存储 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/" rel="next" title="AWS STS正确设计IAM用户密钥（一）">
+      AWS STS正确设计IAM用户密钥（一） <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -446,7 +456,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -496,13 +506,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">6k</span>
+    <span title="站点总字数">11k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">6 分钟</span>
+    <span title="站点阅读时长">10 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

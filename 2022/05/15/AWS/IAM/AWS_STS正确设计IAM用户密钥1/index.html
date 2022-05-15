@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"brendaoo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="AWS STS正确设计IAM用户密钥（一）PART1 IAM用户密钥设计介绍案例分析 case：张三是一个开发人员，他要在他本地的电脑测试他的代码。代码需要访问AWS S3，所以需要AWS的access &amp; secret key。那么以下哪一个方案是实现需求（分配凭证）的最佳解决方案？ A. 提供给研发人员access &amp; secret key，然后告诉他不要与其他人员共享凭证 B">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS STS正确设计IAM用户密钥（一）">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/index.html">
+<meta property="og:site_name" content="Logs">
+<meta property="og:description" content="AWS STS正确设计IAM用户密钥（一）PART1 IAM用户密钥设计介绍案例分析 case：张三是一个开发人员，他要在他本地的电脑测试他的代码。代码需要访问AWS S3，所以需要AWS的access &amp; secret key。那么以下哪一个方案是实现需求（分配凭证）的最佳解决方案？ A. 提供给研发人员access &amp; secret key，然后告诉他不要与其他人员共享凭证 B">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425155411650.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425165959464.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425170945467.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425171824195.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425171918734.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425172014424.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181540291.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425172116259.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425180914683.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181128193.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181159668.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181338228.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181431465.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425182435620.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425182750955.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425183941496.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425184024433.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425184348013.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425185044691.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425191240536.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425191608673.png">
+<meta property="article:published_time" content="2022-05-15T03:34:44.885Z">
+<meta property="article:modified_time" content="2022-05-15T03:34:44.885Z">
+<meta property="article:author" content="Brenda">
+<meta property="article:tag" content="AWS">
+<meta property="article:tag" content="IAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425155411650.png">
+
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>AWS STS正确设计IAM用户密钥（一） | Logs</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Logs" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Logs</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Brenda">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Logs">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWS STS正确设计IAM用户密钥（一）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-15 11:34:44" itemprop="dateCreated datePublished" datetime="2022-05-15T11:34:44+08:00">2022-05-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/IAM/" itemprop="url" rel="index"><span itemprop="name">IAM</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="AWS-STS正确设计IAM用户密钥（一）"><a href="#AWS-STS正确设计IAM用户密钥（一）" class="headerlink" title="AWS STS正确设计IAM用户密钥（一）"></a>AWS STS正确设计IAM用户密钥（一）</h1><h2 id="PART1-IAM用户密钥设计介绍"><a href="#PART1-IAM用户密钥设计介绍" class="headerlink" title="PART1 IAM用户密钥设计介绍"></a>PART1 IAM用户密钥设计介绍</h2><p><strong>案例分析</strong></p>
+<p>case：<em><strong>张三是一个开发人员，他要在他本地的电脑测试他的代码。代码需要访问AWS S3，所以需要AWS的access &amp; secret key。那么以下哪一个方案是实现需求（分配凭证）的最佳解决方案？</strong></em></p>
+<p>A. 提供给研发人员access &amp; secret key，然后告诉他不要与其他人员共享凭证</p>
+<p>B. 提供给研发人员access &amp; secret key，然后确保凭证每90天进行一次轮换</p>
+<p>C. 允许研发人员的用户使用AWS STS服务生成临时凭证</p>
+<p><font color="blue">分析：A，根据经验，肯定会共享凭证；B，90天的轮换周期其实还是比较长的，如果凭证泄露，不安全；C，是AWS推荐的最佳实践</font></p>
+<hr>
+<p><strong>IAM用户的密钥设计</strong></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425155411650.png" alt="image-20220425155411650"></p>
+<p>场景：开发人员账户和生产账户</p>
+<p>描述：在生产账户中创建STSAssumeRole（带入角色），这个AssumeRole可以给开发人员的用户使用，同时会给他一个临时凭证，开发人员用户使用这个凭证可以临时访问生产账户中的资源。</p>
+<h2 id="PART2-实验目的"><a href="#PART2-实验目的" class="headerlink" title="PART2 实验目的"></a>PART2 实验目的</h2><p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425165959464.png" alt="image-20220425165959464"></p>
+<p>在本地电脑上通过STSAssumeRole实现对S3存储桶的访问。访问的顺序如上图①②③。</p>
+<p>①：PC访问用户的STSAssumeRole策略</p>
+<p>②：STS返回给PC临时凭证</p>
+<p>③：PC访问存储桶S3</p>
+<h2 id="PART3-实验步骤"><a href="#PART3-实验步骤" class="headerlink" title="PART3 实验步骤"></a>PART3 实验步骤</h2><p>实验的总体步骤有3步：</p>
+<ol>
+<li>在IAM中建立一个跨账户角色（角色名：stroll）</li>
+<li>附加一个S3ReadOnly策略到IAM角色</li>
+<li>允许IAM用户使用STS Assume Role权限</li>
+</ol>
+<h3 id="3-1-创建S3只读角色"><a href="#3-1-创建S3只读角色" class="headerlink" title="3.1 创建S3只读角色"></a>3.1 创建S3只读角色</h3><p>来到IAM的角色页面，点击创建角色</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425170945467.png" alt="image-20220425170945467"></p>
+<p>受信任实体选择：AWS账户—此账户，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425171824195.png" alt="image-20220425171824195"></p>
+<p>添加权限页面，勾选S3ReadOnlyAccess，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425171918734.png" alt="image-20220425171918734"></p>
+<p>角色名称填入stroll，点击创建角色</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425172014424.png" alt="image-20220425172014424"></p>
+<p>角色创建完成之后查看stroll的信任关系</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181540291.png" alt="image-20220425181540291"></p>
+<p>stroll角色可信赖的用户为该账号下的所有用户</p>
+<h3 id="3-2-创建用户"><a href="#3-2-创建用户" class="headerlink" title="3.2 创建用户"></a>3.2 创建用户</h3><p>来到IAM的用户界面，点击添加用户</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425172116259.png" alt="image-20220425172116259"></p>
+<p>填入用户名zhangsan，AWS凭证类型选择密码，输入自定义密码，取消密码重置，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425180914683.png" alt="image-20220425180914683"></p>
+<p>一直点击下一步，直到创建用户</p>
+<h3 id="3-3-为用户创建内联策略"><a href="#3-3-为用户创建内联策略" class="headerlink" title="3.3 为用户创建内联策略"></a>3.3 为用户创建内联策略</h3><p>在用户页面下点击zhangsan，进入zhangsan的页面</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181128193.png" alt="image-20220425181128193"></p>
+<p>在权限菜单栏中点击添加内联策略，为zhangsan用户设置内联策略AssumeRole</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181159668.png" alt="image-20220425181159668"></p>
+<p>配置服务为STS、操作AssumeRole、特定资源，填入stroll角色，点击查看策略</p>
+<p>允许zhangsan用户承担stroll角色的权限</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181338228.png" alt="image-20220425181338228"></p>
+<p>输入策略名称AssumeRole，点击创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181431465.png" alt="image-20220425181431465"></p>
+<h3 id="3-4-本地PC端配置"><a href="#3-4-本地PC端配置" class="headerlink" title="3.4 本地PC端配置"></a>3.4 本地PC端配置</h3><p>在未配置凭证的情况下使用aws s3 ls命令</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425182435620.png" alt="image-20220425182435620"></p>
+<p>提示：没有本地的credentials文件，需要使用aws configure命令进行配置。</p>
+<p>aws configure配置的内容有：AWS Access Key ID、AWS Secret Access Key、Default region name、Default output format 。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425182750955.png" alt="image-20220425182750955"></p>
+<p>上述的4个配置信息需要到用户凭证下获取。进入用户zhangsan安全证书页面，点击创建访问密钥。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425183941496.png" alt="image-20220425183941496"></p>
+<p>跳出访问密钥ID和密钥页面，记录下该页面中的密钥ID和密钥。可以直接复制密钥ID和访问密钥，也可以下载.csv文件，该文件中有密钥ID和密钥。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425184024433.png" alt="image-20220425184024433"></p>
+<p>AKIAWYXWU3BJ5NFDTXWP</p>
+<p>M43LNIRZZp7mjF6KqnNRYwzzOyKB7AJt3ll5LwU7</p>
+<p>输入aws configure命令配置zhangsan用户的，填入zhangsan用户的密钥ID和密钥Key，地区region和output format可以不填。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425184348013.png" alt="image-20220425184348013"></p>
+<h3 id="3-5-获取STS临时访问凭证"><a href="#3-5-获取STS临时访问凭证" class="headerlink" title="3.5 获取STS临时访问凭证"></a>3.5 获取STS临时访问凭证</h3><p>给本地PC配置了zhangsan用户的访问ID和密钥，通过zhangsan用户的内联策略获得临时访问凭证</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">aws sts assume-role --role-arn arn:aws:iam::465447475283:role/stroll --role-session-name stroll</span><br><span class="line"><span class="comment">#需要将arn:aws:iam::465447475283:role/stroll替换为自己账户下stroll角色的arn</span></span><br><span class="line"><span class="comment">#--role-session-name指定会话名称</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425185044691.png" alt="image-20220425185044691"></p>
+<p>临时保存一下输出的内容，这些输出需要写入到credentials文件中</p>
+<p>编辑credentials文件，credentials文件在<code>/root/.aws/credentials</code>目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[zhangsansts]</span><br><span class="line">aws_access_key_id = ASIAWYXWU3BJXBYID2ZP</span><br><span class="line">aws_secret_access_key = Wja33FGrl17prsEsi+79vKs28ZH6sZ+Vq4q623Ir</span><br><span class="line">aws_session_token = FwoGZXIvYXdzEOT//////////wEaDKD0qspowMTiHX7DqSKqAbDkVnbb9KgrZxcXN9eS0da3CNEYw9G+IEDnTVOz/DIsYxv0oZ26PmCO/SDJKQ4lAv0c7Ts1mBMKIeyHlJyK9LrB7hOb7bvtwpfi+0P0mtb89CFBLaKuSO9z2RwETymS3GDzQi7dj1gPq/B3ZhrrpmzaWYjeD+t6ZYr12MswYxaNDr+hlHx6wxKg8cc4cMzI0WAqQneu2BbGEjUoqMRAENlwmOW6eT4rL4+CKOr5mZMGMi0SQmuEX9L0r7hQuhvCu6Ch4L4tlsfF7XEajvWQkL6vfZvVoik6A6s2mTrYIDU=</span><br></pre></td></tr></table></figure>
+
+<p>新创建[zhangsansts]，aws_access_key_id、aws_secret_access_key、aws_session_token的内容为STS给出的临时凭证</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425191240536.png" alt="image-20220425191240536"></p>
+<h3 id="3-6-使用临时凭证访问存储桶"><a href="#3-6-使用临时凭证访问存储桶" class="headerlink" title="3.6 使用临时凭证访问存储桶"></a>3.6 使用临时凭证访问存储桶</h3><p>在命令行中输入以下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile zhangsansts</span><br><span class="line"><span class="comment">#--profile指定访问的profile，而不再是默认的default</span></span><br></pre></td></tr></table></figure>
+
+<p>结果列出了两个存储桶</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425191608673.png" alt="image-20220425191608673"></p>
+<p>实现了临时凭证访问S3存储桶</p>
+<h2 id="PART4-小结"><a href="#PART4-小结" class="headerlink" title="PART4 小结"></a>PART4 小结</h2><p>访问流程小结：给PC配置用户zhangsan的access_key_id和access_key，使得PC有获取stroll临时访问凭证STS的权限<font color="blue">（这里也就是用户zhangsan配置了内联策略，策略指定了资源arn）</font>。PC获取到临时访问凭证，再将访问凭证配置到credentials文件中。PC可以通过新配置的凭证访问到S3存储桶。</p>
+<p>2个对应关系：</p>
+<ol>
+<li>zhangsan用户唯一有的权限就是stsAssumeRole的权限，没有S3访问权限</li>
+<li>zhangsan用户需要通过sts返回的临时凭证，使用临时凭证访问S3</li>
+</ol>
+<p>配置步骤：（最佳实践）</p>
+<ol>
+<li>创建stroll角色（S3ReadOnly）</li>
+<li>创建用户zhangsan</li>
+<li>为zhangsan配置内联策略（STSAssumeRole）</li>
+</ol>
+<p>使用上述提到的方法去设计IAM用户密钥存在一个弊端。默认情况下，临时凭证的有效时间只有3600秒，开发人员需要在1小时之后手动修改临时凭证，非常不方便。</p>
+<h2 id="PART5-参考博客"><a href="#PART5-参考博客" class="headerlink" title="PART5 参考博客"></a>PART5 参考博客</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/general/latest/gr/aws-security-credentials.html">AWS安全凭证</a></li>
+<li><a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/iam/features/managing-user-credentials/">管理IAM凭证</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_IAM小结/" rel="bookmark">AWS IAM小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_Organizations账户管理服务&SCP/" rel="bookmark">AWS Organizations账户管理服务&SCP</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_STS正确设计IAM用户密钥2/" rel="bookmark">AWS STS正确设计IAM用户密钥（二）</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/跨账户IAM角色访问/" rel="bookmark">跨账户IAM角色访问</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/配置CloudTrial和Config日志跨AWS账户日志存储/" rel="bookmark">配置CloudTrial和Config日志跨AWS账户日志存储</a></div>
+    </li>
+  </ul>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Brenda
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/" title="AWS STS正确设计IAM用户密钥（一）">https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS正确设计IAM用户密钥1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AWS/" rel="tag"># AWS</a>
+              <a href="/tags/IAM/" rel="tag"># IAM</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/" rel="prev" title="AWS Organizations账户管理服务&SCP">
+      <i class="fa fa-chevron-left"></i> AWS Organizations账户管理服务&SCP
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/" rel="next" title="AWS STS正确设计IAM用户密钥（二）">
+      AWS STS正确设计IAM用户密钥（二） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AWS-STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A5%EF%BC%88%E4%B8%80%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">AWS STS正确设计IAM用户密钥（一）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PART1-IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A5%E8%AE%BE%E8%AE%A1%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">PART1 IAM用户密钥设计介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PART2-%E5%AE%9E%E9%AA%8C%E7%9B%AE%E7%9A%84"><span class="nav-number">1.2.</span> <span class="nav-text">PART2 实验目的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PART3-%E5%AE%9E%E9%AA%8C%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.3.</span> <span class="nav-text">PART3 实验步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%88%9B%E5%BB%BAS3%E5%8F%AA%E8%AF%BB%E8%A7%92%E8%89%B2"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 创建S3只读角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 创建用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E4%B8%BA%E7%94%A8%E6%88%B7%E5%88%9B%E5%BB%BA%E5%86%85%E8%81%94%E7%AD%96%E7%95%A5"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3 为用户创建内联策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E6%9C%AC%E5%9C%B0PC%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.4.</span> <span class="nav-text">3.4 本地PC端配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E8%8E%B7%E5%8F%96STS%E4%B8%B4%E6%97%B6%E8%AE%BF%E9%97%AE%E5%87%AD%E8%AF%81"><span class="nav-number">1.3.5.</span> <span class="nav-text">3.5 获取STS临时访问凭证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E4%BD%BF%E7%94%A8%E4%B8%B4%E6%97%B6%E5%87%AD%E8%AF%81%E8%AE%BF%E9%97%AE%E5%AD%98%E5%82%A8%E6%A1%B6"><span class="nav-number">1.3.6.</span> <span class="nav-text">3.6 使用临时凭证访问存储桶</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PART4-%E5%B0%8F%E7%BB%93"><span class="nav-number">1.4.</span> <span class="nav-text">PART4 小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PART5-%E5%8F%82%E8%80%83%E5%8D%9A%E5%AE%A2"><span class="nav-number">1.5.</span> <span class="nav-text">PART5 参考博客</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Brenda</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Brenda</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">11k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">10 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
