@@ -942,6 +942,171 @@
       </tags>
   </entry>
   <entry>
+    <title>VPC内子网联网</title>
+    <url>/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/</url>
+    <content><![CDATA[<h1 id="VPC内子网联网"><a href="#VPC内子网联网" class="headerlink" title="VPC内子网联网"></a>VPC内子网联网</h1><blockquote>
+<p>VPC中有2种子网类型：公共子网和私有子网</p>
+<ul>
+<li>所谓公共子网就是其对应的路由表中配置了规则将请求路由到了 <code>Internet Gateway</code></li>
+<li>私有子网就是其关联的路由表中没有配置到 <code>Internet Gatway</code> 的路由规则，因此无法对外访问。</li>
+</ul>
+<p>AWS 的 VPC 网络配置关系是：<em><strong>实例与子网关联，子网关联路由表，路由表设置网关</strong></em>。</p>
+</blockquote>
+<h2 id="公共子网联网"><a href="#公共子网联网" class="headerlink" title="公共子网联网"></a>公共子网联网</h2><h3 id="介绍IGW"><a href="#介绍IGW" class="headerlink" title="介绍IGW"></a>介绍IGW</h3><p>公共子网通过IGW(Internet gateway)组件来实现VPC和Internet的相互通信。</p>
+<p>IGW提供两项功能：</p>
+<ol>
+<li>Subnet中的流量通过IGW访问Internet</li>
+<li>为配置了Public IP的Instance提供网址转换</li>
+</ol>
+<h3 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建VPC"><a href="#1-创建VPC" class="headerlink" title="1.创建VPC"></a>1.创建VPC</h4><p>手动创建VPC，即不通过向导的方式进行创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010040498.png" alt="image-20220330010040498"></p>
+<p>VPC的设置如下</p>
+<p>选择“仅VPC”</p>
+<p>命名为：my-vpc-02</p>
+<p>IPv4 CIDR：172.16.0.0&#x2F;22</p>
+<p>其他保持默认，点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010150289.png" alt="image-20220330010150289"></p>
+<p>查看创建好的VPC</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010359754.png" alt="image-20220330010359754"></p>
+<h4 id="2-创建互联网网关"><a href="#2-创建互联网网关" class="headerlink" title="2.创建互联网网关"></a>2.创建互联网网关</h4><p>点击“新建互联网网关”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010558808.png" alt="image-20220330010558808"></p>
+<p>将该互联网网关命名为：my-igw-02</p>
+<p>点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010653543.png" alt="image-20220330010653543"></p>
+<p>互联网网关已经建好，将它附加到VPC，点击下图中的1或2处都可以</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010838397.png" alt="image-20220330010838397"></p>
+<p>选择新建的VPC，my-vpc-02，连接互联网网关</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010919597.png" alt="image-20220330010919597"></p>
+<p>互联网网关成功附加到了VPC上</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011023866.png" alt="image-20220330011023866"></p>
+<h4 id="3-创建公有子网"><a href="#3-创建公有子网" class="headerlink" title="3.创建公有子网"></a>3.创建公有子网</h4><p>点击“创建子网”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011136211.png" alt="image-20220330011136211"></p>
+<p>选择新建的VPC，my-vpc-02</p>
+<p>创建一个子网，命令为：my-sub-pub-02</p>
+<p>可用区可以选择当前区域的任意可用区，此处选择“us-east-1a”</p>
+<p>IPv4 CIDR: 172.16.1.0&#x2F;24</p>
+<p>点击“创建子网”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011507485.png" alt="image-20220330011507485"></p>
+<p>子网创建成功</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011727300.png" alt="image-20220330011727300"></p>
+<p>进入到该子网的路由表，点击路由表的id进入</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011823385.png" alt="image-20220330011823385"></p>
+<p>查看该路由表的路由条目，点击“编辑路由”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012003132.png" alt="image-20220330012003132"></p>
+<p>点击“添加路由”，新的路由如下</p>
+<p>第一个空选择：0.0.0.0&#x2F;0，第二空选项“互联网网关”，随后会跳出刚创建的IGW，点击“保存更改”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012108517.png" alt="image-20220330012108517"></p>
+<p>路由表新增条目成功</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012306561.png" alt="image-20220330012306561"></p>
+<p>由于该子网添加了IGW，于是该子网成为了公共子网，给子网内的ec2分配公有子网或者弹性IP之后可以访问到Internet。</p>
+<h4 id="4-创建安全组"><a href="#4-创建安全组" class="headerlink" title="4.创建安全组"></a>4.创建安全组</h4><p>点击创建安全组</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093212864.png" alt="image-20220330093212864"></p>
+<p>安全组名称：my-Security-Group-02</p>
+<p>VPC选择my-vpc-02</p>
+<p>添加2条入站信息，分别是22端口和ICMP</p>
+<p>配置完成之后，点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093653373.png" alt="image-20220330093653373"></p>
+<p>安全组创建完成</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093716680.png" alt="image-20220330093716680"></p>
+<h4 id="5-创建EC2"><a href="#5-创建EC2" class="headerlink" title="5.创建EC2"></a>5.创建EC2</h4><p>点击“启动新实例”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092020102.png" alt="image-20220330092020102"></p>
+<p>在AWS Marketplace中选择Centos7这个AMI</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092149765.png" alt="image-20220330092149765"></p>
+<p>实例类型选择t2.micro，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092236542.png" alt="image-20220330092236542"></p>
+<p>网络选择刚才新建的VPC，my-vpc-02</p>
+<p>子网选择公共子网，my-sub-pub-02</p>
+<p>自动分配公有IP处选择<font color="red">禁用</font>，说明稍后给ec2绑定弹性IP，而不使用创建是分配的公网IP</p>
+<p>配置完成后，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092539598.png" alt="image-20220330092539598"></p>
+<p>存储使用默认的资源配置，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093025676.png" alt="image-20220330093025676"></p>
+<p>给EC2添加标签，Name: test-pub-02，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095554126.png" alt="image-20220330095554126"></p>
+<p>选择现有安全组my-Security-Group-02</p>
+<p>点击审核和启动</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095703240.png" alt="image-20220330095703240"></p>
+<p>点击启动</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095726364.png" alt="image-20220330095726364"></p>
+<p>因为我之前有密钥对，所以选择“选择现有密钥对”选项。如果之前没有密钥对选择新建，输入密钥对的名字之后会进行下载。</p>
+<p>点击启动新实例</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095853535.png" alt="image-20220330095853535"></p>
+<h4 id="6-创建-amp-绑定弹性IP"><a href="#6-创建-amp-绑定弹性IP" class="headerlink" title="6.创建&amp;绑定弹性IP"></a>6.创建&amp;绑定弹性IP</h4><p>点击分配弹性IP地址</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104427148.png" alt="image-20220330104427148"></p>
+<p>设置键值对 Name: ec2-test-pub-02</p>
+<p>点击分配</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104522655.png" alt="image-20220330104522655"></p>
+<p>关联该弹性IP</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104554944.png" alt="image-20220330104554944"></p>
+<p>实例选择test-pub-02，选择私有IP地址，点击关联</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104656288.png" alt="image-20220330104656288"></p>
+<h4 id="7-测试"><a href="#7-测试" class="headerlink" title="7.测试"></a>7.测试</h4><p>访问EC2可以ping通baidu.com</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330110421486.png" alt="image-20220330110421486"></p>
+<h2 id="私有子网联网"><a href="#私有子网联网" class="headerlink" title="私有子网联网"></a>私有子网联网</h2><h3 id="介绍NAT-GW"><a href="#介绍NAT-GW" class="headerlink" title="介绍NAT GW"></a>介绍NAT GW</h3><p>NAT GW是一种网络地址转换服务。可以使用NAT网关将私有子网中的实例连接到VPC外部的服务，但是外部无法启动与这些实例的连接。</p>
+<p>在创建 NAT 网关时，指定以下连接类型之一：</p>
+<ul>
+<li><strong>公开</strong> –（默认）私有子网中的实例可以通过公共 NAT 网关连接到互联网，但不能接收来自互联网的未经请求的入站连接。<font color="red">在公有子网中创建公有 NAT 网关，并且必须在创建时将弹性 IP 地址与 NAT 网关相关联。可以将流量从 NAT 网关路由到 VPC 的互联网网关。</font>或者，您可以使用公有 NAT 网关连接到其他 VPC 或本地部署网络。在这种情况下，您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。</li>
+<li><strong>私密</strong> – 私有子网中的实例可以通过私有 NAT 网关连接到其他 VPC 或您的本地部署网络。您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。您不能将弹性 IP 地址与私有 NAT 网关相关联。您可以将互联网网关连接到具有私有 NAT 网关的 VPC，但如果您将流量从私有 NAT 网关路由到互联网网关，则互联网网关会丢弃流量。</li>
+</ul>
+<p>NAT 网关将实例的源 IP 地址替换为 NAT 网关的 IP 地址。对于公有 NAT 网关，这是 NAT 网关的弹性 IP 地址。对于私有 NAT 网关，这是 NAT 网关的私有 IP 地址。向实例发送响应流量时，NAT 设备会将地址转换回原始源 IP 地址。</p>
+<p>注意：NAT网关要给私有子网使用，其自身要在公有子网内，即需要保证它自身能够访问到互联网。</p>
+<h3 id="操作-1"><a href="#操作-1" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建私有子网"><a href="#1-创建私有子网" class="headerlink" title="1.创建私有子网"></a>1.创建私有子网</h4><p>新建子网</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112048218.png" alt="image-20220330112048218"></p>
+<p>子网配置信息</p>
+<p>VPC选择my-vpc-02</p>
+<p>子网命名为my-sub-pri-02</p>
+<p>可用区可以随意选择，最好和公共子网在两个不同的可用区</p>
+<p>IPv4 CIDR为172.16.2.0&#x2F;24</p>
+<p>配置完成之后点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112158262.png" alt="image-20220330112158262"></p>
+<h4 id="2-创建NAT网关"><a href="#2-创建NAT网关" class="headerlink" title="2.创建NAT网关"></a>2.创建NAT网关</h4><p>点击创建NAT网关</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112448923.png" alt="image-20220330112448923"></p>
+<p>nat网关设置</p>
+<p>命名为my-nat-02</p>
+<p>子网选择公有子网，类型为公有</p>
+<p>为它分配弹性IP</p>
+<p>配置完成之后点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112702279.png" alt="image-20220330112702279"></p>
+<h4 id="3-私有子网路由表关联NAT网关"><a href="#3-私有子网路由表关联NAT网关" class="headerlink" title="3.私有子网路由表关联NAT网关"></a>3.私有子网路由表关联NAT网关</h4><p>创建私网路由表</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132430858.png" alt="image-20220330132430858"></p>
+<p>为新建的路由表设置子网关联</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132953082.png" alt="image-20220330132953082"></p>
+<p>将该表关联到私有子网</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133016115.png" alt="image-20220330133016115"></p>
+<p>将公共子网使用的这张表改名，以便标识</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133149273.png" alt="image-20220330133149273"></p>
+<p>编辑私有子网的这张路由表</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133240295.png" alt="image-20220330133240295"></p>
+<p>新增一条路由到nat网关，添加好之后点击保存更改</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133310859.png" alt="image-20220330133310859"></p>
+<h4 id="4-创建EC2"><a href="#4-创建EC2" class="headerlink" title="4.创建EC2"></a>4.创建EC2</h4><p>创建步骤同在公共子网中创建EC2，省略大部分配置</p>
+<p>需要特别注意的地方如下</p>
+<p>网络选择my-vpc-02，子网选择新建的私有子网my-sub-pri-02，禁用自动分配公有IP功能</p>
+<p>其余的配置与在公共子网内的配置大同小异，无非就是命名不一致，这里就不过多赘述</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330115204934.png" alt="image-20220330115204934"></p>
+<h4 id="5-测试"><a href="#5-测试" class="headerlink" title="5.测试"></a>5.测试</h4><p>需要说明一下，访问该私有子网的EC2需要通过公共子网内的EC2作为跳板机来访问</p>
+<p>即先ssh到公共子网内的EC2，在此基础上ssh到私有子网的EC2上</p>
+<p>将密钥文件通过SCP上传到公网EC2上</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134025275.png" alt="image-20220330134025275"></p>
+<p>进行ping测试，可以成功ping通baidu.com</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134155233.png" alt="image-20220330134155233"></p>
+<p>注意点：</p>
+<ol>
+<li>VPC默认只有一张路由表，先创建公共子网，再创建私有子网的情况下要单独为私有子网创建一张路由表</li>
+<li>NAT网关通Internet的话，要把NAT网关创建在公共子网中，并为其分配弹性IP</li>
+<li>子网（公共子网&amp;私有子网）会有一定的地址保留。Amazon会保留各个子网的前面4个IP地址和最后1个IP地址，以作IP联网之用。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>VPC</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>VPC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>AWS WorkSpaces入门1</title>
     <url>/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/</url>
     <content><![CDATA[<h1 id="AWS-WorkSpaces入门1"><a href="#AWS-WorkSpaces入门1" class="headerlink" title="AWS WorkSpaces入门1"></a>AWS WorkSpaces入门1</h1><p>本文主要介绍Amazon WorkSpaces服务。</p>
