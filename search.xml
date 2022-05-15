@@ -1096,6 +1096,7 @@
 <li>NAT网关通Internet的话，要把NAT网关创建在公共子网中，并为其分配弹性IP</li>
 <li>子网（公共子网&amp;私有子网）会有一定的地址保留。Amazon会保留各个子网的前面4个IP地址和最后1个IP地址，以作IP联网之用。</li>
 </ol>
+<span id="more"></span>
 ]]></content>
       <categories>
         <category>AWS</category>
