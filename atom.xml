@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-15T06:41:47.272Z</updated>
+  <updated>2022-05-15T07:40:22.100Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,97 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>AWS NLB负载均衡</title>
+    <link href="https://brendaoo.github.io/2022/05/15/AWS/LoadBalance/NLB%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
+    <id>https://brendaoo.github.io/2022/05/15/AWS/LoadBalance/NLB%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</id>
+    <published>2022-05-15T07:40:22.100Z</published>
+    <updated>2022-05-15T07:40:22.100Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;AWS-NLB负载均衡&quot;&gt;&lt;a href=&quot;#AWS-NLB负载均衡&quot; class=&quot;headerlink&quot; title=&quot;AWS NLB负载均衡&quot;&gt;&lt;/a&gt;AWS NLB负载均衡&lt;/h1&gt;&lt;h2 id=&quot;实验说明：&quot;&gt;&lt;a href=&quot;#实验说明：&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="ELB" scheme="https://brendaoo.github.io/categories/AWS/ELB/"/>
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="NLB" scheme="https://brendaoo.github.io/tags/NLB/"/>
+    
+    <category term="网络" scheme="https://brendaoo.github.io/tags/%E7%BD%91%E7%BB%9C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HTTPS自建SSl证书</title>
+    <link href="https://brendaoo.github.io/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/"/>
+    <id>https://brendaoo.github.io/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/</id>
+    <published>2022-05-15T07:40:21.174Z</published>
+    <updated>2022-05-15T07:40:21.174Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;实验步骤&quot;&gt;&lt;a href=&quot;#实验步骤&quot; class=&quot;headerlink&quot; title=&quot;实验步骤&quot;&gt;&lt;/a&gt;实验步骤&lt;/h1&gt;&lt;h2 id=&quot;申请免费证书&quot;&gt;&lt;a href=&quot;#申请免费证书&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="ELB" scheme="https://brendaoo.github.io/categories/AWS/ELB/"/>
+    
+    
+    <category term="ALB" scheme="https://brendaoo.github.io/tags/ALB/"/>
+    
+    <category term="HTTP证书" scheme="https://brendaoo.github.io/tags/HTTP%E8%AF%81%E4%B9%A6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ALB负载均衡</title>
+    <link href="https://brendaoo.github.io/2022/05/15/AWS/LoadBalance/ALB%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
+    <id>https://brendaoo.github.io/2022/05/15/AWS/LoadBalance/ALB%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</id>
+    <published>2022-05-15T07:40:20.202Z</published>
+    <updated>2022-05-15T07:40:20.202Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;ALB负载均衡&quot;&gt;&lt;a href=&quot;#ALB负载均衡&quot; class=&quot;headerlink&quot; title=&quot;ALB负载均衡&quot;&gt;&lt;/a&gt;ALB负载均衡&lt;/h1&gt;&lt;h2 id=&quot;Part1-AWS-ALB介绍&quot;&gt;&lt;a href=&quot;#Part1-AWS-ALB介绍&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="ELB" scheme="https://brendaoo.github.io/categories/AWS/ELB/"/>
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="ALB" scheme="https://brendaoo.github.io/tags/ALB/"/>
+    
+    <category term="Route53" scheme="https://brendaoo.github.io/tags/Route53/"/>
+    
+  </entry>
   
   <entry>
     <title>AWS WorkSpaces入门2</title>
