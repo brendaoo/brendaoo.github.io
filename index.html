@@ -166,141 +166,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Brenda">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Logs">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/" class="post-title-link" itemprop="url">跨账户IAM角色访问</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-15 11:35:16" itemprop="dateCreated datePublished" datetime="2022-05-15T11:35:16+08:00">2022-05-15</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/AWS/IAM/" itemprop="url" rel="index"><span itemprop="name">IAM</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="跨账户IAM角色访问"><a href="#跨账户IAM角色访问" class="headerlink" title="跨账户IAM角色访问"></a>跨账户IAM角色访问</h1><h2 id="Part1-场景描述"><a href="#Part1-场景描述" class="headerlink" title="Part1 场景描述"></a>Part1 场景描述</h2><p>企业中一般会有多个账户，每个账户分管不同的内容。<br>eg.身份账户负责建立用户、密码及访问密钥、管理用户；生产环境账户则主要负责生产环境，对外来账户的做一定的权限限制。</p>
-<p>实验场景：在Account A中创建用户zhangsan，在Account B账户中创建一个允许其他账户访问该账户S3存储桶的角色，并将该角色应用到zhangsan上，最后进行测试。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220412225742193.png" alt="image-20220412225742193"></p>
-<h2 id="Part2-实验步骤"><a href="#Part2-实验步骤" class="headerlink" title="Part2 实验步骤"></a>Part2 实验步骤</h2><h3 id="2-1-A-创建用户"><a href="#2-1-A-创建用户" class="headerlink" title="2.1 [A]创建用户"></a>2.1 [A]创建用户</h3><p>在Account A账户上创建一个新用户zhangsan</p>
-<p>在Account A账户中，进入IAM的控制台界面，添加用户</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220412235056059.png" alt="image-20220412235056059"></p>
-<p>账户设置，用户名填zhangsan，密码及密钥部分可以自由发挥。点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413100237286.png" alt="image-20220413100237286"></p>
-<p>权限、标签页不做任何设置，直接点击下一步，进入审核。审核完成之后点击创建用户。</p>
-<h3 id="2-2-B-创建角色"><a href="#2-2-B-创建角色" class="headerlink" title="2.2 [B]创建角色"></a>2.2 [B]创建角色</h3><p>在Account B账户中创建角色。点击创建角色。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413093754207.png" alt="image-20220413093754207"></p>
-<p>角色配置</p>
-<ul>
-<li><p>可信赖实体：AWS账户</p>
-</li>
-<li><p>AWS账户：另一个AWS账户，账户ID填入Account A的账户ID</p>
-</li>
-</ul>
-<p>点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413094025123.png" alt="image-20220413094025123"></p>
-<p>添加权限，选择S3的所有权限，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413094138085.png" alt="image-20220413094138085"></p>
-<p>角色名称填入：CA-TEST，其他内容审核无误后点击创建角色</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413094404412.png" alt="image-20220413094404412"></p>
-<h3 id="2-3-A-为用户附加角色"><a href="#2-3-A-为用户附加角色" class="headerlink" title="2.3 [A]为用户附加角色"></a>2.3 [A]为用户附加角色</h3><p>在Account A的控制台上进行操作。</p>
-<p>在zhangsan的用户界面，点击添加内联策略。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413100340763.png" alt="image-20220413100340763"></p>
-<p>通过JSON来创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413095137754.png" alt="image-20220413095137754"></p>
-<p>JSON部分内容如下，其中Resource的值是Account B中创建角色之后生成的</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sts:AssumeRole&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:iam::580919038124:role/CA-TEST&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413095523465.png" alt="image-20220413095523465"></p>
-<p>JSON文件确认无误之后，点击查看策略</p>
-<p>名称命名为CA-TEST，点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413100554115.png" alt="image-20220413100554115"></p>
-<h3 id="2-4-用户测试"><a href="#2-4-用户测试" class="headerlink" title="2.4 用户测试"></a>2.4 用户测试</h3><h4 id="2-4-1-用户登录AWS平台"><a href="#2-4-1-用户登录AWS平台" class="headerlink" title="2.4.1 用户登录AWS平台"></a>2.4.1 用户登录AWS平台</h4><p>登录时选择IAM用户，输入Account A的账户ID</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413101012110.png" alt="image-20220413101012110"></p>
-<p>填入zhangsan的信息，登录</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413101057705.png" alt="image-20220413101057705"></p>
-<p>Okay，用户登录成功</p>
-<h4 id="2-4-2-切换到Account-B账户"><a href="#2-4-2-切换到Account-B账户" class="headerlink" title="2.4.2 切换到Account B账户"></a>2.4.2 切换到Account B账户</h4><p>在Account B中复制该处的链接，进行访问</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413101213158.png" alt="image-20220413101213158"></p>
-<p>显示名称为生产账户，点击切换角色</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413101410039.png" alt="image-20220413101410039"></p>
-<p>好啦，现在已经成功切换账户了</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413102229908.png" alt="image-20220413102229908"></p>
-<p>搜索进入S3，可以发现有S3相关的操作权限。可以创建S3，也可以查看S3列表。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE%5Cimage-20220413193418998.png" alt="image-20220413193418998"></p>
-<h2 id="Part3-实验小结"><a href="#Part3-实验小结" class="headerlink" title="Part3 实验小结"></a>Part3 实验小结</h2><p>本实验的整个流程比较简单，成功率也较高。</p>
-<p>不过依然有注意点。<font color="red">Account B给Account A账户开出来的用户访问Account B的S3资源权限，必须要确保Account B自身有访问自身S3存储桶的权限。</font></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -325,7 +190,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2022-05-15 11:35:01" itemprop="dateCreated datePublished" datetime="2022-05-15T11:35:01+08:00">2022-05-15</time>
+              <time title="创建时间：2022-05-15 11:39:37" itemprop="dateCreated datePublished" datetime="2022-05-15T11:39:37+08:00">2022-05-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -374,13 +239,13 @@
 <h2 id="PART3-实验步骤"><a href="#PART3-实验步骤" class="headerlink" title="PART3 实验步骤"></a>PART3 实验步骤</h2><p>从3.5开始以后的配置与（一）中不同</p>
 <h3 id="3-5-在credentials文件中增加profile"><a href="#3-5-在credentials文件中增加profile" class="headerlink" title="3.5 在credentials文件中增加profile"></a>3.5 在credentials文件中增加profile</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[automate]</span><br><span class="line">role_arn = arn:aws:iam::465447475283:role/stroll</span><br><span class="line">source_profile = default</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52%5Cimage-20220425231844401.png" alt="image-20220425231844401"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425231844401.png" alt="image-20220425231844401"></p>
 <h3 id="3-6-测试"><a href="#3-6-测试" class="headerlink" title="3.6 测试"></a>3.6 测试</h3><p>在命令行输入以下命令</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile automate</span><br><span class="line"><span class="comment">#指定profile为新创建的automate</span></span><br></pre></td></tr></table></figure>
 
 
 
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52%5Cimage-20220425232136182.png" alt="image-20220425232136182"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425232136182.png" alt="image-20220425232136182"></p>
 <p>AWS的CLI成功执行了stroll角色</p>
 
       
@@ -425,7 +290,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2022-05-15 11:34:44" itemprop="dateCreated datePublished" datetime="2022-05-15T11:34:44+08:00">2022-05-15</time>
+              <time title="创建时间：2022-05-15 11:39:36" itemprop="dateCreated datePublished" datetime="2022-05-15T11:39:36+08:00">2022-05-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -474,10 +339,10 @@
 <p><font color="blue">分析：A，根据经验，肯定会共享凭证；B，90天的轮换周期其实还是比较长的，如果凭证泄露，不安全；C，是AWS推荐的最佳实践</font></p>
 <hr>
 <p><strong>IAM用户的密钥设计</strong></p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425155411650.png" alt="image-20220425155411650"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425155411650.png" alt="image-20220425155411650"></p>
 <p>场景：开发人员账户和生产账户</p>
 <p>描述：在生产账户中创建STSAssumeRole（带入角色），这个AssumeRole可以给开发人员的用户使用，同时会给他一个临时凭证，开发人员用户使用这个凭证可以临时访问生产账户中的资源。</p>
-<h2 id="PART2-实验目的"><a href="#PART2-实验目的" class="headerlink" title="PART2 实验目的"></a>PART2 实验目的</h2><p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425165959464.png" alt="image-20220425165959464"></p>
+<h2 id="PART2-实验目的"><a href="#PART2-实验目的" class="headerlink" title="PART2 实验目的"></a>PART2 实验目的</h2><p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425165959464.png" alt="image-20220425165959464"></p>
 <p>在本地电脑上通过STSAssumeRole实现对S3存储桶的访问。访问的顺序如上图①②③。</p>
 <p>①：PC访问用户的STSAssumeRole策略</p>
 <p>②：STS返回给PC临时凭证</p>
@@ -489,58 +354,58 @@
 <li>允许IAM用户使用STS Assume Role权限</li>
 </ol>
 <h3 id="3-1-创建S3只读角色"><a href="#3-1-创建S3只读角色" class="headerlink" title="3.1 创建S3只读角色"></a>3.1 创建S3只读角色</h3><p>来到IAM的角色页面，点击创建角色</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425170945467.png" alt="image-20220425170945467"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425170945467.png" alt="image-20220425170945467"></p>
 <p>受信任实体选择：AWS账户—此账户，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425171824195.png" alt="image-20220425171824195"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425171824195.png" alt="image-20220425171824195"></p>
 <p>添加权限页面，勾选S3ReadOnlyAccess，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425171918734.png" alt="image-20220425171918734"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425171918734.png" alt="image-20220425171918734"></p>
 <p>角色名称填入stroll，点击创建角色</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425172014424.png" alt="image-20220425172014424"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425172014424.png" alt="image-20220425172014424"></p>
 <p>角色创建完成之后查看stroll的信任关系</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181540291.png" alt="image-20220425181540291"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181540291.png" alt="image-20220425181540291"></p>
 <p>stroll角色可信赖的用户为该账号下的所有用户</p>
 <h3 id="3-2-创建用户"><a href="#3-2-创建用户" class="headerlink" title="3.2 创建用户"></a>3.2 创建用户</h3><p>来到IAM的用户界面，点击添加用户</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425172116259.png" alt="image-20220425172116259"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425172116259.png" alt="image-20220425172116259"></p>
 <p>填入用户名zhangsan，AWS凭证类型选择密码，输入自定义密码，取消密码重置，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425180914683.png" alt="image-20220425180914683"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425180914683.png" alt="image-20220425180914683"></p>
 <p>一直点击下一步，直到创建用户</p>
 <h3 id="3-3-为用户创建内联策略"><a href="#3-3-为用户创建内联策略" class="headerlink" title="3.3 为用户创建内联策略"></a>3.3 为用户创建内联策略</h3><p>在用户页面下点击zhangsan，进入zhangsan的页面</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181128193.png" alt="image-20220425181128193"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181128193.png" alt="image-20220425181128193"></p>
 <p>在权限菜单栏中点击添加内联策略，为zhangsan用户设置内联策略AssumeRole</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181159668.png" alt="image-20220425181159668"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181159668.png" alt="image-20220425181159668"></p>
 <p>配置服务为STS、操作AssumeRole、特定资源，填入stroll角色，点击查看策略</p>
 <p>允许zhangsan用户承担stroll角色的权限</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181338228.png" alt="image-20220425181338228"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181338228.png" alt="image-20220425181338228"></p>
 <p>输入策略名称AssumeRole，点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425181431465.png" alt="image-20220425181431465"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181431465.png" alt="image-20220425181431465"></p>
 <h3 id="3-4-本地PC端配置"><a href="#3-4-本地PC端配置" class="headerlink" title="3.4 本地PC端配置"></a>3.4 本地PC端配置</h3><p>在未配置凭证的情况下使用aws s3 ls命令</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425182435620.png" alt="image-20220425182435620"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425182435620.png" alt="image-20220425182435620"></p>
 <p>提示：没有本地的credentials文件，需要使用aws configure命令进行配置。</p>
 <p>aws configure配置的内容有：AWS Access Key ID、AWS Secret Access Key、Default region name、Default output format 。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425182750955.png" alt="image-20220425182750955"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425182750955.png" alt="image-20220425182750955"></p>
 <p>上述的4个配置信息需要到用户凭证下获取。进入用户zhangsan安全证书页面，点击创建访问密钥。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425183941496.png" alt="image-20220425183941496"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425183941496.png" alt="image-20220425183941496"></p>
 <p>跳出访问密钥ID和密钥页面，记录下该页面中的密钥ID和密钥。可以直接复制密钥ID和访问密钥，也可以下载.csv文件，该文件中有密钥ID和密钥。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425184024433.png" alt="image-20220425184024433"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425184024433.png" alt="image-20220425184024433"></p>
 <p>AKIAWYXWU3BJ5NFDTXWP</p>
 <p>M43LNIRZZp7mjF6KqnNRYwzzOyKB7AJt3ll5LwU7</p>
 <p>输入aws configure命令配置zhangsan用户的，填入zhangsan用户的密钥ID和密钥Key，地区region和output format可以不填。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425184348013.png" alt="image-20220425184348013"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425184348013.png" alt="image-20220425184348013"></p>
 <h3 id="3-5-获取STS临时访问凭证"><a href="#3-5-获取STS临时访问凭证" class="headerlink" title="3.5 获取STS临时访问凭证"></a>3.5 获取STS临时访问凭证</h3><p>给本地PC配置了zhangsan用户的访问ID和密钥，通过zhangsan用户的内联策略获得临时访问凭证</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">aws sts assume-role --role-arn arn:aws:iam::465447475283:role/stroll --role-session-name stroll</span><br><span class="line"><span class="comment">#需要将arn:aws:iam::465447475283:role/stroll替换为自己账户下stroll角色的arn</span></span><br><span class="line"><span class="comment">#--role-session-name指定会话名称</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425185044691.png" alt="image-20220425185044691"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425185044691.png" alt="image-20220425185044691"></p>
 <p>临时保存一下输出的内容，这些输出需要写入到credentials文件中</p>
 <p>编辑credentials文件，credentials文件在<code>/root/.aws/credentials</code>目录下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[zhangsansts]</span><br><span class="line">aws_access_key_id = ASIAWYXWU3BJXBYID2ZP</span><br><span class="line">aws_secret_access_key = Wja33FGrl17prsEsi+79vKs28ZH6sZ+Vq4q623Ir</span><br><span class="line">aws_session_token = FwoGZXIvYXdzEOT//////////wEaDKD0qspowMTiHX7DqSKqAbDkVnbb9KgrZxcXN9eS0da3CNEYw9G+IEDnTVOz/DIsYxv0oZ26PmCO/SDJKQ4lAv0c7Ts1mBMKIeyHlJyK9LrB7hOb7bvtwpfi+0P0mtb89CFBLaKuSO9z2RwETymS3GDzQi7dj1gPq/B3ZhrrpmzaWYjeD+t6ZYr12MswYxaNDr+hlHx6wxKg8cc4cMzI0WAqQneu2BbGEjUoqMRAENlwmOW6eT4rL4+CKOr5mZMGMi0SQmuEX9L0r7hQuhvCu6Ch4L4tlsfF7XEajvWQkL6vfZvVoik6A6s2mTrYIDU=</span><br></pre></td></tr></table></figure>
 
 <p>新创建[zhangsansts]，aws_access_key_id、aws_secret_access_key、aws_session_token的内容为STS给出的临时凭证</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425191240536.png" alt="image-20220425191240536"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425191240536.png" alt="image-20220425191240536"></p>
 <h3 id="3-6-使用临时凭证访问存储桶"><a href="#3-6-使用临时凭证访问存储桶" class="headerlink" title="3.6 使用临时凭证访问存储桶"></a>3.6 使用临时凭证访问存储桶</h3><p>在命令行中输入以下命令</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile zhangsansts</span><br><span class="line"><span class="comment">#--profile指定访问的profile，而不再是默认的default</span></span><br></pre></td></tr></table></figure>
 
 <p>结果列出了两个存储桶</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51%5Cimage-20220425191608673.png" alt="image-20220425191608673"></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425191608673.png" alt="image-20220425191608673"></p>
 <p>实现了临时凭证访问S3存储桶</p>
 <h2 id="PART4-小结"><a href="#PART4-小结" class="headerlink" title="PART4 小结"></a>PART4 小结</h2><p>访问流程小结：给PC配置用户zhangsan的access_key_id和access_key，使得PC有获取stroll临时访问凭证STS的权限<font color="blue">（这里也就是用户zhangsan配置了内联策略，策略指定了资源arn）</font>。PC获取到临时访问凭证，再将访问凭证配置到credentials文件中。PC可以通过新配置的凭证访问到S3存储桶。</p>
 <p>2个对应关系：</p>
@@ -559,6 +424,141 @@
 <li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/general/latest/gr/aws-security-credentials.html">AWS安全凭证</a></li>
 <li><a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/iam/features/managing-user-credentials/">管理IAM凭证</a></li>
 </ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Brenda">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Logs">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/" class="post-title-link" itemprop="url">跨账户IAM角色访问</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-15 11:39:35" itemprop="dateCreated datePublished" datetime="2022-05-15T11:39:35+08:00">2022-05-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/IAM/" itemprop="url" rel="index"><span itemprop="name">IAM</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="跨账户IAM角色访问"><a href="#跨账户IAM角色访问" class="headerlink" title="跨账户IAM角色访问"></a>跨账户IAM角色访问</h1><h2 id="Part1-场景描述"><a href="#Part1-场景描述" class="headerlink" title="Part1 场景描述"></a>Part1 场景描述</h2><p>企业中一般会有多个账户，每个账户分管不同的内容。<br>eg.身份账户负责建立用户、密码及访问密钥、管理用户；生产环境账户则主要负责生产环境，对外来账户的做一定的权限限制。</p>
+<p>实验场景：在Account A中创建用户zhangsan，在Account B账户中创建一个允许其他账户访问该账户S3存储桶的角色，并将该角色应用到zhangsan上，最后进行测试。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220412225742193.png" alt="image-20220412225742193"></p>
+<h2 id="Part2-实验步骤"><a href="#Part2-实验步骤" class="headerlink" title="Part2 实验步骤"></a>Part2 实验步骤</h2><h3 id="2-1-A-创建用户"><a href="#2-1-A-创建用户" class="headerlink" title="2.1 [A]创建用户"></a>2.1 [A]创建用户</h3><p>在Account A账户上创建一个新用户zhangsan</p>
+<p>在Account A账户中，进入IAM的控制台界面，添加用户</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220412235056059.png" alt="image-20220412235056059"></p>
+<p>账户设置，用户名填zhangsan，密码及密钥部分可以自由发挥。点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100237286.png" alt="image-20220413100237286"></p>
+<p>权限、标签页不做任何设置，直接点击下一步，进入审核。审核完成之后点击创建用户。</p>
+<h3 id="2-2-B-创建角色"><a href="#2-2-B-创建角色" class="headerlink" title="2.2 [B]创建角色"></a>2.2 [B]创建角色</h3><p>在Account B账户中创建角色。点击创建角色。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413093754207.png" alt="image-20220413093754207"></p>
+<p>角色配置</p>
+<ul>
+<li><p>可信赖实体：AWS账户</p>
+</li>
+<li><p>AWS账户：另一个AWS账户，账户ID填入Account A的账户ID</p>
+</li>
+</ul>
+<p>点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094025123.png" alt="image-20220413094025123"></p>
+<p>添加权限，选择S3的所有权限，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094138085.png" alt="image-20220413094138085"></p>
+<p>角色名称填入：CA-TEST，其他内容审核无误后点击创建角色</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094404412.png" alt="image-20220413094404412"></p>
+<h3 id="2-3-A-为用户附加角色"><a href="#2-3-A-为用户附加角色" class="headerlink" title="2.3 [A]为用户附加角色"></a>2.3 [A]为用户附加角色</h3><p>在Account A的控制台上进行操作。</p>
+<p>在zhangsan的用户界面，点击添加内联策略。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100340763.png" alt="image-20220413100340763"></p>
+<p>通过JSON来创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413095137754.png" alt="image-20220413095137754"></p>
+<p>JSON部分内容如下，其中Resource的值是Account B中创建角色之后生成的</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sts:AssumeRole&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:iam::580919038124:role/CA-TEST&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413095523465.png" alt="image-20220413095523465"></p>
+<p>JSON文件确认无误之后，点击查看策略</p>
+<p>名称命名为CA-TEST，点击创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100554115.png" alt="image-20220413100554115"></p>
+<h3 id="2-4-用户测试"><a href="#2-4-用户测试" class="headerlink" title="2.4 用户测试"></a>2.4 用户测试</h3><h4 id="2-4-1-用户登录AWS平台"><a href="#2-4-1-用户登录AWS平台" class="headerlink" title="2.4.1 用户登录AWS平台"></a>2.4.1 用户登录AWS平台</h4><p>登录时选择IAM用户，输入Account A的账户ID</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101012110.png" alt="image-20220413101012110"></p>
+<p>填入zhangsan的信息，登录</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101057705.png" alt="image-20220413101057705"></p>
+<p>Okay，用户登录成功</p>
+<h4 id="2-4-2-切换到Account-B账户"><a href="#2-4-2-切换到Account-B账户" class="headerlink" title="2.4.2 切换到Account B账户"></a>2.4.2 切换到Account B账户</h4><p>在Account B中复制该处的链接，进行访问</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101213158.png" alt="image-20220413101213158"></p>
+<p>显示名称为生产账户，点击切换角色</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101410039.png" alt="image-20220413101410039"></p>
+<p>好啦，现在已经成功切换账户了</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413102229908.png" alt="image-20220413102229908"></p>
+<p>搜索进入S3，可以发现有S3相关的操作权限。可以创建S3，也可以查看S3列表。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413193418998.png" alt="image-20220413193418998"></p>
+<h2 id="Part3-实验小结"><a href="#Part3-实验小结" class="headerlink" title="Part3 实验小结"></a>Part3 实验小结</h2><p>本实验的整个流程比较简单，成功率也较高。</p>
+<p>不过依然有注意点。<font color="red">Account B给Account A账户开出来的用户访问Account B的S3资源权限，必须要确保Account B自身有访问自身S3存储桶的权限。</font></p>
 
       
     </div>
