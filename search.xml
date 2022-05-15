@@ -493,6 +493,10 @@
 <h3 id="在课堂和实验室环境中快速配置持久桌面"><a href="#在课堂和实验室环境中快速配置持久桌面" class="headerlink" title="在课堂和实验室环境中快速配置持久桌面"></a>在课堂和实验室环境中快速配置持久桌面</h3><p>Amazon WorkSpaces 提供了一个完整持久的桌面，学生可以在整个教育过程中使用该桌面，而Amazon AppStream 2.0让课程教师可以针对班级的独特需求快速提供特定的应用程序。同时使用这两项服务，您可以轻松地构建学生所需的学习环境，并确保学生从一开始就能获取他们需要的课程。</p>
 <h3 id="企业兼并和收购期间系统快速集成"><a href="#企业兼并和收购期间系统快速集成" class="headerlink" title="企业兼并和收购期间系统快速集成"></a>企业兼并和收购期间系统快速集成</h3><p>经历并购的公司必须支持大量员工快速入职或离职，提供快速、简单、安全地方式访问公司应用程序和数据。他们必须通过各种设备完成此项任务，而无需花费太多资金或进行冗长复杂的整合。借助 Amazon WorkSpaces，IT 团队可以快速预配置和停用安全 WorkSpaces，以便满足不断变化的组织结构的需求。</p>
 ]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>WorkSpaces</category>
+      </categories>
       <tags>
         <tag>AWS</tag>
         <tag>WorkSpaces</tag>
@@ -646,6 +650,10 @@
 <li><a href="https://docs.aws.amazon.com/zh_cn/workspaces/latest/adminguide/amazon-workspaces.html">什么是Amazon WorkSpaces？</a></li>
 </ul>
 ]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>WorkSpaces</category>
+      </categories>
       <tags>
         <tag>AWS</tag>
         <tag>WorkSpaces</tag>

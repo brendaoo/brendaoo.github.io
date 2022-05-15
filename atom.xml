@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-15T06:38:04.078Z</updated>
+  <updated>2022-05-15T06:41:47.272Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -20,8 +20,8 @@
     <title>AWS WorkSpaces入门2</title>
     <link href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/"/>
     <id>https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/</id>
-    <published>2022-05-15T06:38:04.078Z</published>
-    <updated>2022-05-15T06:38:04.078Z</updated>
+    <published>2022-05-15T06:41:47.272Z</published>
+    <updated>2022-05-15T06:41:47.272Z</updated>
     
     
       
@@ -36,6 +36,10 @@
     
     
     
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="WorkSpaces" scheme="https://brendaoo.github.io/categories/AWS/WorkSpaces/"/>
+    
     
     <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
     
@@ -47,8 +51,8 @@
     <title>AWS WorkSpaces入门1</title>
     <link href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/"/>
     <id>https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/</id>
-    <published>2022-05-15T06:38:02.483Z</published>
-    <updated>2022-05-15T06:38:02.483Z</updated>
+    <published>2022-05-15T06:41:00.495Z</published>
+    <updated>2022-05-15T06:41:00.495Z</updated>
     
     
       
@@ -60,6 +64,10 @@
       
     
     
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="WorkSpaces" scheme="https://brendaoo.github.io/categories/AWS/WorkSpaces/"/>
     
     
     <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
