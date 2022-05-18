@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-18T02:46:49.570Z</updated>
+  <updated>2022-05-18T11:23:09.141Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>置放群组</title>
+    <link href="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/"/>
+    <id>https://brendaoo.github.io/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/</id>
+    <published>2022-05-18T11:23:09.141Z</published>
+    <updated>2022-05-18T11:23:09.141Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;置放群组&quot;&gt;&lt;a href=&quot;#置放群组&quot; class=&quot;headerlink&quot; title=&quot;置放群组&quot;&gt;&lt;/a&gt;置放群组&lt;/h1&gt;&lt;p&gt;当我们启动新的EC2实例时，实例启动在哪个机柜，哪个底层硬件上，对于我们来说是透明的。EC2服务会尝试以某种方式启动实例。AWS有缺省的规则，缺省的规则可以满足大部分的需求。&lt;/p&gt;
+&lt;p&gt;置放群组可以让我们按照一定的策略指定EC2物理硬件的相对位置关系。比如，想要降低EC2之间网络延迟可以把EC2的物理位置放的近一些；想要隔离硬件故障，可以将EC2分开放置在不同的机柜及物理硬件上。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="EC2" scheme="https://brendaoo.github.io/categories/AWS/EC2/"/>
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="EC2" scheme="https://brendaoo.github.io/tags/EC2/"/>
+    
+  </entry>
   
   <entry>
     <title>实例的状态</title>
