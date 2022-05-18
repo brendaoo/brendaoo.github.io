@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-15T08:25:37.250Z</updated>
+  <updated>2022-05-18T02:43:25.146Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>实例的状态</title>
+    <link href="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/"/>
+    <id>https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/</id>
+    <published>2022-05-18T02:43:25.146Z</published>
+    <updated>2022-05-18T02:43:25.146Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;实例的状态&quot;&gt;&lt;a href=&quot;#实例的状态&quot; class=&quot;headerlink&quot; title=&quot;实例的状态&quot;&gt;&lt;/a&gt;实例的状态&lt;/h1&gt;&lt;h2 id=&quot;Part1-实例的状态检查&quot;&gt;&lt;a href=&quot;#Part1-实例的状态检查&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="EC2" scheme="https://brendaoo.github.io/categories/AWS/EC2/"/>
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="EC2" scheme="https://brendaoo.github.io/tags/EC2/"/>
+    
+  </entry>
   
   <entry>
     <title>VPC内子网联网</title>

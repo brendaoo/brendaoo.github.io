@@ -20,21 +20,30 @@
     var CONFIG = {"hostname":"brendaoo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="AWS IAM小结PART1 问题及总结什么是AWS IAM？AWS Identity and Access Management (IAM) 是一种 Web 服务，可以帮助您安全地控制对 AWS 资源的访问。可以使用 IAM 来控制谁通过了身份验证（准许登录）并获得授权（拥有权限）来使用资源。 跟账户用户当您首次创建AWS 账户时，最初使用的是一个对账户中所有AWS服务和资源有完全访问权限的单点">
+  <meta name="description" content="实例的状态Part1 实例的状态检查实例的状态检查总体描述  Amazon EC2会对每个运行的EC2实例执行自动检查以识别硬件或软件问题。 状态检查是内置到Amazon EC2中的，所以不能禁用或删除。 状态检查每分钟进行一次，会返回一个通过或失败状态。 可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。  实例状态检查分为">
 <meta property="og:type" content="article">
-<meta property="og:title" content="AWS IAM小结">
-<meta property="og:url" content="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_IAM%E5%B0%8F%E7%BB%93/index.html">
+<meta property="og:title" content="实例的状态">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/index.html">
 <meta property="og:site_name" content="Logs">
-<meta property="og:description" content="AWS IAM小结PART1 问题及总结什么是AWS IAM？AWS Identity and Access Management (IAM) 是一种 Web 服务，可以帮助您安全地控制对 AWS 资源的访问。可以使用 IAM 来控制谁通过了身份验证（准许登录）并获得授权（拥有权限）来使用资源。 跟账户用户当您首次创建AWS 账户时，最初使用的是一个对账户中所有AWS服务和资源有完全访问权限的单点">
+<meta property="og:description" content="实例的状态Part1 实例的状态检查实例的状态检查总体描述  Amazon EC2会对每个运行的EC2实例执行自动检查以识别硬件或软件问题。 状态检查是内置到Amazon EC2中的，所以不能禁用或删除。 状态检查每分钟进行一次，会返回一个通过或失败状态。 可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。  实例状态检查分为">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-05-15T03:31:30.707Z">
-<meta property="article:modified_time" content="2022-05-15T03:24:55.954Z">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183012568.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183922321.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185220085.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185908979.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190011936.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190328743.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232440954.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232732987.png">
+<meta property="article:published_time" content="2022-05-18T02:43:25.146Z">
+<meta property="article:modified_time" content="2022-05-18T02:43:25.146Z">
 <meta property="article:author" content="Brenda">
 <meta property="article:tag" content="AWS">
-<meta property="article:tag" content="IAM">
+<meta property="article:tag" content="EC2">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183012568.png">
 
-<link rel="canonical" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_IAM%E5%B0%8F%E7%BB%93/">
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/">
 
 
 <script id="page-configurations">
@@ -47,7 +56,7 @@
   };
 </script>
 
-  <title>AWS IAM小结 | Logs</title>
+  <title>实例的状态 | Logs</title>
   
 
 
@@ -173,7 +182,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_IAM%E5%B0%8F%E7%BB%93/">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -186,7 +195,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          AWS IAM小结
+          实例的状态
         </h1>
 
         <div class="post-meta">
@@ -195,9 +204,8 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-05-15 11:31:30 / 修改时间：11:24:55" itemprop="dateCreated datePublished" datetime="2022-05-15T11:31:30+08:00">2022-05-15</time>
+              <time title="创建时间：2022-05-18 10:43:25" itemprop="dateCreated datePublished" datetime="2022-05-18T10:43:25+08:00">2022-05-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -209,7 +217,7 @@
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/AWS/IAM/" itemprop="url" rel="index"><span itemprop="name">IAM</span></a>
+                  <a href="/categories/AWS/EC2/" itemprop="url" rel="index"><span itemprop="name">EC2</span></a>
                 </span>
             </span>
 
@@ -219,7 +227,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>854</span>
+              <span>1.1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -238,39 +246,70 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="AWS-IAM小结"><a href="#AWS-IAM小结" class="headerlink" title="AWS IAM小结"></a>AWS IAM小结</h1><h2 id="PART1-问题及总结"><a href="#PART1-问题及总结" class="headerlink" title="PART1 问题及总结"></a>PART1 问题及总结</h2><h3 id="什么是AWS-IAM？"><a href="#什么是AWS-IAM？" class="headerlink" title="什么是AWS IAM？"></a>什么是AWS IAM？</h3><p>AWS Identity and Access Management (IAM) 是一种 Web 服务，可以帮助您安全地控制对 AWS 资源的访问。<strong>可以使用 IAM 来控制谁通过了身份验证（准许登录）并获得授权（拥有权限）来使用资源。</strong></p>
-<h3 id="跟账户用户"><a href="#跟账户用户" class="headerlink" title="跟账户用户"></a>跟账户用户</h3><p>当您首次创建AWS 账户时，最初使用的是一个对账户中所有AWS服务和资源有完全访问权限的单点登录身份。此身份称为<strong>AWS 账户根用户</strong>，使用您创建账户时所用的电子邮件地址和密码登录，即可获得该身份。强烈建议您不使用根用户执行日常任务，即使是管理任务。相反，请遵循<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users">仅使用根用户创建您的第一个 IAM 用户的最佳实践</a>。然后请妥善保存根用户凭证，仅用它们执行少数账户和服务管理任务。</p>
-<h3 id="IAM用户的密钥设计"><a href="#IAM用户的密钥设计" class="headerlink" title="IAM用户的密钥设计"></a>IAM用户的密钥设计</h3><ul>
-<li>所需账户：一个账户</li>
-<li>涉及服务：IAM、S3</li>
-<li>描述：只给用户分配STSAssumeRole的权限，没有访问S3的权限，用户需要通过AssumeRole返回的临时凭证去访问S3.</li>
-</ul>
-<h3 id="多账户—中央账户管理"><a href="#多账户—中央账户管理" class="headerlink" title="多账户—中央账户管理"></a>多账户—中央账户管理</h3><p>中央账户与成员账户使用AWS Organizations服务</p>
+        <h1 id="实例的状态"><a href="#实例的状态" class="headerlink" title="实例的状态"></a>实例的状态</h1><h2 id="Part1-实例的状态检查"><a href="#Part1-实例的状态检查" class="headerlink" title="Part1 实例的状态检查"></a>Part1 实例的状态检查</h2><p>实例的状态检查总体描述</p>
 <ul>
-<li><p>加入组织：中央账户邀请成员账户加入Organizations</p>
-</li>
-<li><p>服务控制策略：中央账户可以对成员账户实行策略上的限制，比如说，限制成员账户访问自己账户的S3存储桶。策略生效之后，成员账户的根账户也无法访问自己账户下的S3存储桶。</p>
-</li>
+<li>Amazon EC2会对每个运行的EC2实例执行自动检查以识别硬件或软件问题。</li>
+<li>状态检查是内置到Amazon EC2中的，所以不能禁用或删除。</li>
+<li>状态检查每分钟进行一次，会返回一个通过或失败状态。</li>
+<li>可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。</li>
 </ul>
-<h3 id="多账户—跨账户IAM角色访问"><a href="#多账户—跨账户IAM角色访问" class="headerlink" title="多账户—跨账户IAM角色访问"></a>多账户—跨账户IAM角色访问</h3><ul>
-<li><p>所需账户：至少2个账户</p>
-</li>
-<li><p>涉及服务：S3存储桶、IAM</p>
-</li>
-<li><p>描述：两个账户，eg Account A和Account B，A赋予B当中的用户访问A账户S3存储桶的权限</p>
-</li>
+<p>实例状态检查分为系统状态检查和实例状态检查</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183012568.png" alt="image-20220515183012568"></p>
+<h2 id="Part2-系统状态检查"><a href="#Part2-系统状态检查" class="headerlink" title="Part2 系统状态检查"></a>Part2 系统状态检查</h2><p>系统状态检查，会检测出<font color="red">需要AWS参与修复</font>的深层实例问题：</p>
+<ul>
+<li>网络连接丢失</li>
+<li>系统电源损耗</li>
+<li>物理主机上的软件问题</li>
+<li>物理主机上影响到网络连接状态的硬件问题</li>
 </ul>
-<p>2个账户场景，2个账户不需要有什么关联，即2个账户不需要在同一个组织中。</p>
-<h3 id="多账户—集中式日志存储"><a href="#多账户—集中式日志存储" class="headerlink" title="多账户—集中式日志存储"></a>多账户—集中式日志存储</h3><ul>
-<li><p>账户要求：至少需要2个账户，eg Account A 和 Account B，需要选定一个账户作为中央账户</p>
-</li>
-<li><p>涉及服务：S3存储桶、IAM、AWS CloudWatch、AWS Config等</p>
-</li>
-<li><p>描述：中央账户的S3存储桶存储其他账户的CloudWatch以及AWS Config等服务的日志</p>
-</li>
+<p>系统状态检查——涉及物理硬件</p>
+<p>AWS支持当实例出现状态检查失败时自动恢复指定的实例，即当实例配置了自动恢复，当实例系统状态检查失败时，</p>
+<h2 id="Part3-实例状态检查"><a href="#Part3-实例状态检查" class="headerlink" title="Part3 实例状态检查"></a>Part3 实例状态检查</h2><p>实例状态检查，监控您的各个实例的软件和网络配置等。这些检查需要您参与修复问题。</p>
+<p>如果实例状态检查失败，通常必须由您自行解决问题：</p>
+<ul>
+<li>系统状态检查故障</li>
+<li>实例的网络或启动配置不正确</li>
+<li>内存耗尽</li>
+<li>文件系统损坏</li>
+<li>内核不兼容</li>
 </ul>
-<h2 id="PART2-参考文献"><a href="#PART2-参考文献" class="headerlink" title="PART2 参考文献"></a>PART2 参考文献</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/IAM/latest/UserGuide/introduction.html">什么是AWS IAM</a></li>
+<p>实例状态检查——设计操作系统之上的软件</p>
+<h2 id="Part4-操作演示"><a href="#Part4-操作演示" class="headerlink" title="Part4 操作演示"></a>Part4 操作演示</h2><h3 id="4-1-状态检查监控总览"><a href="#4-1-状态检查监控总览" class="headerlink" title="4.1 状态检查监控总览"></a>4.1 状态检查监控总览</h3><p>在AWS控制台查看实例状态检查情况，可以看到系统状态检查失败次数和实例状态检查失败次数</p>
+<p>选中实例，点击&lt;监控&gt;，即可查看</p>
+<p>&lt;监控&gt;下的dashboard由AWS CloudWatch服务提供实现，是一项免费服务</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183922321.png" alt="image-20220515183922321"></p>
+<h3 id="4-2-系统状态检查失败自动恢复"><a href="#4-2-系统状态检查失败自动恢复" class="headerlink" title="4.2 系统状态检查失败自动恢复"></a>4.2 系统状态检查失败自动恢复</h3><p>系统状态检查失败时，如果配置了自动恢复，EC2会自动恢复，不需要人为干预。</p>
+<p><font color="red">注：自动恢复仅支持系统状态检查，并不支持实例状态检查</font></p>
+<p><strong>演示</strong></p>
+<h4 id="4-2-1-创建状态检查警报"><a href="#4-2-1-创建状态检查警报" class="headerlink" title="4.2.1 创建状态检查警报"></a>4.2.1 创建状态检查警报</h4><ol>
+<li>选中实例，点击&lt;状态检查&gt;，点击&lt;操作&gt;，点击&lt;创建状态检查警报&gt;</li>
+</ol>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185220085.png" alt="image-20220515185220085"></p>
+<ol start="2">
+<li><p>配置内容</p>
+<ul>
+<li>警报操作：恢复</li>
+<li>警报阈值：当发生系统状态检查1次失败时，发出警报</li>
+<li>警报名称：awsec2-test</li>
+</ul>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185908979.png" alt="image-20220515185908979"></p>
+<p>点击&lt;创建&gt;</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190011936.png" alt="image-20220515190011936"></p>
+</li>
+<li><p>查看创建好的告警</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190328743.png" alt="image-20220515190328743"></p>
+</li>
+</ol>
+<h4 id="4-2-2-制造系统状态检查失败"><a href="#4-2-2-制造系统状态检查失败" class="headerlink" title="4.2.2 制造系统状态检查失败"></a>4.2.2 制造系统状态检查失败</h4><p>人为制造系统状态检查失败，查看告警</p>
+<p>在Linux控制台输入以下命令，修改名为“awsec2-test”的CloudWatch</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aws cloudwatch set-alarm-state --alarm-name <span class="string">&quot;awsec2-test&quot;</span> --state-value ALARM --state-reason <span class="string">&quot;test&quot;</span> --region us-east-1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232440954.png" alt="image-20220517232440954"></p>
+<p>命令执行之后警报的状态会发生变化，变为“警报中”</p>
+<p>进入警报<awsec2-test>,查看警报由报警状态自动恢复在确定状态。</awsec2-test></p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232732987.png" alt="image-20220517232732987"></p>
+<h2 id="Part5-参考文章"><a href="#Part5-参考文章" class="headerlink" title="Part5 参考文章"></a>Part5 参考文章</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/monitoring-system-instance-status-check.html">实例的状态检查</a></li>
 </ul>
 
     </div>
@@ -281,6 +320,9 @@
       
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_IAM小结/" rel="bookmark">AWS IAM小结</a></div>
+    </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_Organizations账户管理服务&SCP/" rel="bookmark">AWS Organizations账户管理服务&SCP</a></div>
     </li>
@@ -293,9 +335,6 @@
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/跨账户IAM角色访问/" rel="bookmark">跨账户IAM角色访问</a></div>
     </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/配置CloudTrial和Config日志跨AWS账户日志存储/" rel="bookmark">配置CloudTrial和Config日志跨AWS账户日志存储</a></div>
-    </li>
   </ul>
 
         
@@ -307,7 +346,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_IAM%E5%B0%8F%E7%BB%93/" title="AWS IAM小结">https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_IAM小结/</a>
+    <a href="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/" title="实例的状态">https://brendaoo.github.io/2022/05/18/AWS/calculate/实例的状态/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -319,7 +358,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/AWS/" rel="tag"># AWS</a>
-              <a href="/tags/IAM/" rel="tag"># IAM</a>
+              <a href="/tags/EC2/" rel="tag"># EC2</a>
           </div>
 
         
@@ -328,13 +367,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/" rel="prev" title="配置CloudTrial和Config日志跨AWS账户日志存储">
-      <i class="fa fa-chevron-left"></i> 配置CloudTrial和Config日志跨AWS账户日志存储
+    <a href="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/" rel="prev" title="VPC内子网联网">
+      <i class="fa fa-chevron-left"></i> VPC内子网联网
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/" rel="next" title="AWS Organizations账户管理服务&SCP">
-      AWS Organizations账户管理服务&SCP <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -393,7 +429,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AWS-IAM%E5%B0%8F%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">AWS IAM小结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PART1-%E9%97%AE%E9%A2%98%E5%8F%8A%E6%80%BB%E7%BB%93"><span class="nav-number">1.1.</span> <span class="nav-text">PART1 问题及总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFAWS-IAM%EF%BC%9F"><span class="nav-number">1.1.1.</span> <span class="nav-text">什么是AWS IAM？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%9F%E8%B4%A6%E6%88%B7%E7%94%A8%E6%88%B7"><span class="nav-number">1.1.2.</span> <span class="nav-text">跟账户用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IAM%E7%94%A8%E6%88%B7%E7%9A%84%E5%AF%86%E9%92%A5%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.1.3.</span> <span class="nav-text">IAM用户的密钥设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E8%B4%A6%E6%88%B7%E2%80%94%E4%B8%AD%E5%A4%AE%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86"><span class="nav-number">1.1.4.</span> <span class="nav-text">多账户—中央账户管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E8%B4%A6%E6%88%B7%E2%80%94%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE"><span class="nav-number">1.1.5.</span> <span class="nav-text">多账户—跨账户IAM角色访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E8%B4%A6%E6%88%B7%E2%80%94%E9%9B%86%E4%B8%AD%E5%BC%8F%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8"><span class="nav-number">1.1.6.</span> <span class="nav-text">多账户—集中式日志存储</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PART2-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">1.2.</span> <span class="nav-text">PART2 参考文献</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">1.</span> <span class="nav-text">实例的状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Part1-%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">1.1.</span> <span class="nav-text">Part1 实例的状态检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part2-%E7%B3%BB%E7%BB%9F%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">1.2.</span> <span class="nav-text">Part2 系统状态检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part3-%E5%AE%9E%E4%BE%8B%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5"><span class="nav-number">1.3.</span> <span class="nav-text">Part3 实例状态检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part4-%E6%93%8D%E4%BD%9C%E6%BC%94%E7%A4%BA"><span class="nav-number">1.4.</span> <span class="nav-text">Part4 操作演示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E7%9B%91%E6%8E%A7%E6%80%BB%E8%A7%88"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 状态检查监控总览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E7%B3%BB%E7%BB%9F%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E5%A4%B1%E8%B4%A5%E8%87%AA%E5%8A%A8%E6%81%A2%E5%A4%8D"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 系统状态检查失败自动恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-1-%E5%88%9B%E5%BB%BA%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E8%AD%A6%E6%8A%A5"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">4.2.1 创建状态检查警报</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-2-%E5%88%B6%E9%80%A0%E7%B3%BB%E7%BB%9F%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E5%A4%B1%E8%B4%A5"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">4.2.2 制造系统状态检查失败</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part5-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.5.</span> <span class="nav-text">Part5 参考文章</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

@@ -166,6 +166,155 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Brenda">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Logs">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/" class="post-title-link" itemprop="url">实例的状态</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-18 10:43:25" itemprop="dateCreated datePublished" datetime="2022-05-18T10:43:25+08:00">2022-05-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/EC2/" itemprop="url" rel="index"><span itemprop="name">EC2</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="实例的状态"><a href="#实例的状态" class="headerlink" title="实例的状态"></a>实例的状态</h1><h2 id="Part1-实例的状态检查"><a href="#Part1-实例的状态检查" class="headerlink" title="Part1 实例的状态检查"></a>Part1 实例的状态检查</h2><p>实例的状态检查总体描述</p>
+<ul>
+<li>Amazon EC2会对每个运行的EC2实例执行自动检查以识别硬件或软件问题。</li>
+<li>状态检查是内置到Amazon EC2中的，所以不能禁用或删除。</li>
+<li>状态检查每分钟进行一次，会返回一个通过或失败状态。</li>
+<li>可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。</li>
+</ul>
+<p>实例状态检查分为系统状态检查和实例状态检查</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183012568.png" alt="image-20220515183012568"></p>
+<h2 id="Part2-系统状态检查"><a href="#Part2-系统状态检查" class="headerlink" title="Part2 系统状态检查"></a>Part2 系统状态检查</h2><p>系统状态检查，会检测出<font color="red">需要AWS参与修复</font>的深层实例问题：</p>
+<ul>
+<li>网络连接丢失</li>
+<li>系统电源损耗</li>
+<li>物理主机上的软件问题</li>
+<li>物理主机上影响到网络连接状态的硬件问题</li>
+</ul>
+<p>系统状态检查——涉及物理硬件</p>
+<p>AWS支持当实例出现状态检查失败时自动恢复指定的实例，即当实例配置了自动恢复，当实例系统状态检查失败时，</p>
+<h2 id="Part3-实例状态检查"><a href="#Part3-实例状态检查" class="headerlink" title="Part3 实例状态检查"></a>Part3 实例状态检查</h2><p>实例状态检查，监控您的各个实例的软件和网络配置等。这些检查需要您参与修复问题。</p>
+<p>如果实例状态检查失败，通常必须由您自行解决问题：</p>
+<ul>
+<li>系统状态检查故障</li>
+<li>实例的网络或启动配置不正确</li>
+<li>内存耗尽</li>
+<li>文件系统损坏</li>
+<li>内核不兼容</li>
+</ul>
+<p>实例状态检查——设计操作系统之上的软件</p>
+<h2 id="Part4-操作演示"><a href="#Part4-操作演示" class="headerlink" title="Part4 操作演示"></a>Part4 操作演示</h2><h3 id="4-1-状态检查监控总览"><a href="#4-1-状态检查监控总览" class="headerlink" title="4.1 状态检查监控总览"></a>4.1 状态检查监控总览</h3><p>在AWS控制台查看实例状态检查情况，可以看到系统状态检查失败次数和实例状态检查失败次数</p>
+<p>选中实例，点击&lt;监控&gt;，即可查看</p>
+<p>&lt;监控&gt;下的dashboard由AWS CloudWatch服务提供实现，是一项免费服务</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183922321.png" alt="image-20220515183922321"></p>
+<h3 id="4-2-系统状态检查失败自动恢复"><a href="#4-2-系统状态检查失败自动恢复" class="headerlink" title="4.2 系统状态检查失败自动恢复"></a>4.2 系统状态检查失败自动恢复</h3><p>系统状态检查失败时，如果配置了自动恢复，EC2会自动恢复，不需要人为干预。</p>
+<p><font color="red">注：自动恢复仅支持系统状态检查，并不支持实例状态检查</font></p>
+<p><strong>演示</strong></p>
+<h4 id="4-2-1-创建状态检查警报"><a href="#4-2-1-创建状态检查警报" class="headerlink" title="4.2.1 创建状态检查警报"></a>4.2.1 创建状态检查警报</h4><ol>
+<li>选中实例，点击&lt;状态检查&gt;，点击&lt;操作&gt;，点击&lt;创建状态检查警报&gt;</li>
+</ol>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185220085.png" alt="image-20220515185220085"></p>
+<ol start="2">
+<li><p>配置内容</p>
+<ul>
+<li>警报操作：恢复</li>
+<li>警报阈值：当发生系统状态检查1次失败时，发出警报</li>
+<li>警报名称：awsec2-test</li>
+</ul>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185908979.png" alt="image-20220515185908979"></p>
+<p>点击&lt;创建&gt;</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190011936.png" alt="image-20220515190011936"></p>
+</li>
+<li><p>查看创建好的告警</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190328743.png" alt="image-20220515190328743"></p>
+</li>
+</ol>
+<h4 id="4-2-2-制造系统状态检查失败"><a href="#4-2-2-制造系统状态检查失败" class="headerlink" title="4.2.2 制造系统状态检查失败"></a>4.2.2 制造系统状态检查失败</h4><p>人为制造系统状态检查失败，查看告警</p>
+<p>在Linux控制台输入以下命令，修改名为“awsec2-test”的CloudWatch</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aws cloudwatch set-alarm-state --alarm-name <span class="string">&quot;awsec2-test&quot;</span> --state-value ALARM --state-reason <span class="string">&quot;test&quot;</span> --region us-east-1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232440954.png" alt="image-20220517232440954"></p>
+<p>命令执行之后警报的状态会发生变化，变为“警报中”</p>
+<p>进入警报<awsec2-test>,查看警报由报警状态自动恢复在确定状态。</awsec2-test></p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232732987.png" alt="image-20220517232732987"></p>
+<h2 id="Part5-参考文章"><a href="#Part5-参考文章" class="headerlink" title="Part5 参考文章"></a>Part5 参考文章</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/monitoring-system-instance-status-check.html">实例的状态检查</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1710,155 +1859,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Brenda">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Logs">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/" class="post-title-link" itemprop="url">AWS Organizations账户管理服务&SCP</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-05-15 11:31:30 / 修改时间：11:25:22" itemprop="dateCreated datePublished" datetime="2022-05-15T11:31:30+08:00">2022-05-15</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/AWS/IAM/" itemprop="url" rel="index"><span itemprop="name">IAM</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="AWS-Organizations账户管理服务-amp-SCP"><a href="#AWS-Organizations账户管理服务-amp-SCP" class="headerlink" title="AWS Organizations账户管理服务&amp;SCP"></a>AWS Organizations账户管理服务&amp;SCP</h1><h2 id="Part1-介绍AWS-Organizations"><a href="#Part1-介绍AWS-Organizations" class="headerlink" title="Part1 介绍AWS Organizations"></a>Part1 介绍AWS Organizations</h2><p>AWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户加入组织。</p>
-<p><strong>AWS Organizations功能</strong></p>
-<ul>
-<li>集中管理您的所有AWS账户</li>
-<li>所有成员账户的整合账单</li>
-<li>对账户进行分层分组以满足预算、安全性或合规性需求</li>
-<li>集中控制每个账户可访问的AWS服务和API操作的策略</li>
-<li>帮助在组织账户中跨资源标准化标签的策略</li>
-<li>控制AWS AI和机器学习服务可以手机和存储数据的策略</li>
-<li>为组织账户中的资源配置自动备份的策略</li>
-<li>针对AWS IAM的集成和支持</li>
-<li>与其他AWS服务集成</li>
-<li>全局访问</li>
-<li>具备最终一致性的数据复制</li>
-<li>免费使用</li>
-</ul>
-<h2 id="Part2-实验场景"><a href="#Part2-实验场景" class="headerlink" title="Part2 实验场景"></a>Part2 实验场景</h2><p>前提条件：需要2个账户，称作Account A和Account B。</p>
-<p>描述：在Account A中创建组织，并邀请Account B加入组织。在Account A中设置策略来防止Account B访问S3，在Account B上进行测试。</p>
-<p>说明：本实验demo的Account A的ID尾号为5283，Account B的ID尾号为8124</p>
-<h2 id="Part3-实验步骤"><a href="#Part3-实验步骤" class="headerlink" title="Part3 实验步骤"></a>Part3 实验步骤</h2><h3 id="3-1-实验账户说明"><a href="#3-1-实验账户说明" class="headerlink" title="3.1 实验账户说明"></a>3.1 实验账户说明</h3><p>本实验demo的Account A的ID尾号为5283，Account B的ID尾号为8124</p>
-<p>实验会在Account A账户中创建组织，即Account A是主账户，Account B是成员账户。</p>
-<h3 id="3-2-创建组织"><a href="#3-2-创建组织" class="headerlink" title="3.2 创建组织"></a>3.2 创建组织</h3><p>在Account A账户中创建组织。在Organization主页，点击“创建组织”。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png" alt="image-20220412004932107"></p>
-<p>点击之后直接就能创建组织，创建组织需要邮箱验证。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412005002268.png" alt="image-20220412005002268"></p>
-<h3 id="3-3-邀请账户"><a href="#3-3-邀请账户" class="headerlink" title="3.3 邀请账户"></a>3.3 邀请账户</h3><p>输入账户ID和要创建的键值，点击发送邀请。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011458396.png" alt="image-20220412011458396"></p>
-<p>在Account B中可以看到邀请</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011633785.png" alt="image-20220412011633785"></p>
-<p>点开邀请链接之后，接受邀请</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011714385.png" alt="image-20220412011714385"></p>
-<p>在Account A上查看组织的账户，一个主账户，一个成员账户</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011914453.png" alt="image-20220412011914453"></p>
-<h3 id="3-4-创建S3策略"><a href="#3-4-创建S3策略" class="headerlink" title="3.4 创建S3策略"></a>3.4 创建S3策略</h3><p>进入策略页面，点击“服务控制策略”</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102406807.png" alt="image-20220412102406807"></p>
-<p>启用服务控制策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102431828.png" alt="image-20220412102431828"></p>
-<p>加载完成之后，如下所示</p>
-<p>新创建一个策略，来阻止对S3的访问，点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102504986.png" alt="image-20220412102504986"></p>
-<p>策略设置</p>
-<ul>
-<li>名称：denyS3</li>
-<li>选择服务：S3，动作：All Actions</li>
-</ul>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412103202634.png" alt="image-20220412103202634"></p>
-<p>添加资源，添加完成之后点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412132453499.png" alt="image-20220412132453499"></p>
-<h3 id="3-5-前-Account-B访问S3测试"><a href="#3-5-前-Account-B访问S3测试" class="headerlink" title="3.5 [前]Account B访问S3测试"></a>3.5 [前]Account B访问S3测试</h3><p>目前没有给Account B账户做任何限制，Account B可以正常访问S3存储桶</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133347888.png" alt="image-20220412133347888"></p>
-<h3 id="3-6-将策略应用到Account-B"><a href="#3-6-将策略应用到Account-B" class="headerlink" title="3.6 将策略应用到Account B"></a>3.6 将策略应用到Account B</h3><p>在Account A账户的Organizations中，将denyS3策略附加到Account B</p>
-<p>选中denyS3策略，点击操作。点击附加策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133545337.png" alt="image-20220412133545337"></p>
-<p>选中要附加的这个账户，点击附加策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133640477.png" alt="image-20220412133640477"></p>
-<p>Okay，策略附加成功</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133717996.png" alt="image-20220412133717996"></p>
-<h3 id="3-7-后-Account-B访问S3测试"><a href="#3-7-后-Account-B访问S3测试" class="headerlink" title="3.7 [后]Account B访问S3测试"></a>3.7 [后]Account B访问S3测试</h3><p>Account A为Account B添加了限制S3所有权限的策略，现在Account B账户上访问S3进行测试。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133938873.png" alt="image-20220412133938873"></p>
-<p>Account B再次访问S3时出现提示：无权列出存储桶。所以可以看出策略附加成功，在Account B上已经生效。</p>
-<p>总结：本实验是一个简单的AWS Organizations创建以及测试，主要测试的服务控制策略SCP。Organizations还有很多别的功能。</p>
-<h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/zh_cn/organizations/latest/userguide/orgs_introduction.html">什么是AWS Organizations</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1928,20 +1928,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1978,13 +1978,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">29k</span>
+    <span title="站点总字数">31k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">27 分钟</span>
+    <span title="站点阅读时长">28 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
