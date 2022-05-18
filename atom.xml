@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-18T02:43:25.146Z</updated>
+  <updated>2022-05-18T02:46:49.570Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -20,17 +20,17 @@
     <title>实例的状态</title>
     <link href="https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/"/>
     <id>https://brendaoo.github.io/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/</id>
-    <published>2022-05-18T02:43:25.146Z</published>
-    <updated>2022-05-18T02:43:25.146Z</updated>
+    <published>2022-05-18T02:46:49.570Z</published>
+    <updated>2022-05-18T02:46:49.570Z</updated>
     
     
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;实例的状态&quot;&gt;&lt;a href=&quot;#实例的状态&quot; class=&quot;headerlink&quot; title=&quot;实例的状态&quot;&gt;&lt;/a&gt;实例的状态&lt;/h1&gt;&lt;h2 id=&quot;Part1-实例的状态检查&quot;&gt;&lt;a href=&quot;#Part1-实例的状态检查&quot;</summary>
-        
-      
+    <summary type="html">&lt;h1 id=&quot;实例的状态&quot;&gt;&lt;a href=&quot;#实例的状态&quot; class=&quot;headerlink&quot; title=&quot;实例的状态&quot;&gt;&lt;/a&gt;实例的状态&lt;/h1&gt;&lt;h2 id=&quot;Part1-实例的状态检查&quot;&gt;&lt;a href=&quot;#Part1-实例的状态检查&quot; class=&quot;headerlink&quot; title=&quot;Part1 实例的状态检查&quot;&gt;&lt;/a&gt;Part1 实例的状态检查&lt;/h2&gt;&lt;p&gt;实例的状态检查总体描述&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Amazon EC2会对每个运行的EC2实例执行自动检查以识别硬件或软件问题。&lt;/li&gt;
+&lt;li&gt;状态检查是内置到Amazon EC2中的，所以不能禁用或删除。&lt;/li&gt;
+&lt;li&gt;状态检查每分钟进行一次，会返回一个通过或失败状态。&lt;/li&gt;
+&lt;li&gt;可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。&lt;/li&gt;
+&lt;/ul&gt;</summary>
     
     
     

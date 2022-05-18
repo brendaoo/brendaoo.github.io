@@ -190,7 +190,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2022-05-18 10:43:25" itemprop="dateCreated datePublished" datetime="2022-05-18T10:43:25+08:00">2022-05-18</time>
+              <time title="创建时间：2022-05-18 10:46:49" itemprop="dateCreated datePublished" datetime="2022-05-18T10:46:49+08:00">2022-05-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,65 +238,14 @@
 <li>状态检查每分钟进行一次，会返回一个通过或失败状态。</li>
 <li>可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。</li>
 </ul>
-<p>实例状态检查分为系统状态检查和实例状态检查</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183012568.png" alt="image-20220515183012568"></p>
-<h2 id="Part2-系统状态检查"><a href="#Part2-系统状态检查" class="headerlink" title="Part2 系统状态检查"></a>Part2 系统状态检查</h2><p>系统状态检查，会检测出<font color="red">需要AWS参与修复</font>的深层实例问题：</p>
-<ul>
-<li>网络连接丢失</li>
-<li>系统电源损耗</li>
-<li>物理主机上的软件问题</li>
-<li>物理主机上影响到网络连接状态的硬件问题</li>
-</ul>
-<p>系统状态检查——涉及物理硬件</p>
-<p>AWS支持当实例出现状态检查失败时自动恢复指定的实例，即当实例配置了自动恢复，当实例系统状态检查失败时，</p>
-<h2 id="Part3-实例状态检查"><a href="#Part3-实例状态检查" class="headerlink" title="Part3 实例状态检查"></a>Part3 实例状态检查</h2><p>实例状态检查，监控您的各个实例的软件和网络配置等。这些检查需要您参与修复问题。</p>
-<p>如果实例状态检查失败，通常必须由您自行解决问题：</p>
-<ul>
-<li>系统状态检查故障</li>
-<li>实例的网络或启动配置不正确</li>
-<li>内存耗尽</li>
-<li>文件系统损坏</li>
-<li>内核不兼容</li>
-</ul>
-<p>实例状态检查——设计操作系统之上的软件</p>
-<h2 id="Part4-操作演示"><a href="#Part4-操作演示" class="headerlink" title="Part4 操作演示"></a>Part4 操作演示</h2><h3 id="4-1-状态检查监控总览"><a href="#4-1-状态检查监控总览" class="headerlink" title="4.1 状态检查监控总览"></a>4.1 状态检查监控总览</h3><p>在AWS控制台查看实例状态检查情况，可以看到系统状态检查失败次数和实例状态检查失败次数</p>
-<p>选中实例，点击&lt;监控&gt;，即可查看</p>
-<p>&lt;监控&gt;下的dashboard由AWS CloudWatch服务提供实现，是一项免费服务</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183922321.png" alt="image-20220515183922321"></p>
-<h3 id="4-2-系统状态检查失败自动恢复"><a href="#4-2-系统状态检查失败自动恢复" class="headerlink" title="4.2 系统状态检查失败自动恢复"></a>4.2 系统状态检查失败自动恢复</h3><p>系统状态检查失败时，如果配置了自动恢复，EC2会自动恢复，不需要人为干预。</p>
-<p><font color="red">注：自动恢复仅支持系统状态检查，并不支持实例状态检查</font></p>
-<p><strong>演示</strong></p>
-<h4 id="4-2-1-创建状态检查警报"><a href="#4-2-1-创建状态检查警报" class="headerlink" title="4.2.1 创建状态检查警报"></a>4.2.1 创建状态检查警报</h4><ol>
-<li>选中实例，点击&lt;状态检查&gt;，点击&lt;操作&gt;，点击&lt;创建状态检查警报&gt;</li>
-</ol>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185220085.png" alt="image-20220515185220085"></p>
-<ol start="2">
-<li><p>配置内容</p>
-<ul>
-<li>警报操作：恢复</li>
-<li>警报阈值：当发生系统状态检查1次失败时，发出警报</li>
-<li>警报名称：awsec2-test</li>
-</ul>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185908979.png" alt="image-20220515185908979"></p>
-<p>点击&lt;创建&gt;</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190011936.png" alt="image-20220515190011936"></p>
-</li>
-<li><p>查看创建好的告警</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190328743.png" alt="image-20220515190328743"></p>
-</li>
-</ol>
-<h4 id="4-2-2-制造系统状态检查失败"><a href="#4-2-2-制造系统状态检查失败" class="headerlink" title="4.2.2 制造系统状态检查失败"></a>4.2.2 制造系统状态检查失败</h4><p>人为制造系统状态检查失败，查看告警</p>
-<p>在Linux控制台输入以下命令，修改名为“awsec2-test”的CloudWatch</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aws cloudwatch set-alarm-state --alarm-name <span class="string">&quot;awsec2-test&quot;</span> --state-value ALARM --state-reason <span class="string">&quot;test&quot;</span> --region us-east-1</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232440954.png" alt="image-20220517232440954"></p>
-<p>命令执行之后警报的状态会发生变化，变为“警报中”</p>
-<p>进入警报<awsec2-test>,查看警报由报警状态自动恢复在确定状态。</awsec2-test></p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232732987.png" alt="image-20220517232732987"></p>
-<h2 id="Part5-参考文章"><a href="#Part5-参考文章" class="headerlink" title="Part5 参考文章"></a>Part5 参考文章</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/monitoring-system-instance-status-check.html">实例的状态检查</a></li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
