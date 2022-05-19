@@ -1310,6 +1310,50 @@
       </tags>
   </entry>
   <entry>
+    <title>Spot实例</title>
+    <url>/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/</url>
+    <content><![CDATA[<h1 id="Part1-介绍EC2-Spot实例"><a href="#Part1-介绍EC2-Spot实例" class="headerlink" title="Part1 介绍EC2 Spot实例"></a>Part1 介绍EC2 Spot实例</h1><ul>
+<li>Spot实例是一种可提供请求目前尚未使用的EC2实例，AWS以低于按需价格提供</li>
+<li>最高可比按需实例的价格节省90%，能够显著降低EC2的使用成本</li>
+<li>提供您愿为Spot实例支付的每小时最高的价格，如超过Spot当前的价格，则Spot实例就会运行<ul>
+<li>Spot实例的价格是根据Spot实例的长期供求趋势逐步调整和变化的</li>
+<li>如果Spot价格超过您的请求的最高价，或者不在具有可用的容量，EC2将终止、停止或休眠您的Spot实例，EC2将会在实例中断之前2分钟提供中断通知。</li>
+</ul>
+</li>
+<li>Spot blocks: 请求持续运行的Spot实例<ul>
+<li>可以定义请求的Spot实例在1-6小时不中断持续运行(1, 2, 3, 4, 5, 6个小时持续运行)</li>
+<li>在极其罕见的情况下，请求持续运行的Spot实例也是会中断的</li>
+</ul>
+</li>
+<li>适用于数据分析，批处理作业，后台处理以及一些无状态的应用，或可灵活控制运行时间且可中断的情况</li>
+</ul>
+<span id="more"></span>
+
+<p>Spot实例的价格</p>
+<p><img src="/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/image-20220518233928936.png" alt="image-20220518233928936"></p>
+<h1 id="Part2-Spot队列"><a href="#Part2-Spot队列" class="headerlink" title="Part2 Spot队列"></a>Part2 Spot队列</h1><ul>
+<li>Spot队列是Spot实例和可选的按需实例的集合</li>
+<li>可在Spot队列中指定您对目标容量的需求（总容量？包括多少按需实例？）</li>
+<li>可设置一个您愿意为Spot队列支付的每小时的最高价格</li>
+<li>可为请求的Spot队列选择多个实例类型，比如M5.large，C5.xlarge，T2.2xlarge等</li>
+<li>支持AutoScaling组：创建ECS集群也可以使用Spot实例；使用AWS Batch创建有AWS Batch托管的计算环境时，这些服务都可以使用Spot实例</li>
+<li>容量限制：<ul>
+<li>每个Spot队列或EC2队列的目标容量：10000</li>
+<li>区域中所有Spot队列和EC2队列的目标容量：100000</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>EC2</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>EC2</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>实例的状态</title>
     <url>/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/</url>
     <content><![CDATA[<h1 id="实例的状态"><a href="#实例的状态" class="headerlink" title="实例的状态"></a>实例的状态</h1><h2 id="Part1-实例的状态检查"><a href="#Part1-实例的状态检查" class="headerlink" title="Part1 实例的状态检查"></a>Part1 实例的状态检查</h2><p>实例的状态检查总体描述</p>

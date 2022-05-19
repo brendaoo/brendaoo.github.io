@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-18T11:23:09.141Z</updated>
+  <updated>2022-05-19T01:55:58.266Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,43 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Spot实例</title>
+    <link href="https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/"/>
+    <id>https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/</id>
+    <published>2022-05-19T01:55:58.269Z</published>
+    <updated>2022-05-19T01:55:58.266Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;Part1-介绍EC2-Spot实例&quot;&gt;&lt;a href=&quot;#Part1-介绍EC2-Spot实例&quot; class=&quot;headerlink&quot; title=&quot;Part1 介绍EC2 Spot实例&quot;&gt;&lt;/a&gt;Part1 介绍EC2 Spot实例&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;Spot实例是一种可提供请求目前尚未使用的EC2实例，AWS以低于按需价格提供&lt;/li&gt;
+&lt;li&gt;最高可比按需实例的价格节省90%，能够显著降低EC2的使用成本&lt;/li&gt;
+&lt;li&gt;提供您愿为Spot实例支付的每小时最高的价格，如超过Spot当前的价格，则Spot实例就会运行&lt;ul&gt;
+&lt;li&gt;Spot实例的价格是根据Spot实例的长期供求趋势逐步调整和变化的&lt;/li&gt;
+&lt;li&gt;如果Spot价格超过您的请求的最高价，或者不在具有可用的容量，EC2将终止、停止或休眠您的Spot实例，EC2将会在实例中断之前2分钟提供中断通知。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Spot blocks: 请求持续运行的Spot实例&lt;ul&gt;
+&lt;li&gt;可以定义请求的Spot实例在1-6小时不中断持续运行(1, 2, 3, 4, 5, 6个小时持续运行)&lt;/li&gt;
+&lt;li&gt;在极其罕见的情况下，请求持续运行的Spot实例也是会中断的&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;适用于数据分析，批处理作业，后台处理以及一些无状态的应用，或可灵活控制运行时间且可中断的情况&lt;/li&gt;
+&lt;/ul&gt;</summary>
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="EC2" scheme="https://brendaoo.github.io/categories/AWS/EC2/"/>
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="EC2" scheme="https://brendaoo.github.io/tags/EC2/"/>
+    
+  </entry>
   
   <entry>
     <title>置放群组</title>
