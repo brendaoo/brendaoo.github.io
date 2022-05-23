@@ -166,6 +166,106 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Brenda">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Logs">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/" class="post-title-link" itemprop="url">AWS STS正确设计IAM用户密钥（二）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-15 11:39:37" itemprop="dateCreated datePublished" datetime="2022-05-15T11:39:37+08:00">2022-05-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/IAM/" itemprop="url" rel="index"><span itemprop="name">IAM</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>656</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="AWS-STS正确设计IAM用户密钥（二）"><a href="#AWS-STS正确设计IAM用户密钥（二）" class="headerlink" title="AWS STS正确设计IAM用户密钥（二）"></a>AWS STS正确设计IAM用户密钥（二）</h1><p>上文提到可以通过临时密钥的方式确保安全性，但是存在定时手动更换密钥的问题。<br>AWS提供了一个自动化执行（一）文的方法<br>本文提出一个AWS STS获取临时凭证的自动化执行方法。</p>
+<p>Q：自动化执行的方式如何获取临时凭证？</p>
+<p>A： 配置AWS CLI，使得AWS CLI承担IAM角色。AWS CLI会自动进行AssumeRole调用。</p>
+<p>Q：如何指定AWS CLI承担角色？</p>
+<p>A：在credentials文件中增加一个profile，该profile包含2个配置项role_arn和source_profile<br>      role_arn配置为需要承担角色的arn<br>      source_profile配置为执行AssumeRole的IAM用户所在的profile</p>
+<h2 id="PART3-实验步骤"><a href="#PART3-实验步骤" class="headerlink" title="PART3 实验步骤"></a>PART3 实验步骤</h2><p>从3.5开始以后的配置与（一）中不同</p>
+<h3 id="3-5-在credentials文件中增加profile"><a href="#3-5-在credentials文件中增加profile" class="headerlink" title="3.5 在credentials文件中增加profile"></a>3.5 在credentials文件中增加profile</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[automate]</span><br><span class="line">role_arn = arn:aws:iam::465447475283:role/stroll</span><br><span class="line">source_profile = default</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425231844401.png" alt="image-20220425231844401"></p>
+<h3 id="3-6-测试"><a href="#3-6-测试" class="headerlink" title="3.6 测试"></a>3.6 测试</h3><p>在命令行输入以下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile automate</span><br><span class="line"><span class="comment">#指定profile为新创建的automate</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425232136182.png" alt="image-20220425232136182"></p>
+<p>AWS的CLI成功执行了stroll角色</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1084,20 +1184,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1134,13 +1234,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">33k</span>
+    <span title="站点总字数">37k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">30 分钟</span>
+    <span title="站点阅读时长">33 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

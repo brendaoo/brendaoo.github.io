@@ -459,6 +459,561 @@
       </tags>
   </entry>
   <entry>
+    <title>AutoScaling介绍介绍</title>
+    <url>/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/</url>
+    <content><![CDATA[<h1 id="Part1-弹性伸缩架构"><a href="#Part1-弹性伸缩架构" class="headerlink" title="Part1 弹性伸缩架构"></a>Part1 弹性伸缩架构</h1><p>弹性伸缩架构有2种模式，分别是垂直扩展和水平扩展</p>
+<p><strong>垂直扩展</strong></p>
+<p>垂直扩展：提升单个节点自身处理能力。通过升级或更换更强大的硬件等。</p>
+<p>eg：实例类型更换，更换性能更强大的实例类型。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102211272.png" alt="image-20220519102211272"></p>
+<p><strong>水平扩展</strong></p>
+<p>水平扩展：通过增加更多的节点来分散工作负载，从而实现节点计算等能力的扩展。</p>
+<p>eg；增加实例数量</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102541711.png" alt="image-20220519102541711"></p>
+<h1 id="Part2-弹性伸缩的必要性"><a href="#Part2-弹性伸缩的必要性" class="headerlink" title="Part2 弹性伸缩的必要性"></a>Part2 弹性伸缩的必要性</h1><p>以下为一家公司线上办公系统访问量</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095248349.png" alt="image-20220523095248349"></p>
+<p>可以得出以下几点</p>
+<ol>
+<li>一周当中7天的访问量不相同，周六和周日的访问量比较少</li>
+<li>一周当中访问量最高的时候在周三</li>
+</ol>
+<p>按照传统做法有2种方法可以为线上办公系统做好规划</p>
+<ol>
+<li><p><font color="red">添加足够多的服务器，</font>以便线上办公系统有足够多的容量来满足线上办公的需求，周三的访问量最高，就按照周三的最大容量准备服务器。假设周三的访问需要10台服务器，那么就需要10台服务器来部署服务。</p>
+<p>这种做法的缺点是，周六、日的时候可能只需要1-2台服务器，部署10台服务器会增加一个运行成本。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095309801.png" alt="image-20220523095309801"></p>
+</li>
+<li><p><font color="red">只准备线上办公系统平均需求的容量。</font>比如准备6台。</p>
+<p>这种做法成本更低，但是当对系统的需求超过其可用容量时，会造成糟糕的客户体验。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095330245.png" alt="image-20220523095330245"></p>
+</li>
+</ol>
+<p>2种方法一个成本高，一个客户体验糟糕。</p>
+<p>更好的解决办法</p>
+<p>使用AWS的Auto Scaling</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095349932.png" alt="image-20220523095349932"></p>
+<p>当访问需求增加时，增加实例数量；当访问需求降低时，减少实例数量。兼具成本和用户体验。</p>
+<p>EC2 Auto Scaling可根据业务需求和策略设置扩展选项，在业务需求增长是自动为您增加实例以保证计算能力，在业务需求下降时自动减少实例数量以节约成本。</p>
+<h1 id="Part3-弹性扩展例子"><a href="#Part3-弹性扩展例子" class="headerlink" title="Part3 弹性扩展例子"></a>Part3 弹性扩展例子</h1><p>以某学习网站为例。当晚上19点开始，访问量开始增长，22点过后访问量逐渐减少。网站的访问量白天访问量不高。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155108709.png" alt="image-20220522155108709"></p>
+<p>监测方法：通过网站服务器的平均CPU使用率进行监控。</p>
+<p>配置Auto Scaling组的平均平均CPU使用率来进行弹性伸缩（规则）：</p>
+<ul>
+<li>最小实例容量：1台，最大实例容量：3台</li>
+<li>平均平均CPU使用率大于70%，启动2台实例</li>
+<li>平均平均CPU使用率小于25%，删除2台实例</li>
+</ul>
+<p>弹性伸缩配置</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155549378.png" alt="image-20220522155549378"></p>
+<p>保持最小实例数1台，最大实例数3台。</p>
+<p>扩展策略：</p>
+<ul>
+<li>当平均CPU使用率&lt;&#x3D;25时，减小组的大小，删除2个实例</li>
+<li>当平均CPU使用率&gt;&#x3D;70时，增加组的大小，增加2个实例</li>
+</ul>
+<p>扩展原理：</p>
+<p>每一个扩展策略其实是cloudwatch中的一个警报。当平均CPU使用率增加，超过70%时，会触发cloudwatch警报。将cloudwatch警报与实例的AutoScaling介绍组相关联，当cloudwatch出现alarm状态时，AutoScaling介绍组就会对应地做增加或者删除实例的动作。从而实现实例的扩展。实例收缩同理。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522170547958.png" alt="image-20220522170547958"></p>
+<p><strong>扩展策略指标要求</strong></p>
+<p>指标必须是有效的使用率指标，可以判断实例的繁忙程度。</p>
+<p><strong>费用</strong></p>
+<p>创建的AutoScaling组并不收费，由AutoScaling组启动的实例是收费的。</p>
+<h1 id="Part4-实验操作"><a href="#Part4-实验操作" class="headerlink" title="Part4 实验操作"></a>Part4 实验操作</h1><h2 id="4-1-配置Auto-Scaling组说明"><a href="#4-1-配置Auto-Scaling组说明" class="headerlink" title="4.1 配置Auto Scaling组说明"></a>4.1 配置Auto Scaling组说明</h2><p><strong>顺序</strong>：先配置启动配置，再配置Auto Scaling组</p>
+<p><strong>实验目的</strong>：配置一个Auto Scaling组，以测试Auto Scaling组的自动扩展。最小实例数1，最大实例数3，扩展策略为CPU的平均使用率。</p>
+<p><strong>实验设计</strong>：</p>
+<ol>
+<li>正常配置一个Auto Scaling组，保证至少1台EC2运行。</li>
+<li>在正常运行的Auto Scaling组，将运行的这一台EC2终止掉。</li>
+<li>查看步骤2之后Auto Scaling组的状态以及事件的处理。</li>
+<li></li>
+</ol>
+<h2 id="4-2-实验操作"><a href="#4-2-实验操作" class="headerlink" title="4.2 实验操作"></a>4.2 实验操作</h2><h3 id="4-2-1-创建启动配置"><a href="#4-2-1-创建启动配置" class="headerlink" title="4.2.1 创建启动配置"></a>4.2.1 创建启动配置</h3><p>进入到EC2的&lt;启动配置&gt;页面，点击&lt;创建启动配置&gt;</p>
+<p><font color="red">注意：AWS更推荐使用启动模板</font></p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522191156220.png" alt="image-20220522191156220"></p>
+<p>填写启动配置的名称、选择AMI(只能根据AMI id搜索)、选择实例类型</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233753937.png" alt="image-20220522233753937"></p>
+<p>配置存储卷大小</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233832408.png" alt="image-20220522233832408"></p>
+<p>创建安全组</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192750726.png" alt="image-20220522192750726"></p>
+<p>选择或者新建密钥对</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192724372.png" alt="image-20220522192724372"></p>
+<p>启动模板创建成功</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233952911.png" alt="image-20220522233952911"></p>
+<p>【启动模板配置的过程很像EC2创建的过程】</p>
+<h3 id="4-2-2-创建Auto-Scaling组"><a href="#4-2-2-创建Auto-Scaling组" class="headerlink" title="4.2.2 创建Auto Scaling组"></a>4.2.2 创建Auto Scaling组</h3><p>在Auto Scaling页面点击&lt;创建Auto Scaling组&gt;</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192928932.png" alt="image-20220522192928932"></p>
+<p>为Auto Scaling组命名as-test-group，选择启动配置项as-test，点击&lt;下一步&gt;</p>
+<p>注意是启动配置</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234210471.png" alt="image-20220522234210471"></p>
+<p>选择VPC，子网，点击&lt;下一步&gt;</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194306929.png" alt="image-20220522194306929"></p>
+<p>高级配置选项这一页运行状态检查期限设置为10s，点击&lt;下一步&gt;</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141343727.png" alt="image-20220523141343727"></p>
+<p>配置组大小和扩展策略</p>
+<p>配置组最小1台，最大3台</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194631389.png" alt="image-20220522194631389"></p>
+<p>扩展策略选择&lt;目标跟踪扩展策略&gt;，指标类型选择&lt;平均CPU利用率&gt;，目标值设置为70，点击&lt;下一步&gt;</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234419726.png" alt="image-20220522234419726"></p>
+<p>添加标签，不配置，点击&lt;下一步&gt;</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522195147472.png" alt="image-20220522195147472"></p>
+<p>点击&lt;创建Auto Scaling组&gt;</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234545795.png" alt="image-20220522234545795"></p>
+<p>Auto Scaling组创建成功</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234614247.png" alt="image-20220522234614247"></p>
+<p>查看Auto Scaling组的状态，为Successful。当前有一个启动实例。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234816685.png" alt="image-20220522234816685"></p>
+<h3 id="4-2-3-终止当前实例"><a href="#4-2-3-终止当前实例" class="headerlink" title="4.2.3 终止当前实例"></a>4.2.3 终止当前实例</h3><p>终止AutoScaling组中当前正在运行的这一台实例。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235309242.png" alt="image-20220522235309242"></p>
+<p>查看Auto Scaling组活动记录，终止了一台实例并且启动了一台实例。</p>
+<p>测试这个Auto Scaling组正常运行。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235602232.png" alt="image-20220522235602232"></p>
+<h3 id="4-2-4-提升CPU使用率"><a href="#4-2-4-提升CPU使用率" class="headerlink" title="4.2.4 提升CPU使用率"></a>4.2.4 提升CPU使用率</h3><p><font color="red">注意：仅测试环境下进行一下尝试</font></p>
+<p>在目前正在运行的这台EC2中输入以下命令，使其CPU的使用率增加，观察Auto Scaling组的扩展情况。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">time <span class="built_in">echo</span> <span class="string">&quot;scale=5000; 4*a(1)&quot;</span> | bc -l -q</span><br></pre></td></tr></table></figure>
+
+<p>还未进行任何操作，查看器CPU使用率</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523135744690.png" alt="image-20220523135744690"></p>
+<p>输入命令，CPU使用率在增大</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523140600615.png" alt="image-20220523140600615"></p>
+<p>查看Auto Scaling组，在活动历史记录出看到正在启动新的实例</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141131778.png" alt="image-20220523141131778"></p>
+<p>在&lt;实例管理&gt;处看到两个正在运行的实例</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141216008.png" alt="image-20220523141216008"></p>
+<p><strong>手动降低使用率</strong></p>
+<p>停止掉正在运行的命令，查看现在实例状态</p>
+<p>停止运行的命令之后，CPU的使用率马上就降下来了</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141520821.png" alt="image-20220523141520821"></p>
+<p>当CPU的平均使用率降下来之后，就只有一台实例在运行，进行了一个自动伸缩。虽然没有为扩展策略设置收缩标准，但当CPU的平均使用率不在那么高的时候，只有一台实例正在运行。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523162343018.png" alt="image-20220523162343018"></p>
+<h1 id="Part5-Auto-Scaling组件介绍"><a href="#Part5-Auto-Scaling组件介绍" class="headerlink" title="Part5 Auto Scaling组件介绍"></a>Part5 Auto Scaling组件介绍</h1><h2 id="5-1组件介绍"><a href="#5-1组件介绍" class="headerlink" title="5.1组件介绍"></a>5.1组件介绍</h2><p>EC2 Auto Scaling包括的关键组件：配置模板&#x2F;EC2 Auto Scaling组&#x2F;扩展选项。</p>
+<ul>
+<li>配置模板（启动模板或者启动配置）：AMI；实例类型；安全组；角色等。</li>
+<li>EC2 Auto Scaling组：所使用的启动配置&#x2F;启动模板；最小数量、最大数量以及所需数量；可用区&#x2F;子网；负载均衡器；健康状况检查。</li>
+<li>扩展选项：始终保持当前实例级别；手动缩放；按计划扩展；根据需求进行扩展。</li>
+</ul>
+<h2 id="5-2-扩展Auto-Scaling组的大小"><a href="#5-2-扩展Auto-Scaling组的大小" class="headerlink" title="5.2 扩展Auto Scaling组的大小"></a>5.2 扩展Auto Scaling组的大小</h2><p>扩展Auto Scaling组的大小，指增加或减少Auto Scaling组的计算容量能力，也就是增加或者减少实例数量。</p>
+<p>扩展选项：始终保持当前实例数量、手动扩展、按计划扩展、根据需求进行扩展（动态扩展）、预测式扩展</p>
+<p><strong>1.始终保持当前实例数量</strong></p>
+<p>配置Auto Scaling组，使其始终保持指定数量的运行实例。Auto Scaling对Auto Scaling组内运行实例执行定期运行状况检查，如果发现实例运行状况不佳，它将会终止该实例，并启动新实例。</p>
+<p>如果手动停止Auto Scaling组内的实例，Auto Scaling组会认为该实例运行状况不佳，会新启动一台实例。</p>
+<p><strong>2. 手动扩展</strong></p>
+<p>手动扩展是扩展资源的最基本方法。</p>
+<p>方法一：需要指定Auto Scaling组的最大容量、最小容量或所需容量的Amazon EC2 Auto Scaling管理创建或终止实例的流程以匹配修改后的容量。</p>
+<p>方法二：在当前最大最小的扩展范围内，将EC2实例附加到Auto Scaling组内，或者从Auto Scaling组内分离出EC2实例。</p>
+<p><strong>3.按计划扩展</strong></p>
+<p>在您确切地知道何时增加或减少组中的实例数量时非常有用，因为能遵循可预测的计划。（在某活动或者促销之前，可以按计划扩展）</p>
+<p>创建一个计划的扩展操作，指定开始时间&#x2F;最小、最大以及所需容量&#x2F;循环等。您可以创建仅扩展一次或按重复计划扩展的计划操作。</p>
+<p>操作：选中Auto Scaling组，点击拆分窗格中的&lt;弹性伸缩&gt;，往下滑可以看到“计划操作”，可以创建对用的计划，规划开始和结束时间等等。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194905356.png" alt="image-20220523194905356"></p>
+<p><strong>4.动态扩展</strong></p>
+<p>根据需求进行扩展，通过创建扩展策略，将Auto Scaling组配置为动态扩展以满足要求。创建扩展策略&#x2F;定义警报阈值&#x2F;定义执行操作。</p>
+<p>Part4部分就是一个动态扩展case</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194459373.png" alt="image-20220523194459373"></p>
+<p><strong>动态扩展实例预热</strong></p>
+<p>启用原定设置实例预热后，Auto Scaling 组中每个新启动的实例都有一个预热时间。</p>
+<p>当实例处于预热时间时，仅当未预热实例的指标值大于策略的告警阈值上限（与目标跟踪扩缩策略的目标利用率相同）时，您的扩缩策略才会横向扩展。</p>
+<p>如果实例仍在预热并且组再次横向扩展，则这些实例将计算为下一横向扩展活动所需容量的一部分。因此，落入同一分步调整中的多个警报违例只会导致一个扩展活动。旨在持续 (但不过度) 扩大。</p>
+<p>其目的是在需求下降时谨慎地横向缩减，以保护应用程序的可用性。这会阻止通过扩缩策略启动的横向缩减活动，直到实例完成预热。</p>
+<p>实例的预热时间影响Auto Scaling组的运行状况检查宽限期。</p>
+<p><strong>缩放冷却时间</strong></p>
+<p>在您的 Auto Scaling 组启动或终止实例后，它首先等待冷却时间结束，然后才能启动简单扩缩策略启动的任何扩缩活动。冷却时间的用途是防止 Auto Scaling 组在先前的活动产生明显的作用之前启动或终止其他实例。</p>
+<p><strong>5.预测扩展</strong></p>
+<p>EC2 Auto Scaling和AWS Auto Scaling结合使用以跨多个服务扩展资源。AWS Auto Scaling可以通过结合预测扩展和动态扩展（分别为主动和被动方法）来更快地扩展您的Amazon EC2容量。</p>
+<p>操作：在Auto Scaling组的的拆分窗格中，选中&lt;弹性伸缩&gt;，往下滑可以看到预测性扩展策略。</p>
+<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194631796.png" alt="image-20220523194631796"></p>
+<h1 id="Part6-参考文章"><a href="#Part6-参考文章" class="headerlink" title="Part6 参考文章"></a>Part6 参考文章</h1><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/autoscaling/ec2/userguide/auto-scaling-benefits.html">Amazon EC2 Auto Scaling优势</a></li>
+<li><a href="https://docs.amazonaws.cn/autoscaling/ec2/userguide/detach-instance-asg.html">缩减Auto Scaling组的大小</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>AutoScaling介绍</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>EC2</tag>
+        <tag>AutoScaling介绍</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spot实例</title>
+    <url>/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/</url>
+    <content><![CDATA[<h1 id="Part1-介绍EC2-Spot实例"><a href="#Part1-介绍EC2-Spot实例" class="headerlink" title="Part1 介绍EC2 Spot实例"></a>Part1 介绍EC2 Spot实例</h1><ul>
+<li>Spot实例是一种可提供请求目前尚未使用的EC2实例，AWS以低于按需价格提供</li>
+<li>最高可比按需实例的价格节省90%，能够显著降低EC2的使用成本</li>
+<li>提供您愿为Spot实例支付的每小时最高的价格，如超过Spot当前的价格，则Spot实例就会运行<ul>
+<li>Spot实例的价格是根据Spot实例的长期供求趋势逐步调整和变化的</li>
+<li>如果Spot价格超过您的请求的最高价，或者不在具有可用的容量，EC2将终止、停止或休眠您的Spot实例，EC2将会在实例中断之前2分钟提供中断通知。</li>
+</ul>
+</li>
+<li>Spot blocks: 请求持续运行的Spot实例<ul>
+<li>可以定义请求的Spot实例在1-6小时不中断持续运行(1, 2, 3, 4, 5, 6个小时持续运行)</li>
+<li>在极其罕见的情况下，请求持续运行的Spot实例也是会中断的</li>
+</ul>
+</li>
+<li>适用于数据分析，批处理作业，后台处理以及一些无状态的应用，或可灵活控制运行时间且可中断的情况</li>
+</ul>
+<span id="more"></span>
+
+<p>Spot实例的价格</p>
+<p><img src="/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/image-20220518233928936.png" alt="image-20220518233928936"></p>
+<h1 id="Part2-Spot队列"><a href="#Part2-Spot队列" class="headerlink" title="Part2 Spot队列"></a>Part2 Spot队列</h1><ul>
+<li>Spot队列是Spot实例和可选的按需实例的集合</li>
+<li>可在Spot队列中指定您对目标容量的需求（总容量？包括多少按需实例？）</li>
+<li>可设置一个您愿意为Spot队列支付的每小时的最高价格</li>
+<li>可为请求的Spot队列选择多个实例类型，比如M5.large，C5.xlarge，T2.2xlarge等</li>
+<li>支持AutoScaling组：创建ECS集群也可以使用Spot实例；使用AWS Batch创建有AWS Batch托管的计算环境时，这些服务都可以使用Spot实例</li>
+<li>容量限制：<ul>
+<li>每个Spot队列或EC2队列的目标容量：10000</li>
+<li>区域中所有Spot队列和EC2队列的目标容量：100000</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>EC2</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>EC2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>实例的状态</title>
+    <url>/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/</url>
+    <content><![CDATA[<h1 id="实例的状态"><a href="#实例的状态" class="headerlink" title="实例的状态"></a>实例的状态</h1><h2 id="Part1-实例的状态检查"><a href="#Part1-实例的状态检查" class="headerlink" title="Part1 实例的状态检查"></a>Part1 实例的状态检查</h2><p>实例的状态检查总体描述</p>
+<ul>
+<li>Amazon EC2会对每个运行的EC2实例执行自动检查以识别硬件或软件问题。</li>
+<li>状态检查是内置到Amazon EC2中的，所以不能禁用或删除。</li>
+<li>状态检查每分钟进行一次，会返回一个通过或失败状态。</li>
+<li>可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。</li>
+</ul>
+<span id="more"></span>
+
+
+
+<p>实例状态检查分为系统状态检查和实例状态检查</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183012568.png" alt="image-20220515183012568"></p>
+<h2 id="Part2-系统状态检查"><a href="#Part2-系统状态检查" class="headerlink" title="Part2 系统状态检查"></a>Part2 系统状态检查</h2><p>系统状态检查，会检测出<font color="red">需要AWS参与修复</font>的深层实例问题：</p>
+<ul>
+<li>网络连接丢失</li>
+<li>系统电源损耗</li>
+<li>物理主机上的软件问题</li>
+<li>物理主机上影响到网络连接状态的硬件问题</li>
+</ul>
+<p>系统状态检查——涉及物理硬件</p>
+<p>AWS支持当实例出现状态检查失败时自动恢复指定的实例，即当实例配置了自动恢复，当实例系统状态检查失败时，</p>
+<h2 id="Part3-实例状态检查"><a href="#Part3-实例状态检查" class="headerlink" title="Part3 实例状态检查"></a>Part3 实例状态检查</h2><p>实例状态检查，监控您的各个实例的软件和网络配置等。这些检查需要您参与修复问题。</p>
+<p>如果实例状态检查失败，通常必须由您自行解决问题：</p>
+<ul>
+<li>系统状态检查故障</li>
+<li>实例的网络或启动配置不正确</li>
+<li>内存耗尽</li>
+<li>文件系统损坏</li>
+<li>内核不兼容</li>
+</ul>
+<p>实例状态检查——设计操作系统之上的软件</p>
+<h2 id="Part4-操作演示"><a href="#Part4-操作演示" class="headerlink" title="Part4 操作演示"></a>Part4 操作演示</h2><h3 id="4-1-状态检查监控总览"><a href="#4-1-状态检查监控总览" class="headerlink" title="4.1 状态检查监控总览"></a>4.1 状态检查监控总览</h3><p>在AWS控制台查看实例状态检查情况，可以看到系统状态检查失败次数和实例状态检查失败次数</p>
+<p>选中实例，点击&lt;监控&gt;，即可查看</p>
+<p>&lt;监控&gt;下的dashboard由AWS CloudWatch服务提供实现，是一项免费服务</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183922321.png" alt="image-20220515183922321"></p>
+<h3 id="4-2-系统状态检查失败自动恢复"><a href="#4-2-系统状态检查失败自动恢复" class="headerlink" title="4.2 系统状态检查失败自动恢复"></a>4.2 系统状态检查失败自动恢复</h3><p>系统状态检查失败时，如果配置了自动恢复，EC2会自动恢复，不需要人为干预。</p>
+<p><font color="red">注：自动恢复仅支持系统状态检查，并不支持实例状态检查</font></p>
+<p><strong>演示</strong></p>
+<h4 id="4-2-1-创建状态检查警报"><a href="#4-2-1-创建状态检查警报" class="headerlink" title="4.2.1 创建状态检查警报"></a>4.2.1 创建状态检查警报</h4><ol>
+<li>选中实例，点击&lt;状态检查&gt;，点击&lt;操作&gt;，点击&lt;创建状态检查警报&gt;</li>
+</ol>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185220085.png" alt="image-20220515185220085"></p>
+<ol start="2">
+<li><p>配置内容</p>
+<ul>
+<li>警报操作：恢复</li>
+<li>警报阈值：当发生系统状态检查1次失败时，发出警报</li>
+<li>警报名称：awsec2-test</li>
+</ul>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185908979.png" alt="image-20220515185908979"></p>
+<p>点击&lt;创建&gt;</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190011936.png" alt="image-20220515190011936"></p>
+</li>
+<li><p>查看创建好的告警</p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190328743.png" alt="image-20220515190328743"></p>
+</li>
+</ol>
+<h4 id="4-2-2-制造系统状态检查失败"><a href="#4-2-2-制造系统状态检查失败" class="headerlink" title="4.2.2 制造系统状态检查失败"></a>4.2.2 制造系统状态检查失败</h4><p>人为制造系统状态检查失败，查看告警</p>
+<p>在Linux控制台输入以下命令，修改名为“awsec2-test”的CloudWatch</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws cloudwatch set-alarm-state --alarm-name <span class="string">&quot;awsec2-test&quot;</span> --state-value ALARM --state-reason <span class="string">&quot;test&quot;</span> --region us-east-1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232440954.png" alt="image-20220517232440954"></p>
+<p>命令执行之后警报的状态会发生变化，变为“警报中”</p>
+<p>进入警报<awsec2-test>,查看警报由报警状态自动恢复在确定状态。</awsec2-test></p>
+<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232732987.png" alt="image-20220517232732987"></p>
+<h2 id="Part5-参考文章"><a href="#Part5-参考文章" class="headerlink" title="Part5 参考文章"></a>Part5 参考文章</h2><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/monitoring-system-instance-status-check.html">实例的状态检查</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>EC2</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>EC2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>置放群组</title>
+    <url>/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/</url>
+    <content><![CDATA[<h1 id="置放群组"><a href="#置放群组" class="headerlink" title="置放群组"></a>置放群组</h1><p>当我们启动新的EC2实例时，实例启动在哪个机柜，哪个底层硬件上，对于我们来说是透明的。EC2服务会尝试以某种方式启动实例。AWS有缺省的规则，缺省的规则可以满足大部分的需求。</p>
+<p>置放群组可以让我们按照一定的策略指定EC2物理硬件的相对位置关系。比如，想要降低EC2之间网络延迟可以把EC2的物理位置放的近一些；想要隔离硬件故障，可以将EC2分开放置在不同的机柜及物理硬件上。</p>
+<span id="more"></span>
+
+
+
+<h2 id="Part1-什么是置放群组？"><a href="#Part1-什么是置放群组？" class="headerlink" title="Part1 什么是置放群组？"></a>Part1 什么是置放群组？</h2><p>置放群组可以将启动的实例尽可能的相互靠近一点，实现启动实例间的低延迟、高吞吐量的网络或者将启动实例分散放置到不同的硬件和机柜，减少故障的影响。</p>
+<p>费用：<font color="red">创建置放群组无需支付费用。</font></p>
+<p>群组的概念就是会有多个EC2实例，也就是说以下的策略都是针对多个EC2的。</p>
+<h2 id="Part2-置放群组策略"><a href="#Part2-置放群组策略" class="headerlink" title="Part2 置放群组策略"></a>Part2 置放群组策略</h2><p>创建置放群组有3种策略：集群、分区、分布</p>
+<h3 id="2-1-集群置放群组"><a href="#2-1-集群置放群组" class="headerlink" title="2.1 集群置放群组"></a>2.1 集群置放群组</h3><p>将同一个可用区中的EC2的物理位置放的尽可能近一些，比如说放到同一可用区，同一机柜，同一底层硬件。</p>
+<ul>
+<li>将一个可用区中靠近的实例打包在一起</li>
+<li>用于可受益于低网络延迟或高网络吞吐量的应用程序</li>
+<li>适用于HPC应用程序通常使用的紧密耦合的节点到节点通信的要求</li>
+<li>一个集群置放群组<font color="red">不能跨过多个可用区</font></li>
+</ul>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518163550944.png" alt="image-20220518163550944"></p>
+<p>集群置放群组对实例有要求：免费的t2系列不支持集群置放群组</p>
+<p><strong>重点</strong></p>
+<ul>
+<li>一个集群置放群组不能跨越多个可用区</li>
+<li>集群置放群组中启动实例时，对于实例类型是有要求的（以下为限定的实例类型）<ul>
+<li>通用型：A1、M4、M5、M5a、M5ad、M5d、M5dn、M5n</li>
+<li>计算优化型：C3、C4、C5、C5d、C5n、cc2.8xlarge</li>
+<li>内存优化型：cr1.8xlarge、R3、R4、R5、R5a、R5ad、R5d、R5dn、R5n、X1、X1e、z1d</li>
+<li>存储优化：D2、H1、hs1.8xlarge、I2、I3、I3en</li>
+<li>加速计算型：F1、G2、G3、G4dn、P2、P3、P3dn</li>
+</ul>
+</li>
+<li>集群置放群组中的两个实例之间的最大网络吞吐量流量速度受2个实例中较慢实例限制</li>
+<li>使用单个启动请求在置放群组中启动所需的实例数。对置放群组中的所有实例使用相同的实例类型</li>
+<li>如果您停止置放群组中的某个实例，然后重启该实例，则其仍将在该置放群组中运行</li>
+<li>如果您在已有正在运行的实例的置放群组中启动实例时接受到容量错误信息，请在该置放群组中停止并启动所有实例，然后尝试再次启动</li>
+</ul>
+<h3 id="2-2-分区置放群组"><a href="#2-2-分区置放群组" class="headerlink" title="2.2 分区置放群组"></a>2.2 分区置放群组</h3><p>EC2将群组划分为多个逻辑段，称为分区。</p>
+<p>置放群组中每个分区有自己的一组机柜，每个机柜具有自己的网络和电源。置换群组中任何两个不同的分区将不会分享相同的机柜。因此，可以隔离硬件故障影响。</p>
+<p>以下是单可用区中2个分区的一个示例。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518190802466.png" alt="image-20220518190802466"></p>
+<p>分区1和分区2都包含多个实例，将故障影响限制在单个分区内。</p>
+<p><strong>知识点</strong></p>
+<ul>
+<li>将实例分布在不同的逻辑分区上</li>
+<li>通常为大型分布式和重复的工作负载所使用的，例如，Hadoop、Cassandra和Kafka</li>
+<li>在分区置放群组中启动实例时，EC2将尝试跨您指定数量的分区均匀分发实例</li>
+<li>对于每个可用区，一个分区置放群组最多可具有7个分区</li>
+</ul>
+<h3 id="2-3-分布置放群组"><a href="#2-3-分布置放群组" class="headerlink" title="2.3 分布置放群组"></a>2.3 分布置放群组</h3><p>分布置放群组可以将实例放在不同的机柜上，使用不同的网络和电源。</p>
+<p>eg.假设分布置放群组启动了4个实例，4个实例放在4个机柜上，每个机柜有各自的网络和电源。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191125568.png" alt="image-20220518191125568"></p>
+<p>当机柜1发生故障，剩下的实例由于在其他的机柜，将不会收到影响。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191252806.png" alt="image-20220518191252806"></p>
+<p><strong>知识点</strong></p>
+<ul>
+<li>将每个实例放置在不同的机架上</li>
+<li>关键业务的多个实例使用分布置放群组</li>
+<li>可以跨越同一区域中的多个可用区</li>
+<li>每个群组在每个可用区中最多有7个正在运行的实例</li>
+</ul>
+<h2 id="Part3-实操"><a href="#Part3-实操" class="headerlink" title="Part3 实操"></a>Part3 实操</h2><h3 id="3-1-创建集群置放群组"><a href="#3-1-创建集群置放群组" class="headerlink" title="3.1 创建集群置放群组"></a>3.1 创建集群置放群组</h3><p>进入AWS控制台的EC2页面，点击&lt;置放群组&gt;，点击&lt;创建置放群组&gt;</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518184037036.png" alt="image-20220518184037036"></p>
+<p>创建一个集群置放群组，置放策略选择&lt;集群&gt;</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191602552.png" alt="image-20220518191602552"></p>
+<h3 id="3-2-创建EC2到置放群组中"><a href="#3-2-创建EC2到置放群组中" class="headerlink" title="3.2 创建EC2到置放群组中"></a>3.2 创建EC2到置放群组中</h3><p>在EC2的实例详细配置页面中，勾选将实例放到置放群组中，选择置放群组&lt;cluster-test(cluster)&gt;</p>
+<p>只有支持置放群组的实例类型才能将它放到置放群组中。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191853712.png" alt="image-20220518191853712"></p>
+<p>创建ec2的其他步骤省略。</p>
+<h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/WindowsGuide/placement-groups.html">置放群组</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>EC2</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>EC2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>VPC内子网联网</title>
+    <url>/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/</url>
+    <content><![CDATA[<h1 id="VPC内子网联网"><a href="#VPC内子网联网" class="headerlink" title="VPC内子网联网"></a>VPC内子网联网</h1><blockquote>
+<p>VPC中有2种子网类型：公共子网和私有子网</p>
+<ul>
+<li>所谓公共子网就是其对应的路由表中配置了规则将请求路由到了 <code>Internet Gateway</code></li>
+<li>私有子网就是其关联的路由表中没有配置到 <code>Internet Gatway</code> 的路由规则，因此无法对外访问。</li>
+</ul>
+<p>AWS 的 VPC 网络配置关系是：<em><strong>实例与子网关联，子网关联路由表，路由表设置网关</strong></em>。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="公共子网联网"><a href="#公共子网联网" class="headerlink" title="公共子网联网"></a>公共子网联网</h2><h3 id="介绍IGW"><a href="#介绍IGW" class="headerlink" title="介绍IGW"></a>介绍IGW</h3><p>公共子网通过IGW(Internet gateway)组件来实现VPC和Internet的相互通信。</p>
+<p>IGW提供两项功能：</p>
+<ol>
+<li>Subnet中的流量通过IGW访问Internet</li>
+<li>为配置了Public IP的Instance提供网址转换</li>
+</ol>
+<h3 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建VPC"><a href="#1-创建VPC" class="headerlink" title="1.创建VPC"></a>1.创建VPC</h4><p>手动创建VPC，即不通过向导的方式进行创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010040498.png" alt="image-20220330010040498"></p>
+<p>VPC的设置如下</p>
+<p>选择“仅VPC”</p>
+<p>命名为：my-vpc-02</p>
+<p>IPv4 CIDR：172.16.0.0&#x2F;22</p>
+<p>其他保持默认，点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010150289.png" alt="image-20220330010150289"></p>
+<p>查看创建好的VPC</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010359754.png" alt="image-20220330010359754"></p>
+<h4 id="2-创建互联网网关"><a href="#2-创建互联网网关" class="headerlink" title="2.创建互联网网关"></a>2.创建互联网网关</h4><p>点击“新建互联网网关”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010558808.png" alt="image-20220330010558808"></p>
+<p>将该互联网网关命名为：my-igw-02</p>
+<p>点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010653543.png" alt="image-20220330010653543"></p>
+<p>互联网网关已经建好，将它附加到VPC，点击下图中的1或2处都可以</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010838397.png" alt="image-20220330010838397"></p>
+<p>选择新建的VPC，my-vpc-02，连接互联网网关</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010919597.png" alt="image-20220330010919597"></p>
+<p>互联网网关成功附加到了VPC上</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011023866.png" alt="image-20220330011023866"></p>
+<h4 id="3-创建公有子网"><a href="#3-创建公有子网" class="headerlink" title="3.创建公有子网"></a>3.创建公有子网</h4><p>点击“创建子网”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011136211.png" alt="image-20220330011136211"></p>
+<p>选择新建的VPC，my-vpc-02</p>
+<p>创建一个子网，命令为：my-sub-pub-02</p>
+<p>可用区可以选择当前区域的任意可用区，此处选择“us-east-1a”</p>
+<p>IPv4 CIDR: 172.16.1.0&#x2F;24</p>
+<p>点击“创建子网”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011507485.png" alt="image-20220330011507485"></p>
+<p>子网创建成功</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011727300.png" alt="image-20220330011727300"></p>
+<p>进入到该子网的路由表，点击路由表的id进入</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011823385.png" alt="image-20220330011823385"></p>
+<p>查看该路由表的路由条目，点击“编辑路由”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012003132.png" alt="image-20220330012003132"></p>
+<p>点击“添加路由”，新的路由如下</p>
+<p>第一个空选择：0.0.0.0&#x2F;0，第二空选项“互联网网关”，随后会跳出刚创建的IGW，点击“保存更改”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012108517.png" alt="image-20220330012108517"></p>
+<p>路由表新增条目成功</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012306561.png" alt="image-20220330012306561"></p>
+<p>由于该子网添加了IGW，于是该子网成为了公共子网，给子网内的ec2分配公有子网或者弹性IP之后可以访问到Internet。</p>
+<h4 id="4-创建安全组"><a href="#4-创建安全组" class="headerlink" title="4.创建安全组"></a>4.创建安全组</h4><p>点击创建安全组</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093212864.png" alt="image-20220330093212864"></p>
+<p>安全组名称：my-Security-Group-02</p>
+<p>VPC选择my-vpc-02</p>
+<p>添加2条入站信息，分别是22端口和ICMP</p>
+<p>配置完成之后，点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093653373.png" alt="image-20220330093653373"></p>
+<p>安全组创建完成</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093716680.png" alt="image-20220330093716680"></p>
+<h4 id="5-创建EC2"><a href="#5-创建EC2" class="headerlink" title="5.创建EC2"></a>5.创建EC2</h4><p>点击“启动新实例”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092020102.png" alt="image-20220330092020102"></p>
+<p>在AWS Marketplace中选择Centos7这个AMI</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092149765.png" alt="image-20220330092149765"></p>
+<p>实例类型选择t2.micro，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092236542.png" alt="image-20220330092236542"></p>
+<p>网络选择刚才新建的VPC，my-vpc-02</p>
+<p>子网选择公共子网，my-sub-pub-02</p>
+<p>自动分配公有IP处选择<font color="red">禁用</font>，说明稍后给ec2绑定弹性IP，而不使用创建是分配的公网IP</p>
+<p>配置完成后，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092539598.png" alt="image-20220330092539598"></p>
+<p>存储使用默认的资源配置，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093025676.png" alt="image-20220330093025676"></p>
+<p>给EC2添加标签，Name: test-pub-02，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095554126.png" alt="image-20220330095554126"></p>
+<p>选择现有安全组my-Security-Group-02</p>
+<p>点击审核和启动</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095703240.png" alt="image-20220330095703240"></p>
+<p>点击启动</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095726364.png" alt="image-20220330095726364"></p>
+<p>因为我之前有密钥对，所以选择“选择现有密钥对”选项。如果之前没有密钥对选择新建，输入密钥对的名字之后会进行下载。</p>
+<p>点击启动新实例</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095853535.png" alt="image-20220330095853535"></p>
+<h4 id="6-创建-amp-绑定弹性IP"><a href="#6-创建-amp-绑定弹性IP" class="headerlink" title="6.创建&amp;绑定弹性IP"></a>6.创建&amp;绑定弹性IP</h4><p>点击分配弹性IP地址</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104427148.png" alt="image-20220330104427148"></p>
+<p>设置键值对 Name: ec2-test-pub-02</p>
+<p>点击分配</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104522655.png" alt="image-20220330104522655"></p>
+<p>关联该弹性IP</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104554944.png" alt="image-20220330104554944"></p>
+<p>实例选择test-pub-02，选择私有IP地址，点击关联</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104656288.png" alt="image-20220330104656288"></p>
+<h4 id="7-测试"><a href="#7-测试" class="headerlink" title="7.测试"></a>7.测试</h4><p>访问EC2可以ping通baidu.com</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330110421486.png" alt="image-20220330110421486"></p>
+<h2 id="私有子网联网"><a href="#私有子网联网" class="headerlink" title="私有子网联网"></a>私有子网联网</h2><h3 id="介绍NAT-GW"><a href="#介绍NAT-GW" class="headerlink" title="介绍NAT GW"></a>介绍NAT GW</h3><p>NAT GW是一种网络地址转换服务。可以使用NAT网关将私有子网中的实例连接到VPC外部的服务，但是外部无法启动与这些实例的连接。</p>
+<p>在创建 NAT 网关时，指定以下连接类型之一：</p>
+<ul>
+<li><strong>公开</strong> –（默认）私有子网中的实例可以通过公共 NAT 网关连接到互联网，但不能接收来自互联网的未经请求的入站连接。<font color="red">在公有子网中创建公有 NAT 网关，并且必须在创建时将弹性 IP 地址与 NAT 网关相关联。可以将流量从 NAT 网关路由到 VPC 的互联网网关。</font>或者，您可以使用公有 NAT 网关连接到其他 VPC 或本地部署网络。在这种情况下，您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。</li>
+<li><strong>私密</strong> – 私有子网中的实例可以通过私有 NAT 网关连接到其他 VPC 或您的本地部署网络。您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。您不能将弹性 IP 地址与私有 NAT 网关相关联。您可以将互联网网关连接到具有私有 NAT 网关的 VPC，但如果您将流量从私有 NAT 网关路由到互联网网关，则互联网网关会丢弃流量。</li>
+</ul>
+<p>NAT 网关将实例的源 IP 地址替换为 NAT 网关的 IP 地址。对于公有 NAT 网关，这是 NAT 网关的弹性 IP 地址。对于私有 NAT 网关，这是 NAT 网关的私有 IP 地址。向实例发送响应流量时，NAT 设备会将地址转换回原始源 IP 地址。</p>
+<p>注意：NAT网关要给私有子网使用，其自身要在公有子网内，即需要保证它自身能够访问到互联网。</p>
+<h3 id="操作-1"><a href="#操作-1" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建私有子网"><a href="#1-创建私有子网" class="headerlink" title="1.创建私有子网"></a>1.创建私有子网</h4><p>新建子网</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112048218.png" alt="image-20220330112048218"></p>
+<p>子网配置信息</p>
+<p>VPC选择my-vpc-02</p>
+<p>子网命名为my-sub-pri-02</p>
+<p>可用区可以随意选择，最好和公共子网在两个不同的可用区</p>
+<p>IPv4 CIDR为172.16.2.0&#x2F;24</p>
+<p>配置完成之后点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112158262.png" alt="image-20220330112158262"></p>
+<h4 id="2-创建NAT网关"><a href="#2-创建NAT网关" class="headerlink" title="2.创建NAT网关"></a>2.创建NAT网关</h4><p>点击创建NAT网关</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112448923.png" alt="image-20220330112448923"></p>
+<p>nat网关设置</p>
+<p>命名为my-nat-02</p>
+<p>子网选择公有子网，类型为公有</p>
+<p>为它分配弹性IP</p>
+<p>配置完成之后点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112702279.png" alt="image-20220330112702279"></p>
+<h4 id="3-私有子网路由表关联NAT网关"><a href="#3-私有子网路由表关联NAT网关" class="headerlink" title="3.私有子网路由表关联NAT网关"></a>3.私有子网路由表关联NAT网关</h4><p>创建私网路由表</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132430858.png" alt="image-20220330132430858"></p>
+<p>为新建的路由表设置子网关联</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132953082.png" alt="image-20220330132953082"></p>
+<p>将该表关联到私有子网</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133016115.png" alt="image-20220330133016115"></p>
+<p>将公共子网使用的这张表改名，以便标识</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133149273.png" alt="image-20220330133149273"></p>
+<p>编辑私有子网的这张路由表</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133240295.png" alt="image-20220330133240295"></p>
+<p>新增一条路由到nat网关，添加好之后点击保存更改</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133310859.png" alt="image-20220330133310859"></p>
+<h4 id="4-创建EC2"><a href="#4-创建EC2" class="headerlink" title="4.创建EC2"></a>4.创建EC2</h4><p>创建步骤同在公共子网中创建EC2，省略大部分配置</p>
+<p>需要特别注意的地方如下</p>
+<p>网络选择my-vpc-02，子网选择新建的私有子网my-sub-pri-02，禁用自动分配公有IP功能</p>
+<p>其余的配置与在公共子网内的配置大同小异，无非就是命名不一致，这里就不过多赘述</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330115204934.png" alt="image-20220330115204934"></p>
+<h4 id="5-测试"><a href="#5-测试" class="headerlink" title="5.测试"></a>5.测试</h4><p>需要说明一下，访问该私有子网的EC2需要通过公共子网内的EC2作为跳板机来访问</p>
+<p>即先ssh到公共子网内的EC2，在此基础上ssh到私有子网的EC2上</p>
+<p>将密钥文件通过SCP上传到公网EC2上</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134025275.png" alt="image-20220330134025275"></p>
+<p>进行ping测试，可以成功ping通baidu.com</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134155233.png" alt="image-20220330134155233"></p>
+<p>注意点：</p>
+<ol>
+<li>VPC默认只有一张路由表，先创建公共子网，再创建私有子网的情况下要单独为私有子网创建一张路由表</li>
+<li>NAT网关通Internet的话，要把NAT网关创建在公共子网中，并为其分配弹性IP</li>
+<li>子网（公共子网&amp;私有子网）会有一定的地址保留。Amazon会保留各个子网的前面4个IP地址和最后1个IP地址，以作IP联网之用。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>VPC</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>VPC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ALB负载均衡</title>
     <url>/2022/05/15/AWS/LoadBalance/ALB%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</url>
     <content><![CDATA[<h1 id="ALB负载均衡"><a href="#ALB负载均衡" class="headerlink" title="ALB负载均衡"></a>ALB负载均衡</h1><h2 id="Part1-AWS-ALB介绍"><a href="#Part1-AWS-ALB介绍" class="headerlink" title="Part1 AWS ALB介绍"></a>Part1 AWS ALB介绍</h2><p>ALB全称为Application Load Balancer，是AWS Elastic Load Balancing的一种。</p>
@@ -942,173 +1497,6 @@
       </tags>
   </entry>
   <entry>
-    <title>VPC内子网联网</title>
-    <url>/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/</url>
-    <content><![CDATA[<h1 id="VPC内子网联网"><a href="#VPC内子网联网" class="headerlink" title="VPC内子网联网"></a>VPC内子网联网</h1><blockquote>
-<p>VPC中有2种子网类型：公共子网和私有子网</p>
-<ul>
-<li>所谓公共子网就是其对应的路由表中配置了规则将请求路由到了 <code>Internet Gateway</code></li>
-<li>私有子网就是其关联的路由表中没有配置到 <code>Internet Gatway</code> 的路由规则，因此无法对外访问。</li>
-</ul>
-<p>AWS 的 VPC 网络配置关系是：<em><strong>实例与子网关联，子网关联路由表，路由表设置网关</strong></em>。</p>
-</blockquote>
-<span id="more"></span>
-
-<h2 id="公共子网联网"><a href="#公共子网联网" class="headerlink" title="公共子网联网"></a>公共子网联网</h2><h3 id="介绍IGW"><a href="#介绍IGW" class="headerlink" title="介绍IGW"></a>介绍IGW</h3><p>公共子网通过IGW(Internet gateway)组件来实现VPC和Internet的相互通信。</p>
-<p>IGW提供两项功能：</p>
-<ol>
-<li>Subnet中的流量通过IGW访问Internet</li>
-<li>为配置了Public IP的Instance提供网址转换</li>
-</ol>
-<h3 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建VPC"><a href="#1-创建VPC" class="headerlink" title="1.创建VPC"></a>1.创建VPC</h4><p>手动创建VPC，即不通过向导的方式进行创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010040498.png" alt="image-20220330010040498"></p>
-<p>VPC的设置如下</p>
-<p>选择“仅VPC”</p>
-<p>命名为：my-vpc-02</p>
-<p>IPv4 CIDR：172.16.0.0&#x2F;22</p>
-<p>其他保持默认，点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010150289.png" alt="image-20220330010150289"></p>
-<p>查看创建好的VPC</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010359754.png" alt="image-20220330010359754"></p>
-<h4 id="2-创建互联网网关"><a href="#2-创建互联网网关" class="headerlink" title="2.创建互联网网关"></a>2.创建互联网网关</h4><p>点击“新建互联网网关”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010558808.png" alt="image-20220330010558808"></p>
-<p>将该互联网网关命名为：my-igw-02</p>
-<p>点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010653543.png" alt="image-20220330010653543"></p>
-<p>互联网网关已经建好，将它附加到VPC，点击下图中的1或2处都可以</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010838397.png" alt="image-20220330010838397"></p>
-<p>选择新建的VPC，my-vpc-02，连接互联网网关</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010919597.png" alt="image-20220330010919597"></p>
-<p>互联网网关成功附加到了VPC上</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011023866.png" alt="image-20220330011023866"></p>
-<h4 id="3-创建公有子网"><a href="#3-创建公有子网" class="headerlink" title="3.创建公有子网"></a>3.创建公有子网</h4><p>点击“创建子网”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011136211.png" alt="image-20220330011136211"></p>
-<p>选择新建的VPC，my-vpc-02</p>
-<p>创建一个子网，命令为：my-sub-pub-02</p>
-<p>可用区可以选择当前区域的任意可用区，此处选择“us-east-1a”</p>
-<p>IPv4 CIDR: 172.16.1.0&#x2F;24</p>
-<p>点击“创建子网”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011507485.png" alt="image-20220330011507485"></p>
-<p>子网创建成功</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011727300.png" alt="image-20220330011727300"></p>
-<p>进入到该子网的路由表，点击路由表的id进入</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011823385.png" alt="image-20220330011823385"></p>
-<p>查看该路由表的路由条目，点击“编辑路由”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012003132.png" alt="image-20220330012003132"></p>
-<p>点击“添加路由”，新的路由如下</p>
-<p>第一个空选择：0.0.0.0&#x2F;0，第二空选项“互联网网关”，随后会跳出刚创建的IGW，点击“保存更改”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012108517.png" alt="image-20220330012108517"></p>
-<p>路由表新增条目成功</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012306561.png" alt="image-20220330012306561"></p>
-<p>由于该子网添加了IGW，于是该子网成为了公共子网，给子网内的ec2分配公有子网或者弹性IP之后可以访问到Internet。</p>
-<h4 id="4-创建安全组"><a href="#4-创建安全组" class="headerlink" title="4.创建安全组"></a>4.创建安全组</h4><p>点击创建安全组</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093212864.png" alt="image-20220330093212864"></p>
-<p>安全组名称：my-Security-Group-02</p>
-<p>VPC选择my-vpc-02</p>
-<p>添加2条入站信息，分别是22端口和ICMP</p>
-<p>配置完成之后，点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093653373.png" alt="image-20220330093653373"></p>
-<p>安全组创建完成</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093716680.png" alt="image-20220330093716680"></p>
-<h4 id="5-创建EC2"><a href="#5-创建EC2" class="headerlink" title="5.创建EC2"></a>5.创建EC2</h4><p>点击“启动新实例”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092020102.png" alt="image-20220330092020102"></p>
-<p>在AWS Marketplace中选择Centos7这个AMI</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092149765.png" alt="image-20220330092149765"></p>
-<p>实例类型选择t2.micro，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092236542.png" alt="image-20220330092236542"></p>
-<p>网络选择刚才新建的VPC，my-vpc-02</p>
-<p>子网选择公共子网，my-sub-pub-02</p>
-<p>自动分配公有IP处选择<font color="red">禁用</font>，说明稍后给ec2绑定弹性IP，而不使用创建是分配的公网IP</p>
-<p>配置完成后，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092539598.png" alt="image-20220330092539598"></p>
-<p>存储使用默认的资源配置，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093025676.png" alt="image-20220330093025676"></p>
-<p>给EC2添加标签，Name: test-pub-02，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095554126.png" alt="image-20220330095554126"></p>
-<p>选择现有安全组my-Security-Group-02</p>
-<p>点击审核和启动</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095703240.png" alt="image-20220330095703240"></p>
-<p>点击启动</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095726364.png" alt="image-20220330095726364"></p>
-<p>因为我之前有密钥对，所以选择“选择现有密钥对”选项。如果之前没有密钥对选择新建，输入密钥对的名字之后会进行下载。</p>
-<p>点击启动新实例</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095853535.png" alt="image-20220330095853535"></p>
-<h4 id="6-创建-amp-绑定弹性IP"><a href="#6-创建-amp-绑定弹性IP" class="headerlink" title="6.创建&amp;绑定弹性IP"></a>6.创建&amp;绑定弹性IP</h4><p>点击分配弹性IP地址</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104427148.png" alt="image-20220330104427148"></p>
-<p>设置键值对 Name: ec2-test-pub-02</p>
-<p>点击分配</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104522655.png" alt="image-20220330104522655"></p>
-<p>关联该弹性IP</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104554944.png" alt="image-20220330104554944"></p>
-<p>实例选择test-pub-02，选择私有IP地址，点击关联</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104656288.png" alt="image-20220330104656288"></p>
-<h4 id="7-测试"><a href="#7-测试" class="headerlink" title="7.测试"></a>7.测试</h4><p>访问EC2可以ping通baidu.com</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330110421486.png" alt="image-20220330110421486"></p>
-<h2 id="私有子网联网"><a href="#私有子网联网" class="headerlink" title="私有子网联网"></a>私有子网联网</h2><h3 id="介绍NAT-GW"><a href="#介绍NAT-GW" class="headerlink" title="介绍NAT GW"></a>介绍NAT GW</h3><p>NAT GW是一种网络地址转换服务。可以使用NAT网关将私有子网中的实例连接到VPC外部的服务，但是外部无法启动与这些实例的连接。</p>
-<p>在创建 NAT 网关时，指定以下连接类型之一：</p>
-<ul>
-<li><strong>公开</strong> –（默认）私有子网中的实例可以通过公共 NAT 网关连接到互联网，但不能接收来自互联网的未经请求的入站连接。<font color="red">在公有子网中创建公有 NAT 网关，并且必须在创建时将弹性 IP 地址与 NAT 网关相关联。可以将流量从 NAT 网关路由到 VPC 的互联网网关。</font>或者，您可以使用公有 NAT 网关连接到其他 VPC 或本地部署网络。在这种情况下，您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。</li>
-<li><strong>私密</strong> – 私有子网中的实例可以通过私有 NAT 网关连接到其他 VPC 或您的本地部署网络。您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。您不能将弹性 IP 地址与私有 NAT 网关相关联。您可以将互联网网关连接到具有私有 NAT 网关的 VPC，但如果您将流量从私有 NAT 网关路由到互联网网关，则互联网网关会丢弃流量。</li>
-</ul>
-<p>NAT 网关将实例的源 IP 地址替换为 NAT 网关的 IP 地址。对于公有 NAT 网关，这是 NAT 网关的弹性 IP 地址。对于私有 NAT 网关，这是 NAT 网关的私有 IP 地址。向实例发送响应流量时，NAT 设备会将地址转换回原始源 IP 地址。</p>
-<p>注意：NAT网关要给私有子网使用，其自身要在公有子网内，即需要保证它自身能够访问到互联网。</p>
-<h3 id="操作-1"><a href="#操作-1" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建私有子网"><a href="#1-创建私有子网" class="headerlink" title="1.创建私有子网"></a>1.创建私有子网</h4><p>新建子网</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112048218.png" alt="image-20220330112048218"></p>
-<p>子网配置信息</p>
-<p>VPC选择my-vpc-02</p>
-<p>子网命名为my-sub-pri-02</p>
-<p>可用区可以随意选择，最好和公共子网在两个不同的可用区</p>
-<p>IPv4 CIDR为172.16.2.0&#x2F;24</p>
-<p>配置完成之后点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112158262.png" alt="image-20220330112158262"></p>
-<h4 id="2-创建NAT网关"><a href="#2-创建NAT网关" class="headerlink" title="2.创建NAT网关"></a>2.创建NAT网关</h4><p>点击创建NAT网关</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112448923.png" alt="image-20220330112448923"></p>
-<p>nat网关设置</p>
-<p>命名为my-nat-02</p>
-<p>子网选择公有子网，类型为公有</p>
-<p>为它分配弹性IP</p>
-<p>配置完成之后点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112702279.png" alt="image-20220330112702279"></p>
-<h4 id="3-私有子网路由表关联NAT网关"><a href="#3-私有子网路由表关联NAT网关" class="headerlink" title="3.私有子网路由表关联NAT网关"></a>3.私有子网路由表关联NAT网关</h4><p>创建私网路由表</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132430858.png" alt="image-20220330132430858"></p>
-<p>为新建的路由表设置子网关联</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132953082.png" alt="image-20220330132953082"></p>
-<p>将该表关联到私有子网</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133016115.png" alt="image-20220330133016115"></p>
-<p>将公共子网使用的这张表改名，以便标识</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133149273.png" alt="image-20220330133149273"></p>
-<p>编辑私有子网的这张路由表</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133240295.png" alt="image-20220330133240295"></p>
-<p>新增一条路由到nat网关，添加好之后点击保存更改</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133310859.png" alt="image-20220330133310859"></p>
-<h4 id="4-创建EC2"><a href="#4-创建EC2" class="headerlink" title="4.创建EC2"></a>4.创建EC2</h4><p>创建步骤同在公共子网中创建EC2，省略大部分配置</p>
-<p>需要特别注意的地方如下</p>
-<p>网络选择my-vpc-02，子网选择新建的私有子网my-sub-pri-02，禁用自动分配公有IP功能</p>
-<p>其余的配置与在公共子网内的配置大同小异，无非就是命名不一致，这里就不过多赘述</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330115204934.png" alt="image-20220330115204934"></p>
-<h4 id="5-测试"><a href="#5-测试" class="headerlink" title="5.测试"></a>5.测试</h4><p>需要说明一下，访问该私有子网的EC2需要通过公共子网内的EC2作为跳板机来访问</p>
-<p>即先ssh到公共子网内的EC2，在此基础上ssh到私有子网的EC2上</p>
-<p>将密钥文件通过SCP上传到公网EC2上</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134025275.png" alt="image-20220330134025275"></p>
-<p>进行ping测试，可以成功ping通baidu.com</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134155233.png" alt="image-20220330134155233"></p>
-<p>注意点：</p>
-<ol>
-<li>VPC默认只有一张路由表，先创建公共子网，再创建私有子网的情况下要单独为私有子网创建一张路由表</li>
-<li>NAT网关通Internet的话，要把NAT网关创建在公共子网中，并为其分配弹性IP</li>
-<li>子网（公共子网&amp;私有子网）会有一定的地址保留。Amazon会保留各个子网的前面4个IP地址和最后1个IP地址，以作IP联网之用。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>VPC</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>VPC</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>AWS WorkSpaces入门1</title>
     <url>/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/</url>
     <content><![CDATA[<h1 id="AWS-WorkSpaces入门1"><a href="#AWS-WorkSpaces入门1" class="headerlink" title="AWS WorkSpaces入门1"></a>AWS WorkSpaces入门1</h1><p>本文主要介绍Amazon WorkSpaces服务。</p>
@@ -1307,215 +1695,6 @@
       <tags>
         <tag>AWS</tag>
         <tag>WorkSpaces</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spot实例</title>
-    <url>/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/</url>
-    <content><![CDATA[<h1 id="Part1-介绍EC2-Spot实例"><a href="#Part1-介绍EC2-Spot实例" class="headerlink" title="Part1 介绍EC2 Spot实例"></a>Part1 介绍EC2 Spot实例</h1><ul>
-<li>Spot实例是一种可提供请求目前尚未使用的EC2实例，AWS以低于按需价格提供</li>
-<li>最高可比按需实例的价格节省90%，能够显著降低EC2的使用成本</li>
-<li>提供您愿为Spot实例支付的每小时最高的价格，如超过Spot当前的价格，则Spot实例就会运行<ul>
-<li>Spot实例的价格是根据Spot实例的长期供求趋势逐步调整和变化的</li>
-<li>如果Spot价格超过您的请求的最高价，或者不在具有可用的容量，EC2将终止、停止或休眠您的Spot实例，EC2将会在实例中断之前2分钟提供中断通知。</li>
-</ul>
-</li>
-<li>Spot blocks: 请求持续运行的Spot实例<ul>
-<li>可以定义请求的Spot实例在1-6小时不中断持续运行(1, 2, 3, 4, 5, 6个小时持续运行)</li>
-<li>在极其罕见的情况下，请求持续运行的Spot实例也是会中断的</li>
-</ul>
-</li>
-<li>适用于数据分析，批处理作业，后台处理以及一些无状态的应用，或可灵活控制运行时间且可中断的情况</li>
-</ul>
-<span id="more"></span>
-
-<p>Spot实例的价格</p>
-<p><img src="/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/image-20220518233928936.png" alt="image-20220518233928936"></p>
-<h1 id="Part2-Spot队列"><a href="#Part2-Spot队列" class="headerlink" title="Part2 Spot队列"></a>Part2 Spot队列</h1><ul>
-<li>Spot队列是Spot实例和可选的按需实例的集合</li>
-<li>可在Spot队列中指定您对目标容量的需求（总容量？包括多少按需实例？）</li>
-<li>可设置一个您愿意为Spot队列支付的每小时的最高价格</li>
-<li>可为请求的Spot队列选择多个实例类型，比如M5.large，C5.xlarge，T2.2xlarge等</li>
-<li>支持AutoScaling组：创建ECS集群也可以使用Spot实例；使用AWS Batch创建有AWS Batch托管的计算环境时，这些服务都可以使用Spot实例</li>
-<li>容量限制：<ul>
-<li>每个Spot队列或EC2队列的目标容量：10000</li>
-<li>区域中所有Spot队列和EC2队列的目标容量：100000</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>EC2</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>EC2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>实例的状态</title>
-    <url>/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/</url>
-    <content><![CDATA[<h1 id="实例的状态"><a href="#实例的状态" class="headerlink" title="实例的状态"></a>实例的状态</h1><h2 id="Part1-实例的状态检查"><a href="#Part1-实例的状态检查" class="headerlink" title="Part1 实例的状态检查"></a>Part1 实例的状态检查</h2><p>实例的状态检查总体描述</p>
-<ul>
-<li>Amazon EC2会对每个运行的EC2实例执行自动检查以识别硬件或软件问题。</li>
-<li>状态检查是内置到Amazon EC2中的，所以不能禁用或删除。</li>
-<li>状态检查每分钟进行一次，会返回一个通过或失败状态。</li>
-<li>可以创建Amazon CloudWatch警报，用于监控Amazon EC2实例并在实例由于潜在问题而受损是自动恢复实例。</li>
-</ul>
-<span id="more"></span>
-
-
-
-<p>实例状态检查分为系统状态检查和实例状态检查</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183012568.png" alt="image-20220515183012568"></p>
-<h2 id="Part2-系统状态检查"><a href="#Part2-系统状态检查" class="headerlink" title="Part2 系统状态检查"></a>Part2 系统状态检查</h2><p>系统状态检查，会检测出<font color="red">需要AWS参与修复</font>的深层实例问题：</p>
-<ul>
-<li>网络连接丢失</li>
-<li>系统电源损耗</li>
-<li>物理主机上的软件问题</li>
-<li>物理主机上影响到网络连接状态的硬件问题</li>
-</ul>
-<p>系统状态检查——涉及物理硬件</p>
-<p>AWS支持当实例出现状态检查失败时自动恢复指定的实例，即当实例配置了自动恢复，当实例系统状态检查失败时，</p>
-<h2 id="Part3-实例状态检查"><a href="#Part3-实例状态检查" class="headerlink" title="Part3 实例状态检查"></a>Part3 实例状态检查</h2><p>实例状态检查，监控您的各个实例的软件和网络配置等。这些检查需要您参与修复问题。</p>
-<p>如果实例状态检查失败，通常必须由您自行解决问题：</p>
-<ul>
-<li>系统状态检查故障</li>
-<li>实例的网络或启动配置不正确</li>
-<li>内存耗尽</li>
-<li>文件系统损坏</li>
-<li>内核不兼容</li>
-</ul>
-<p>实例状态检查——设计操作系统之上的软件</p>
-<h2 id="Part4-操作演示"><a href="#Part4-操作演示" class="headerlink" title="Part4 操作演示"></a>Part4 操作演示</h2><h3 id="4-1-状态检查监控总览"><a href="#4-1-状态检查监控总览" class="headerlink" title="4.1 状态检查监控总览"></a>4.1 状态检查监控总览</h3><p>在AWS控制台查看实例状态检查情况，可以看到系统状态检查失败次数和实例状态检查失败次数</p>
-<p>选中实例，点击&lt;监控&gt;，即可查看</p>
-<p>&lt;监控&gt;下的dashboard由AWS CloudWatch服务提供实现，是一项免费服务</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515183922321.png" alt="image-20220515183922321"></p>
-<h3 id="4-2-系统状态检查失败自动恢复"><a href="#4-2-系统状态检查失败自动恢复" class="headerlink" title="4.2 系统状态检查失败自动恢复"></a>4.2 系统状态检查失败自动恢复</h3><p>系统状态检查失败时，如果配置了自动恢复，EC2会自动恢复，不需要人为干预。</p>
-<p><font color="red">注：自动恢复仅支持系统状态检查，并不支持实例状态检查</font></p>
-<p><strong>演示</strong></p>
-<h4 id="4-2-1-创建状态检查警报"><a href="#4-2-1-创建状态检查警报" class="headerlink" title="4.2.1 创建状态检查警报"></a>4.2.1 创建状态检查警报</h4><ol>
-<li>选中实例，点击&lt;状态检查&gt;，点击&lt;操作&gt;，点击&lt;创建状态检查警报&gt;</li>
-</ol>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185220085.png" alt="image-20220515185220085"></p>
-<ol start="2">
-<li><p>配置内容</p>
-<ul>
-<li>警报操作：恢复</li>
-<li>警报阈值：当发生系统状态检查1次失败时，发出警报</li>
-<li>警报名称：awsec2-test</li>
-</ul>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515185908979.png" alt="image-20220515185908979"></p>
-<p>点击&lt;创建&gt;</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190011936.png" alt="image-20220515190011936"></p>
-</li>
-<li><p>查看创建好的告警</p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220515190328743.png" alt="image-20220515190328743"></p>
-</li>
-</ol>
-<h4 id="4-2-2-制造系统状态检查失败"><a href="#4-2-2-制造系统状态检查失败" class="headerlink" title="4.2.2 制造系统状态检查失败"></a>4.2.2 制造系统状态检查失败</h4><p>人为制造系统状态检查失败，查看告警</p>
-<p>在Linux控制台输入以下命令，修改名为“awsec2-test”的CloudWatch</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws cloudwatch set-alarm-state --alarm-name <span class="string">&quot;awsec2-test&quot;</span> --state-value ALARM --state-reason <span class="string">&quot;test&quot;</span> --region us-east-1</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232440954.png" alt="image-20220517232440954"></p>
-<p>命令执行之后警报的状态会发生变化，变为“警报中”</p>
-<p>进入警报<awsec2-test>,查看警报由报警状态自动恢复在确定状态。</awsec2-test></p>
-<p><img src="/2022/05/18/AWS/calculate/%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%8A%B6%E6%80%81/image-20220517232732987.png" alt="image-20220517232732987"></p>
-<h2 id="Part5-参考文章"><a href="#Part5-参考文章" class="headerlink" title="Part5 参考文章"></a>Part5 参考文章</h2><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/monitoring-system-instance-status-check.html">实例的状态检查</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>EC2</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>EC2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>置放群组</title>
-    <url>/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/</url>
-    <content><![CDATA[<h1 id="置放群组"><a href="#置放群组" class="headerlink" title="置放群组"></a>置放群组</h1><p>当我们启动新的EC2实例时，实例启动在哪个机柜，哪个底层硬件上，对于我们来说是透明的。EC2服务会尝试以某种方式启动实例。AWS有缺省的规则，缺省的规则可以满足大部分的需求。</p>
-<p>置放群组可以让我们按照一定的策略指定EC2物理硬件的相对位置关系。比如，想要降低EC2之间网络延迟可以把EC2的物理位置放的近一些；想要隔离硬件故障，可以将EC2分开放置在不同的机柜及物理硬件上。</p>
-<span id="more"></span>
-
-
-
-<h2 id="Part1-什么是置放群组？"><a href="#Part1-什么是置放群组？" class="headerlink" title="Part1 什么是置放群组？"></a>Part1 什么是置放群组？</h2><p>置放群组可以将启动的实例尽可能的相互靠近一点，实现启动实例间的低延迟、高吞吐量的网络或者将启动实例分散放置到不同的硬件和机柜，减少故障的影响。</p>
-<p>费用：<font color="red">创建置放群组无需支付费用。</font></p>
-<p>群组的概念就是会有多个EC2实例，也就是说以下的策略都是针对多个EC2的。</p>
-<h2 id="Part2-置放群组策略"><a href="#Part2-置放群组策略" class="headerlink" title="Part2 置放群组策略"></a>Part2 置放群组策略</h2><p>创建置放群组有3种策略：集群、分区、分布</p>
-<h3 id="2-1-集群置放群组"><a href="#2-1-集群置放群组" class="headerlink" title="2.1 集群置放群组"></a>2.1 集群置放群组</h3><p>将同一个可用区中的EC2的物理位置放的尽可能近一些，比如说放到同一可用区，同一机柜，同一底层硬件。</p>
-<ul>
-<li>将一个可用区中靠近的实例打包在一起</li>
-<li>用于可受益于低网络延迟或高网络吞吐量的应用程序</li>
-<li>适用于HPC应用程序通常使用的紧密耦合的节点到节点通信的要求</li>
-<li>一个集群置放群组<font color="red">不能跨过多个可用区</font></li>
-</ul>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518163550944.png" alt="image-20220518163550944"></p>
-<p>集群置放群组对实例有要求：免费的t2系列不支持集群置放群组</p>
-<p><strong>重点</strong></p>
-<ul>
-<li>一个集群置放群组不能跨越多个可用区</li>
-<li>集群置放群组中启动实例时，对于实例类型是有要求的（以下为限定的实例类型）<ul>
-<li>通用型：A1、M4、M5、M5a、M5ad、M5d、M5dn、M5n</li>
-<li>计算优化型：C3、C4、C5、C5d、C5n、cc2.8xlarge</li>
-<li>内存优化型：cr1.8xlarge、R3、R4、R5、R5a、R5ad、R5d、R5dn、R5n、X1、X1e、z1d</li>
-<li>存储优化：D2、H1、hs1.8xlarge、I2、I3、I3en</li>
-<li>加速计算型：F1、G2、G3、G4dn、P2、P3、P3dn</li>
-</ul>
-</li>
-<li>集群置放群组中的两个实例之间的最大网络吞吐量流量速度受2个实例中较慢实例限制</li>
-<li>使用单个启动请求在置放群组中启动所需的实例数。对置放群组中的所有实例使用相同的实例类型</li>
-<li>如果您停止置放群组中的某个实例，然后重启该实例，则其仍将在该置放群组中运行</li>
-<li>如果您在已有正在运行的实例的置放群组中启动实例时接受到容量错误信息，请在该置放群组中停止并启动所有实例，然后尝试再次启动</li>
-</ul>
-<h3 id="2-2-分区置放群组"><a href="#2-2-分区置放群组" class="headerlink" title="2.2 分区置放群组"></a>2.2 分区置放群组</h3><p>EC2将群组划分为多个逻辑段，称为分区。</p>
-<p>置放群组中每个分区有自己的一组机柜，每个机柜具有自己的网络和电源。置换群组中任何两个不同的分区将不会分享相同的机柜。因此，可以隔离硬件故障影响。</p>
-<p>以下是单可用区中2个分区的一个示例。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518190802466.png" alt="image-20220518190802466"></p>
-<p>分区1和分区2都包含多个实例，将故障影响限制在单个分区内。</p>
-<p><strong>知识点</strong></p>
-<ul>
-<li>将实例分布在不同的逻辑分区上</li>
-<li>通常为大型分布式和重复的工作负载所使用的，例如，Hadoop、Cassandra和Kafka</li>
-<li>在分区置放群组中启动实例时，EC2将尝试跨您指定数量的分区均匀分发实例</li>
-<li>对于每个可用区，一个分区置放群组最多可具有7个分区</li>
-</ul>
-<h3 id="2-3-分布置放群组"><a href="#2-3-分布置放群组" class="headerlink" title="2.3 分布置放群组"></a>2.3 分布置放群组</h3><p>分布置放群组可以将实例放在不同的机柜上，使用不同的网络和电源。</p>
-<p>eg.假设分布置放群组启动了4个实例，4个实例放在4个机柜上，每个机柜有各自的网络和电源。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191125568.png" alt="image-20220518191125568"></p>
-<p>当机柜1发生故障，剩下的实例由于在其他的机柜，将不会收到影响。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191252806.png" alt="image-20220518191252806"></p>
-<p><strong>知识点</strong></p>
-<ul>
-<li>将每个实例放置在不同的机架上</li>
-<li>关键业务的多个实例使用分布置放群组</li>
-<li>可以跨越同一区域中的多个可用区</li>
-<li>每个群组在每个可用区中最多有7个正在运行的实例</li>
-</ul>
-<h2 id="Part3-实操"><a href="#Part3-实操" class="headerlink" title="Part3 实操"></a>Part3 实操</h2><h3 id="3-1-创建集群置放群组"><a href="#3-1-创建集群置放群组" class="headerlink" title="3.1 创建集群置放群组"></a>3.1 创建集群置放群组</h3><p>进入AWS控制台的EC2页面，点击&lt;置放群组&gt;，点击&lt;创建置放群组&gt;</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518184037036.png" alt="image-20220518184037036"></p>
-<p>创建一个集群置放群组，置放策略选择&lt;集群&gt;</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191602552.png" alt="image-20220518191602552"></p>
-<h3 id="3-2-创建EC2到置放群组中"><a href="#3-2-创建EC2到置放群组中" class="headerlink" title="3.2 创建EC2到置放群组中"></a>3.2 创建EC2到置放群组中</h3><p>在EC2的实例详细配置页面中，勾选将实例放到置放群组中，选择置放群组&lt;cluster-test(cluster)&gt;</p>
-<p>只有支持置放群组的实例类型才能将它放到置放群组中。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191853712.png" alt="image-20220518191853712"></p>
-<p>创建ec2的其他步骤省略。</p>
-<h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/WindowsGuide/placement-groups.html">置放群组</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>EC2</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>EC2</tag>
       </tags>
   </entry>
 </search>
