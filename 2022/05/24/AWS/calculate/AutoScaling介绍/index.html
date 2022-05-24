@@ -20,59 +20,59 @@
     var CONFIG = {"hostname":"brendaoo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Part1 弹性伸缩架构弹性伸缩架构有2种模式，分别是垂直扩展和水平扩展 垂直扩展 垂直扩展：提升单个节点自身处理能力。通过升级或更换更强大的硬件等。 eg：实例类型更换，更换性能更强大的实例类型。  水平扩展 水平扩展：通过增加更多的节点来分散工作负载，从而实现节点计算等能力的扩展。 eg；增加实例数量  Part2 弹性伸缩的必要性以下为一家公司线上办公系统访问量  可以得出以下几点  一周当">
+  <meta name="description" content="Part1 弹性伸缩架构弹性伸缩架构有2种模式，分别是垂直扩展和水平扩展 垂直扩展 垂直扩展：提升单个节点自身处理能力。通过升级或更换更强大的硬件等。 eg：实例类型更换，更换性能更强大的实例类型。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="AutoScaling介绍介绍">
-<meta property="og:url" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="Logs">
-<meta property="og:description" content="Part1 弹性伸缩架构弹性伸缩架构有2种模式，分别是垂直扩展和水平扩展 垂直扩展 垂直扩展：提升单个节点自身处理能力。通过升级或更换更强大的硬件等。 eg：实例类型更换，更换性能更强大的实例类型。  水平扩展 水平扩展：通过增加更多的节点来分散工作负载，从而实现节点计算等能力的扩展。 eg；增加实例数量  Part2 弹性伸缩的必要性以下为一家公司线上办公系统访问量  可以得出以下几点  一周当">
+<meta property="og:description" content="Part1 弹性伸缩架构弹性伸缩架构有2种模式，分别是垂直扩展和水平扩展 垂直扩展 垂直扩展：提升单个节点自身处理能力。通过升级或更换更强大的硬件等。 eg：实例类型更换，更换性能更强大的实例类型。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102211272.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102541711.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095248349.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095309801.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095330245.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095349932.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155108709.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155549378.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522170547958.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522191156220.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233753937.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233832408.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192750726.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192724372.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233952911.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192928932.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234210471.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194306929.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141343727.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194631389.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234419726.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522195147472.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234545795.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234614247.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234816685.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235309242.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235602232.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523135744690.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523140600615.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141131778.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141216008.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141520821.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523162343018.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194905356.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194459373.png">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194631796.png">
-<meta property="article:published_time" content="2022-05-23T15:21:20.163Z">
-<meta property="article:modified_time" content="2022-05-23T15:21:20.163Z">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102211272.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102541711.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095248349.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095309801.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095330245.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095349932.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155108709.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155549378.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522170547958.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522191156220.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233753937.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233832408.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192750726.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192724372.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233952911.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192928932.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234210471.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194306929.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141343727.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194631389.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234419726.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522195147472.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234545795.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234614247.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234816685.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235309242.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235602232.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523135744690.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523140600615.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141131778.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141216008.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141520821.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523162343018.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194905356.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194459373.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194631796.png">
+<meta property="article:published_time" content="2022-05-24T01:27:53.448Z">
+<meta property="article:modified_time" content="2022-05-24T01:27:53.448Z">
 <meta property="article:author" content="Brenda">
 <meta property="article:tag" content="AWS">
 <meta property="article:tag" content="EC2">
 <meta property="article:tag" content="AutoScaling介绍">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102211272.png">
+<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102211272.png">
 
-<link rel="canonical" href="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/">
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/">
 
 
 <script id="page-configurations">
@@ -211,7 +211,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -234,7 +234,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2022-05-23 23:21:20" itemprop="dateCreated datePublished" datetime="2022-05-23T23:21:20+08:00">2022-05-23</time>
+              <time title="创建时间：2022-05-24 09:27:53" itemprop="dateCreated datePublished" datetime="2022-05-24T09:27:53+08:00">2022-05-24</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -279,13 +279,15 @@
 <p><strong>垂直扩展</strong></p>
 <p>垂直扩展：提升单个节点自身处理能力。通过升级或更换更强大的硬件等。</p>
 <p>eg：实例类型更换，更换性能更强大的实例类型。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102211272.png" alt="image-20220519102211272"></p>
+<span id="more"></span>
+
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102211272.png" alt="image-20220519102211272"></p>
 <p><strong>水平扩展</strong></p>
 <p>水平扩展：通过增加更多的节点来分散工作负载，从而实现节点计算等能力的扩展。</p>
 <p>eg；增加实例数量</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102541711.png" alt="image-20220519102541711"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220519102541711.png" alt="image-20220519102541711"></p>
 <h1 id="Part2-弹性伸缩的必要性"><a href="#Part2-弹性伸缩的必要性" class="headerlink" title="Part2 弹性伸缩的必要性"></a>Part2 弹性伸缩的必要性</h1><p>以下为一家公司线上办公系统访问量</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095248349.png" alt="image-20220523095248349"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095248349.png" alt="image-20220523095248349"></p>
 <p>可以得出以下几点</p>
 <ol>
 <li>一周当中7天的访问量不相同，周六和周日的访问量比较少</li>
@@ -295,21 +297,21 @@
 <ol>
 <li><p><font color="red">添加足够多的服务器，</font>以便线上办公系统有足够多的容量来满足线上办公的需求，周三的访问量最高，就按照周三的最大容量准备服务器。假设周三的访问需要10台服务器，那么就需要10台服务器来部署服务。</p>
 <p>这种做法的缺点是，周六、日的时候可能只需要1-2台服务器，部署10台服务器会增加一个运行成本。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095309801.png" alt="image-20220523095309801"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095309801.png" alt="image-20220523095309801"></p>
 </li>
 <li><p><font color="red">只准备线上办公系统平均需求的容量。</font>比如准备6台。</p>
 <p>这种做法成本更低，但是当对系统的需求超过其可用容量时，会造成糟糕的客户体验。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095330245.png" alt="image-20220523095330245"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095330245.png" alt="image-20220523095330245"></p>
 </li>
 </ol>
 <p>2种方法一个成本高，一个客户体验糟糕。</p>
 <p>更好的解决办法</p>
 <p>使用AWS的Auto Scaling</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095349932.png" alt="image-20220523095349932"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523095349932.png" alt="image-20220523095349932"></p>
 <p>当访问需求增加时，增加实例数量；当访问需求降低时，减少实例数量。兼具成本和用户体验。</p>
 <p>EC2 Auto Scaling可根据业务需求和策略设置扩展选项，在业务需求增长是自动为您增加实例以保证计算能力，在业务需求下降时自动减少实例数量以节约成本。</p>
 <h1 id="Part3-弹性扩展例子"><a href="#Part3-弹性扩展例子" class="headerlink" title="Part3 弹性扩展例子"></a>Part3 弹性扩展例子</h1><p>以某学习网站为例。当晚上19点开始，访问量开始增长，22点过后访问量逐渐减少。网站的访问量白天访问量不高。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155108709.png" alt="image-20220522155108709"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155108709.png" alt="image-20220522155108709"></p>
 <p>监测方法：通过网站服务器的平均CPU使用率进行监控。</p>
 <p>配置Auto Scaling组的平均平均CPU使用率来进行弹性伸缩（规则）：</p>
 <ul>
@@ -318,7 +320,7 @@
 <li>平均平均CPU使用率小于25%，删除2台实例</li>
 </ul>
 <p>弹性伸缩配置</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155549378.png" alt="image-20220522155549378"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522155549378.png" alt="image-20220522155549378"></p>
 <p>保持最小实例数1台，最大实例数3台。</p>
 <p>扩展策略：</p>
 <ul>
@@ -327,7 +329,7 @@
 </ul>
 <p>扩展原理：</p>
 <p>每一个扩展策略其实是cloudwatch中的一个警报。当平均CPU使用率增加，超过70%时，会触发cloudwatch警报。将cloudwatch警报与实例的AutoScaling介绍组相关联，当cloudwatch出现alarm状态时，AutoScaling介绍组就会对应地做增加或者删除实例的动作。从而实现实例的扩展。实例收缩同理。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522170547958.png" alt="image-20220522170547958"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522170547958.png" alt="image-20220522170547958"></p>
 <p><strong>扩展策略指标要求</strong></p>
 <p>指标必须是有效的使用率指标，可以判断实例的繁忙程度。</p>
 <p><strong>费用</strong></p>
@@ -343,63 +345,63 @@
 </ol>
 <h2 id="4-2-实验操作"><a href="#4-2-实验操作" class="headerlink" title="4.2 实验操作"></a>4.2 实验操作</h2><h3 id="4-2-1-创建启动配置"><a href="#4-2-1-创建启动配置" class="headerlink" title="4.2.1 创建启动配置"></a>4.2.1 创建启动配置</h3><p>进入到EC2的&lt;启动配置&gt;页面，点击&lt;创建启动配置&gt;</p>
 <p><font color="red">注意：AWS更推荐使用启动模板</font></p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522191156220.png" alt="image-20220522191156220"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522191156220.png" alt="image-20220522191156220"></p>
 <p>填写启动配置的名称、选择AMI(只能根据AMI id搜索)、选择实例类型</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233753937.png" alt="image-20220522233753937"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233753937.png" alt="image-20220522233753937"></p>
 <p>配置存储卷大小</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233832408.png" alt="image-20220522233832408"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233832408.png" alt="image-20220522233832408"></p>
 <p>创建安全组</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192750726.png" alt="image-20220522192750726"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192750726.png" alt="image-20220522192750726"></p>
 <p>选择或者新建密钥对</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192724372.png" alt="image-20220522192724372"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192724372.png" alt="image-20220522192724372"></p>
 <p>启动模板创建成功</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233952911.png" alt="image-20220522233952911"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522233952911.png" alt="image-20220522233952911"></p>
 <p>【启动模板配置的过程很像EC2创建的过程】</p>
 <h3 id="4-2-2-创建Auto-Scaling组"><a href="#4-2-2-创建Auto-Scaling组" class="headerlink" title="4.2.2 创建Auto Scaling组"></a>4.2.2 创建Auto Scaling组</h3><p>在Auto Scaling页面点击&lt;创建Auto Scaling组&gt;</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192928932.png" alt="image-20220522192928932"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522192928932.png" alt="image-20220522192928932"></p>
 <p>为Auto Scaling组命名as-test-group，选择启动配置项as-test，点击&lt;下一步&gt;</p>
 <p>注意是启动配置</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234210471.png" alt="image-20220522234210471"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234210471.png" alt="image-20220522234210471"></p>
 <p>选择VPC，子网，点击&lt;下一步&gt;</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194306929.png" alt="image-20220522194306929"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194306929.png" alt="image-20220522194306929"></p>
 <p>高级配置选项这一页运行状态检查期限设置为10s，点击&lt;下一步&gt;</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141343727.png" alt="image-20220523141343727"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141343727.png" alt="image-20220523141343727"></p>
 <p>配置组大小和扩展策略</p>
 <p>配置组最小1台，最大3台</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194631389.png" alt="image-20220522194631389"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522194631389.png" alt="image-20220522194631389"></p>
 <p>扩展策略选择&lt;目标跟踪扩展策略&gt;，指标类型选择&lt;平均CPU利用率&gt;，目标值设置为70，点击&lt;下一步&gt;</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234419726.png" alt="image-20220522234419726"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234419726.png" alt="image-20220522234419726"></p>
 <p>添加标签，不配置，点击&lt;下一步&gt;</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522195147472.png" alt="image-20220522195147472"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522195147472.png" alt="image-20220522195147472"></p>
 <p>点击&lt;创建Auto Scaling组&gt;</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234545795.png" alt="image-20220522234545795"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234545795.png" alt="image-20220522234545795"></p>
 <p>Auto Scaling组创建成功</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234614247.png" alt="image-20220522234614247"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234614247.png" alt="image-20220522234614247"></p>
 <p>查看Auto Scaling组的状态，为Successful。当前有一个启动实例。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234816685.png" alt="image-20220522234816685"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522234816685.png" alt="image-20220522234816685"></p>
 <h3 id="4-2-3-终止当前实例"><a href="#4-2-3-终止当前实例" class="headerlink" title="4.2.3 终止当前实例"></a>4.2.3 终止当前实例</h3><p>终止AutoScaling组中当前正在运行的这一台实例。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235309242.png" alt="image-20220522235309242"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235309242.png" alt="image-20220522235309242"></p>
 <p>查看Auto Scaling组活动记录，终止了一台实例并且启动了一台实例。</p>
 <p>测试这个Auto Scaling组正常运行。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235602232.png" alt="image-20220522235602232"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220522235602232.png" alt="image-20220522235602232"></p>
 <h3 id="4-2-4-提升CPU使用率"><a href="#4-2-4-提升CPU使用率" class="headerlink" title="4.2.4 提升CPU使用率"></a>4.2.4 提升CPU使用率</h3><p><font color="red">注意：仅测试环境下进行一下尝试</font></p>
 <p>在目前正在运行的这台EC2中输入以下命令，使其CPU的使用率增加，观察Auto Scaling组的扩展情况。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">time <span class="built_in">echo</span> <span class="string">&quot;scale=5000; 4*a(1)&quot;</span> | bc -l -q</span><br></pre></td></tr></table></figure>
 
 <p>还未进行任何操作，查看器CPU使用率</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523135744690.png" alt="image-20220523135744690"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523135744690.png" alt="image-20220523135744690"></p>
 <p>输入命令，CPU使用率在增大</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523140600615.png" alt="image-20220523140600615"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523140600615.png" alt="image-20220523140600615"></p>
 <p>查看Auto Scaling组，在活动历史记录出看到正在启动新的实例</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141131778.png" alt="image-20220523141131778"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141131778.png" alt="image-20220523141131778"></p>
 <p>在&lt;实例管理&gt;处看到两个正在运行的实例</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141216008.png" alt="image-20220523141216008"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141216008.png" alt="image-20220523141216008"></p>
 <p><strong>手动降低使用率</strong></p>
 <p>停止掉正在运行的命令，查看现在实例状态</p>
 <p>停止运行的命令之后，CPU的使用率马上就降下来了</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141520821.png" alt="image-20220523141520821"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523141520821.png" alt="image-20220523141520821"></p>
 <p>当CPU的平均使用率降下来之后，就只有一台实例在运行，进行了一个自动伸缩。虽然没有为扩展策略设置收缩标准，但当CPU的平均使用率不在那么高的时候，只有一台实例正在运行。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523162343018.png" alt="image-20220523162343018"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523162343018.png" alt="image-20220523162343018"></p>
 <h1 id="Part5-Auto-Scaling组件介绍"><a href="#Part5-Auto-Scaling组件介绍" class="headerlink" title="Part5 Auto Scaling组件介绍"></a>Part5 Auto Scaling组件介绍</h1><h2 id="5-1组件介绍"><a href="#5-1组件介绍" class="headerlink" title="5.1组件介绍"></a>5.1组件介绍</h2><p>EC2 Auto Scaling包括的关键组件：配置模板&#x2F;EC2 Auto Scaling组&#x2F;扩展选项。</p>
 <ul>
 <li>配置模板（启动模板或者启动配置）：AMI；实例类型；安全组；角色等。</li>
@@ -419,11 +421,11 @@
 <p>在您确切地知道何时增加或减少组中的实例数量时非常有用，因为能遵循可预测的计划。（在某活动或者促销之前，可以按计划扩展）</p>
 <p>创建一个计划的扩展操作，指定开始时间&#x2F;最小、最大以及所需容量&#x2F;循环等。您可以创建仅扩展一次或按重复计划扩展的计划操作。</p>
 <p>操作：选中Auto Scaling组，点击拆分窗格中的&lt;弹性伸缩&gt;，往下滑可以看到“计划操作”，可以创建对用的计划，规划开始和结束时间等等。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194905356.png" alt="image-20220523194905356"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194905356.png" alt="image-20220523194905356"></p>
 <p><strong>4.动态扩展</strong></p>
 <p>根据需求进行扩展，通过创建扩展策略，将Auto Scaling组配置为动态扩展以满足要求。创建扩展策略&#x2F;定义警报阈值&#x2F;定义执行操作。</p>
 <p>Part4部分就是一个动态扩展case</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194459373.png" alt="image-20220523194459373"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194459373.png" alt="image-20220523194459373"></p>
 <p><strong>动态扩展实例预热</strong></p>
 <p>启用原定设置实例预热后，Auto Scaling 组中每个新启动的实例都有一个预热时间。</p>
 <p>当实例处于预热时间时，仅当未预热实例的指标值大于策略的告警阈值上限（与目标跟踪扩缩策略的目标利用率相同）时，您的扩缩策略才会横向扩展。</p>
@@ -435,7 +437,7 @@
 <p><strong>5.预测扩展</strong></p>
 <p>EC2 Auto Scaling和AWS Auto Scaling结合使用以跨多个服务扩展资源。AWS Auto Scaling可以通过结合预测扩展和动态扩展（分别为主动和被动方法）来更快地扩展您的Amazon EC2容量。</p>
 <p>操作：在Auto Scaling组的的拆分窗格中，选中&lt;弹性伸缩&gt;，往下滑可以看到预测性扩展策略。</p>
-<p><img src="/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194631796.png" alt="image-20220523194631796"></p>
+<p><img src="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/image-20220523194631796.png" alt="image-20220523194631796"></p>
 <h1 id="Part6-参考文章"><a href="#Part6-参考文章" class="headerlink" title="Part6 参考文章"></a>Part6 参考文章</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/autoscaling/ec2/userguide/auto-scaling-benefits.html">Amazon EC2 Auto Scaling优势</a></li>
 <li><a target="_blank" rel="noopener" href="https://docs.amazonaws.cn/autoscaling/ec2/userguide/detach-instance-asg.html">缩减Auto Scaling组的大小</a></li>
@@ -475,7 +477,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/" title="AutoScaling介绍介绍">https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling介绍/</a>
+    <a href="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/" title="AutoScaling介绍介绍">https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling介绍/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！

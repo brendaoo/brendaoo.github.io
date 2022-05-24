@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-23T15:21:20.163Z</updated>
+  <updated>2022-05-24T01:27:53.448Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -18,19 +18,16 @@
   
   <entry>
     <title>AutoScaling介绍介绍</title>
-    <link href="https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/"/>
-    <id>https://brendaoo.github.io/2022/05/23/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/</id>
-    <published>2022-05-23T15:21:20.163Z</published>
-    <updated>2022-05-23T15:21:20.163Z</updated>
+    <link href="https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/"/>
+    <id>https://brendaoo.github.io/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/</id>
+    <published>2022-05-24T01:27:53.448Z</published>
+    <updated>2022-05-24T01:27:53.448Z</updated>
     
     
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;Part1-弹性伸缩架构&quot;&gt;&lt;a href=&quot;#Part1-弹性伸缩架构&quot; class=&quot;headerlink&quot; title=&quot;Part1 弹性伸缩架构&quot;&gt;&lt;/a&gt;Part1</summary>
-        
-      
+    <summary type="html">&lt;h1 id=&quot;Part1-弹性伸缩架构&quot;&gt;&lt;a href=&quot;#Part1-弹性伸缩架构&quot; class=&quot;headerlink&quot; title=&quot;Part1 弹性伸缩架构&quot;&gt;&lt;/a&gt;Part1 弹性伸缩架构&lt;/h1&gt;&lt;p&gt;弹性伸缩架构有2种模式，分别是垂直扩展和水平扩展&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;垂直扩展&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;垂直扩展：提升单个节点自身处理能力。通过升级或更换更强大的硬件等。&lt;/p&gt;
+&lt;p&gt;eg：实例类型更换，更换性能更强大的实例类型。&lt;/p&gt;</summary>
     
     
     
