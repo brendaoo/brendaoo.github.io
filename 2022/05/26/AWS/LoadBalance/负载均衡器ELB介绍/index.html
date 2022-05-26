@@ -20,23 +20,23 @@
     var CONFIG = {"hostname":"brendaoo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Part1 介绍EC2 Spot实例 Spot实例是一种可提供请求目前尚未使用的EC2实例，AWS以低于按需价格提供 最高可比按需实例的价格节省90%，能够显著降低EC2的使用成本 提供您愿为Spot实例支付的每小时最高的价格，如超过Spot当前的价格，则Spot实例就会运行 Spot实例的价格是根据Spot实例的长期供求趋势逐步调整和变化的 如果Spot价格超过您的请求的最高价，或者不在具有可用">
+  <meta name="description" content="Part1 什么是弹性负载均衡AWS上的弹性负载均衡器叫Elastic Load Balance (ELB)。 ELB在一个或多个可用区中的多个目标（如EC2实例、容器和IP地址）之间自动分配传入的流量。它会监控已注册目标的运行状况，并仅将流量传输到运行状况良好的目标。ELB根据传入流量随时间的变化对负载均衡器进行扩展。它可以自动扩展来处理绝大部分工作负载。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spot实例">
-<meta property="og:url" content="https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/index.html">
+<meta property="og:title" content="负载均衡器ELB介绍">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="Logs">
-<meta property="og:description" content="Part1 介绍EC2 Spot实例 Spot实例是一种可提供请求目前尚未使用的EC2实例，AWS以低于按需价格提供 最高可比按需实例的价格节省90%，能够显著降低EC2的使用成本 提供您愿为Spot实例支付的每小时最高的价格，如超过Spot当前的价格，则Spot实例就会运行 Spot实例的价格是根据Spot实例的长期供求趋势逐步调整和变化的 如果Spot价格超过您的请求的最高价，或者不在具有可用">
+<meta property="og:description" content="Part1 什么是弹性负载均衡AWS上的弹性负载均衡器叫Elastic Load Balance (ELB)。 ELB在一个或多个可用区中的多个目标（如EC2实例、容器和IP地址）之间自动分配传入的流量。它会监控已注册目标的运行状况，并仅将流量传输到运行状况良好的目标。ELB根据传入流量随时间的变化对负载均衡器进行扩展。它可以自动扩展来处理绝大部分工作负载。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/image-20220518233928936.png">
-<meta property="article:published_time" content="2022-05-19T01:55:58.269Z">
-<meta property="article:modified_time" content="2022-05-19T01:55:58.266Z">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/image-20220525190205122.png">
+<meta property="article:published_time" content="2022-05-26T11:41:24.388Z">
+<meta property="article:modified_time" content="2022-05-26T11:41:24.388Z">
 <meta property="article:author" content="Brenda">
 <meta property="article:tag" content="AWS">
-<meta property="article:tag" content="EC2">
+<meta property="article:tag" content="Elastic Load Balance">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/image-20220518233928936.png">
+<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/image-20220525190205122.png">
 
-<link rel="canonical" href="https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/">
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/">
 
 
 <script id="page-configurations">
@@ -49,7 +49,7 @@
   };
 </script>
 
-  <title>Spot实例 | Logs</title>
+  <title>负载均衡器ELB介绍 | Logs</title>
   
 
 
@@ -175,7 +175,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -188,7 +188,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Spot实例
+          负载均衡器ELB介绍
         </h1>
 
         <div class="post-meta">
@@ -198,7 +198,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2022-05-19 09:55:58" itemprop="dateCreated datePublished" datetime="2022-05-19T09:55:58+08:00">2022-05-19</time>
+              <time title="创建时间：2022-05-26 19:41:24" itemprop="dateCreated datePublished" datetime="2022-05-26T19:41:24+08:00">2022-05-26</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -210,7 +210,7 @@
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/AWS/EC2/" itemprop="url" rel="index"><span itemprop="name">EC2</span></a>
+                  <a href="/categories/AWS/Elastic-Load-Balance/" itemprop="url" rel="index"><span itemprop="name">Elastic Load Balance</span></a>
                 </span>
             </span>
 
@@ -220,14 +220,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>680</span>
+              <span>1.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -239,35 +239,47 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Part1-介绍EC2-Spot实例"><a href="#Part1-介绍EC2-Spot实例" class="headerlink" title="Part1 介绍EC2 Spot实例"></a>Part1 介绍EC2 Spot实例</h1><ul>
-<li>Spot实例是一种可提供请求目前尚未使用的EC2实例，AWS以低于按需价格提供</li>
-<li>最高可比按需实例的价格节省90%，能够显著降低EC2的使用成本</li>
-<li>提供您愿为Spot实例支付的每小时最高的价格，如超过Spot当前的价格，则Spot实例就会运行<ul>
-<li>Spot实例的价格是根据Spot实例的长期供求趋势逐步调整和变化的</li>
-<li>如果Spot价格超过您的请求的最高价，或者不在具有可用的容量，EC2将终止、停止或休眠您的Spot实例，EC2将会在实例中断之前2分钟提供中断通知。</li>
-</ul>
-</li>
-<li>Spot blocks: 请求持续运行的Spot实例<ul>
-<li>可以定义请求的Spot实例在1-6小时不中断持续运行(1, 2, 3, 4, 5, 6个小时持续运行)</li>
-<li>在极其罕见的情况下，请求持续运行的Spot实例也是会中断的</li>
-</ul>
-</li>
-<li>适用于数据分析，批处理作业，后台处理以及一些无状态的应用，或可灵活控制运行时间且可中断的情况</li>
-</ul>
+        <h1 id="Part1-什么是弹性负载均衡"><a href="#Part1-什么是弹性负载均衡" class="headerlink" title="Part1 什么是弹性负载均衡"></a>Part1 什么是弹性负载均衡</h1><p>AWS上的弹性负载均衡器叫Elastic Load Balance (ELB)。</p>
+<p>ELB在一个或多个可用区中的多个目标（如EC2实例、容器和IP地址）之间自动分配传入的流量。它会监控已注册目标的运行状况，并仅将流量传输到运行状况良好的目标。ELB根据传入流量随时间的变化对负载均衡器进行扩展。它可以自动扩展来处理绝大部分工作负载。</p>
 <span id="more"></span>
 
-<p>Spot实例的价格</p>
-<p><img src="/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/image-20220518233928936.png" alt="image-20220518233928936"></p>
-<h1 id="Part2-Spot队列"><a href="#Part2-Spot队列" class="headerlink" title="Part2 Spot队列"></a>Part2 Spot队列</h1><ul>
-<li>Spot队列是Spot实例和可选的按需实例的集合</li>
-<li>可在Spot队列中指定您对目标容量的需求（总容量？包括多少按需实例？）</li>
-<li>可设置一个您愿意为Spot队列支付的每小时的最高价格</li>
-<li>可为请求的Spot队列选择多个实例类型，比如M5.large，C5.xlarge，T2.2xlarge等</li>
-<li>支持AutoScaling组：创建ECS集群也可以使用Spot实例；使用AWS Batch创建有AWS Batch托管的计算环境时，这些服务都可以使用Spot实例</li>
-<li>容量限制：<ul>
-<li>每个Spot队列或EC2队列的目标容量：10000</li>
-<li>区域中所有Spot队列和EC2队列的目标容量：100000</li>
-</ul>
+<h1 id="Part2-负载均衡器的类型"><a href="#Part2-负载均衡器的类型" class="headerlink" title="Part2 负载均衡器的类型"></a>Part2 负载均衡器的类型</h1><p>AWS支持四种类型的负载均衡器：分别是应用负载均衡器ALB、网络负载均衡器NLB、网关负载均衡器GLB、上一代负载均衡器CLB（CLB现已不推荐使用）。</p>
+<p>配置方式区别：对于ALB、NLB、GLB，可以在目标组中注册目标，并将流量路由到目标组。通过CLB，可以在负载均衡器中注册实例。</p>
+<p><strong>4类负载均衡器的比较</strong></p>
+<p><img src="/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/image-20220525190205122.png" alt="image-20220525190205122"></p>
+<h1 id="Part3-ELB的工作原理"><a href="#Part3-ELB的工作原理" class="headerlink" title="Part3 ELB的工作原理"></a>Part3 ELB的工作原理</h1><h2 id="3-1-请求路由选择"><a href="#3-1-请求路由选择" class="headerlink" title="3.1 请求路由选择"></a>3.1 请求路由选择</h2><p>在客户端将请求发送到负载均衡器之前，它会利用域名系统DNS服务器解析负载均衡器的域名。DNS条目由Amazon控制，因为您的负载均衡器位于amazonaws.com域中。<font color="red">Amazon DNS服务器会将一个或多个IP地址返回到客户端。</font>这些都是您的负载均衡器节点的IP地址。</p>
+<p>对于NLB，ELB将为启用的每个可用区创建一个网络接口，可用区内的每个负载均衡器节点使用该网络接口来获取一个静态IP地址。在您创建负载均衡器是，可以选择将一个弹性IP地址与每个网络接口关联。</p>
+<p>当流向应用程序的流量随时间变化时，ELB会扩展负载均衡器并更新DNS条目。DNS条目还指定生存时间TTL为60s，这有助于确保可以快速重新映射IP地址以响应不断变化的流量。</p>
+<p>客户端可以确定使用哪个IP地址将请求发送到负载均衡器。<font color="red">用于接收请求的负载均衡器节点会选择一个正常运行的已注册目标，并使用其私有IP地址将请求发送到该目标。</font></p>
+<h3 id="路由算法"><a href="#路由算法" class="headerlink" title="路由算法"></a>路由算法</h3><p><strong>ALB</strong></p>
+<p>借助ALB，接受请求的负载均衡器节点使用以下过程：</p>
+<ol>
+<li>按优先级顺序评估侦听器规则以确定要应用的规则</li>
+<li>使用为目标组配置的路由算法，从目标组中为规则操作选择目标。<font color="red">默认路由算法是轮询。</font>每个目标组的路由都是单独进行的，即使某个目标已在多个目标组中注册。</li>
+</ol>
+<p><strong>NLB</strong></p>
+<p>借助NLB，接受连接的负载均衡器节点使用以下过程：</p>
+<ol>
+<li><font color="red">使用流哈希算法从目标组中为默认规则选择目标。</font>它使算法基于：协议、源IP地址和源端口、目标IP地址和目标端口、TCP序列号</li>
+<li>将每个单独的TCP连接在连接的有效期内路由到单个目标。来自客户端的TCP连接具有不同的源端口和序列号，可以路由到不同的目标。</li>
+</ol>
+<p><strong>CLB</strong></p>
+<p>借助CLB，接收请求的负载均衡器节点按照一下方式选择注册实例：</p>
+<ol>
+<li>使用适用于TCP侦听器的轮询路由算法</li>
+<li>使用适用于HTTP和HTTPS侦听器的最少未完成请求路由算法</li>
+</ol>
+<h2 id="3-2-负载均衡器模式"><a href="#3-2-负载均衡器模式" class="headerlink" title="3.2 负载均衡器模式"></a>3.2 负载均衡器模式</h2><p><strong>负载均衡器模式</strong></p>
+<p>负载均衡器有2种模式：面型Internet的负载均衡器和内部负载均衡器。</p>
+<p>面向Internet的负载均衡器节点具有公共IP地址。面向Internet的负载均衡器的DNS名称可公开解析为节点的公共IP地址。因此，面向Internet的负载均衡器可以通过Internet路由来自客户端的请求。</p>
+<p>面向内部的负载均衡器节点只有私有IP地址。内部负载均衡器的DNS名称可公开解析为节点的私有IP地址。因此，内部负载均衡器可路由的请求只能来自对负载均衡器的VPC具有访问权限的客户端。</p>
+<p><font color="red">面向Internet的负载均衡器和内部负载均衡器均使用私有IP地址将请求路由到您的目标。</font>因此，您的目标无需使用公有IP地址，而是从内部负载均衡器或面向Internet的负载均衡器接收请求。</p>
+<p>**多层结构设计 **</p>
+<p>如果您的应用程序具有多个层，则可以设计一个同时使用内部负载均衡器和面向 Internet 的负载均衡器的架构。例如，如果您的应用程序使用必须连接到 Internet 的 Web 服务器，以及仅连接到 Web 服务器的应用程序服务器，则可以如此。创建一个面向 Internet 的负载均衡器并向其注册 Web 服务器。创建一个内部负载均衡器并向它注册应用程序服务器。Web 服务器从面向 Internet 的负载均衡器接收请求，并将对应用程序服务器的请求发送到内部负载均衡器。应用程序服务器从内部负载均衡器接收请求。</p>
+<h1 id="Part-参考文章"><a href="#Part-参考文章" class="headerlink" title="Part 参考文章"></a>Part 参考文章</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html">Elastic Load Balance 的工作原理</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/elasticloadbalancing/features/#compare">Elastic Load Balancing 功能</a></p>
 </li>
 </ul>
 
@@ -280,19 +292,19 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/2022/05/24/AWS/calculate/AutoScaling介绍/" rel="bookmark">AutoScaling介绍介绍</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/2022/05/18/AWS/calculate/实例的状态/" rel="bookmark">实例的状态</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/2022/05/18/AWS/calculate/置放群组/" rel="bookmark">置放群组</a></div>
-    </li>
-    <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/2022/05/15/AWS/LoadBalance/ALB负载均衡/" rel="bookmark">ALB负载均衡</a></div>
     </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/2022/05/15/AWS/LoadBalance/NLB负载均衡/" rel="bookmark">AWS NLB负载均衡</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/Network/VPC内子网联网/" rel="bookmark">VPC内子网联网</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces入门1(理论)/" rel="bookmark">AWS WorkSpaces入门1</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces入门2(操作)/" rel="bookmark">AWS WorkSpaces入门2</a></div>
     </li>
   </ul>
 
@@ -305,7 +317,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/" title="Spot实例">https://brendaoo.github.io/2022/05/19/AWS/calculate/Spot实例/</a>
+    <a href="https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/" title="负载均衡器ELB介绍">https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/负载均衡器ELB介绍/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -317,7 +329,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/AWS/" rel="tag"># AWS</a>
-              <a href="/tags/EC2/" rel="tag"># EC2</a>
+              <a href="/tags/Elastic-Load-Balance/" rel="tag"># Elastic Load Balance</a>
           </div>
 
         
@@ -326,13 +338,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/" rel="prev" title="置放群组">
-      <i class="fa fa-chevron-left"></i> 置放群组
+    <a href="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/" rel="prev" title="AutoScaling介绍介绍">
+      <i class="fa fa-chevron-left"></i> AutoScaling介绍介绍
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/05/24/AWS/calculate/AutoScaling%E4%BB%8B%E7%BB%8D/" rel="next" title="AutoScaling介绍介绍">
-      AutoScaling介绍介绍 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -391,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Part1-%E4%BB%8B%E7%BB%8DEC2-Spot%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">Part1 介绍EC2 Spot实例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part2-Spot%E9%98%9F%E5%88%97"><span class="nav-number">2.</span> <span class="nav-text">Part2 Spot队列</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Part1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%BC%B9%E6%80%A7%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="nav-number">1.</span> <span class="nav-text">Part1 什么是弹性负载均衡</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part2-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">Part2 负载均衡器的类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part3-ELB%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">Part3 ELB的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E8%AF%B7%E6%B1%82%E8%B7%AF%E7%94%B1%E9%80%89%E6%8B%A9"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 请求路由选择</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%AF%E7%94%B1%E7%AE%97%E6%B3%95"><span class="nav-number">3.1.1.</span> <span class="nav-text">路由算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 负载均衡器模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">4.</span> <span class="nav-text">Part 参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

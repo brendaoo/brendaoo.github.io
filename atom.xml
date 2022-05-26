@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-24T01:27:53.448Z</updated>
+  <updated>2022-05-26T11:41:24.388Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>负载均衡器ELB介绍</title>
+    <link href="https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/"/>
+    <id>https://brendaoo.github.io/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/</id>
+    <published>2022-05-26T11:41:24.388Z</published>
+    <updated>2022-05-26T11:41:24.388Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;Part1-什么是弹性负载均衡&quot;&gt;&lt;a href=&quot;#Part1-什么是弹性负载均衡&quot; class=&quot;headerlink&quot; title=&quot;Part1 什么是弹性负载均衡&quot;&gt;&lt;/a&gt;Part1 什么是弹性负载均衡&lt;/h1&gt;&lt;p&gt;AWS上的弹性负载均衡器叫Elastic Load Balance (ELB)。&lt;/p&gt;
+&lt;p&gt;ELB在一个或多个可用区中的多个目标（如EC2实例、容器和IP地址）之间自动分配传入的流量。它会监控已注册目标的运行状况，并仅将流量传输到运行状况良好的目标。ELB根据传入流量随时间的变化对负载均衡器进行扩展。它可以自动扩展来处理绝大部分工作负载。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="Elastic Load Balance" scheme="https://brendaoo.github.io/categories/AWS/Elastic-Load-Balance/"/>
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="Elastic Load Balance" scheme="https://brendaoo.github.io/tags/Elastic-Load-Balance/"/>
+    
+  </entry>
   
   <entry>
     <title>AutoScaling介绍介绍</title>

@@ -166,6 +166,121 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Brenda">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Logs">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/" class="post-title-link" itemprop="url">AWS WorkSpaces入门1</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-15 14:41:00" itemprop="dateCreated datePublished" datetime="2022-05-15T14:41:00+08:00">2022-05-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/WorkSpaces/" itemprop="url" rel="index"><span itemprop="name">WorkSpaces</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="AWS-WorkSpaces入门1"><a href="#AWS-WorkSpaces入门1" class="headerlink" title="AWS WorkSpaces入门1"></a>AWS WorkSpaces入门1</h1><p>本文主要介绍Amazon WorkSpaces服务。</p>
+<p>您可以使用此服务快速的在云中构建终端用户桌面，管理和维护虚拟桌面的使用，简化IT需求，提高工作效率。本文主要从服务简介、工作原理、功能对比和使用场景等角度介绍Amazon WorkSpaces。</p>
+<h2 id="Amazon-WorkSpaces简介"><a href="#Amazon-WorkSpaces简介" class="headerlink" title="Amazon WorkSpaces简介"></a>Amazon WorkSpaces简介</h2><p>Amazon WorkSpaces 是<font color="red">一种托管、安全的桌面即服务(DaaS)解决方案</font>。您可以使用 Amazon WorkSpaces 在几分钟内预配置 Windows 或 Linux 桌面，并快速扩展，从而为全球各地的员工提供数以千计的桌面。您只需要为启动的 WorkSpaces 按月付费或按小时付费。Amazon WorkSpaces 可帮助您消除管理硬件清单、操作系统版本和补丁以及虚拟桌面基础设施 (VDI) 的复杂性，从而简化您的桌面交付策略。借助 Amazon WorkSpaces，您的用户能够选择运行快速的响应式桌面，该桌面可供他们随时随地从任何受支持的设备进行访问。</p>
+<h2 id="Amazon-WorkSpaces工作原理"><a href="#Amazon-WorkSpaces工作原理" class="headerlink" title="Amazon WorkSpaces工作原理"></a>Amazon WorkSpaces工作原理</h2><p>Amazon WorkSpaces客户端应用程序使用 HTTPS 通过端口 443 端口处理所有用户身份验证及与会话相关的信息，并使用端口 4172 和PCoIP网关通信以访问WorkSpace桌面。用户身份认证及PCoIP网关都运行在AWS管理的VPC中，对于使用者不可见，您也不用再担心这些服务器的可用性。每个WorkSpace的使用状态更新都在这些网关服务器上进行处理，所有的信息同时都记录在CloudWatch中。</p>
+<p>每个 WorkSpace 都有 2 个与之关联的弹性网络接口 (ENI)：一个 ENI 用于管理和流式处理 (eth0)，另一个是主 ENI (eth1)。主 ENI 的 IP 地址由 VPC (其子网与目录所用的子网相同) 提供。这样可确保 WorkSpace 与目录服务通信，使WorkSpace可以访问企业内部数据中心的资源，同时保证WorkSpace符合企业信息管理的规范。对 VPC 中资源的访问权限由分配给主 ENI 的安全组控制。</p>
+<p>下图演示了 Amazon WorkSpaces 的架构：</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409102002866.png" alt="image-20220409102002866"></p>
+<h2 id="Amazon-WorkSpaces优势和功能"><a href="#Amazon-WorkSpaces优势和功能" class="headerlink" title="Amazon WorkSpaces优势和功能"></a>Amazon WorkSpaces优势和功能</h2><h3 id="简化桌面交付"><a href="#简化桌面交付" class="headerlink" title="简化桌面交付"></a>简化桌面交付</h3><p>运维人员对于公有云桌面资源的交付工作可以在简单的几步内完成，可以帮助节约很多传统VDI桌面内基础设施部署及维护的工作。和其他的AWS服务一样，Amazon WorkSpaces支持通过API或CLI的方式访问，通过和现有的IT系统资产系统集成可以快速完成终端用户的桌面交付工作。<br>同时WorkSpaces支持桌面资源的无限扩展，简单的动态调整桌面CPU、内存和硬盘资源，按需付费的模式避免多度购买硬件，浪费资源。</p>
+<h3 id="保证数据安全"><a href="#保证数据安全" class="headerlink" title="保证数据安全"></a>保证数据安全</h3><p>Amazon WorkSpaces 部署于 Amazon Virtual Private Network (VPC) 内，为每个用户提供对 AWS 云中持久加密存储卷的访问权限，并与 AWS Key Management Service (KMS) 集成，避免在本地基础架构环境中部署安全加密服务，在本地设备中不存储用户数据。 这有助于提高用户数据的安全性，并降低整体风险。</p>
+<h3 id="操作系统部署多样性"><a href="#操作系统部署多样性" class="headerlink" title="操作系统部署多样性"></a>操作系统部署多样性</h3><p>Amazon WorkSpaces 同时提供Windows 和Amazon Linux 2的桌面。</p>
+<h3 id="简化应用管理"><a href="#简化应用管理" class="headerlink" title="简化应用管理"></a>简化应用管理</h3><p>（中国区暂未发布）</p>
+<p>Amazon WorkSpaces 深度集成了Application manager（WAM）服务，简单且安全的应用发布流程可以有效帮助运维人员管理桌面用户的应用软件。</p>
+<p>和传统虚拟桌面VDI或物理PC的对比如下：</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409102253708.png" alt="image-20220409102253708"></p>
+<h3 id="其他功能"><a href="#其他功能" class="headerlink" title="其他功能"></a>其他功能</h3><p>Amazon WorkSpaces 使用目录来存储和管理 WorkSpace 及用户的相关信息。可以使用以下选项之一：</p>
+<ul>
+<li><strong>AD Connector</strong> — 使用现有本地部署 Microsoft Active Directory。用户可以使用其本地部署凭证登录 WorkSpace 并从其 WorkSpace 访问本地部署资源。</li>
+<li><strong>Microsoft AD</strong> — 创建在 AWS 上托管的 Microsoft Active Directory。</li>
+<li><strong>Simple AD</strong> — 创建与 Microsoft Active Directory 兼容的目录，该目录由 Samba 4 提供支持，并在 AWS 上托管<strong>（</strong><em>该功能模块中国区暂未发布</em><strong>）。</strong></li>
+<li><strong>Cross trust</strong> — 在您的 Microsoft AD 目录与本地部署域之间创建信任关系。</li>
+</ul>
+<p>关于身份认证，Amazon WorkSpaces 支持集成MFA的认证方式。在启用MFA后，用户在登录过程中除需要输入用户名和密码外，还需要输入MFA Code，如下图所示。</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409105131532.png" alt="image-20220409105131532"></p>
+<p>Amazon WorkSpaces同时支持用户的RADIUS服务器部署在本地数据中心或AWS云上，也支持其他第三方以SAAS服务方式提供RADIUS服务的合作伙伴。</p>
+<p>如果您使用的是在AWS 上托管的 Microsoft Active Directory，那会更容易的去启用MFA认证，详细请参考如何为 AWS Managed Microsoft AD 启用多重验证</p>
+<p>在 Amazon WorkSpaces 中，您可以为用户启用自助服务 WorkSpace 管理功能，使他们能够更好地控制其体验。这也可以减少 IT 支持人员的 Amazon WorkSpaces 工作负载。</p>
+<h2 id="Amazon-WorkSpaces的使用场景"><a href="#Amazon-WorkSpaces的使用场景" class="headerlink" title="Amazon WorkSpaces的使用场景"></a>Amazon WorkSpaces的使用场景</h2><p>远程和移动工作人员的快速增长，要求 IT 为其提供一种方式来使用自己选择的设备快速方便地访问企业应用程序和数据。Amazon WorkSpaces 可以提供一个在任何地方都能够使用支持的设备通过 Internet 访问的云桌面，帮助移动和远程员工访问用户所需的应用程序。</p>
+<h3 id="启用自带设备"><a href="#启用自带设备" class="headerlink" title="启用自带设备"></a>启用自带设备</h3><p>为实现自带设备 (BYOD) 计划的承诺，IT 部门必须确保员工能够通过大量不断变化的设备轻松安全地访问其应用程序和数据。Amazon WorkSpaces 可让您直接在各种不同的设备上运行云桌面，例如 PC、Mac、iPad、Kindle Fire、Android 平板电脑、Chromebook 以及 Firefox 和 Chrome 等浏览器。这为您提供了交付安全的响应式桌面体验的工具，在让用户满意的同时，帮助您实现 BYOD 计划。</p>
+<h3 id="快速预配置和扩展桌面以进行软件测试和开发"><a href="#快速预配置和扩展桌面以进行软件测试和开发" class="headerlink" title="快速预配置和扩展桌面以进行软件测试和开发"></a>快速预配置和扩展桌面以进行软件测试和开发</h3><p>开发人员和测试团队需要访问安全的高性能 WorkSpace 来完成任务，同时避免大量超规预配置的物理硬件带来的费用和清单。您可以配置包含开发人员需要的所有工具的 Amazon WorkSpaces，从而快速构建应用程序。您的源代码不会存储在开发人员的设备上，这有助于确保您的知识产权的安全性。</p>
+<h3 id="在课堂和实验室环境中快速配置持久桌面"><a href="#在课堂和实验室环境中快速配置持久桌面" class="headerlink" title="在课堂和实验室环境中快速配置持久桌面"></a>在课堂和实验室环境中快速配置持久桌面</h3><p>Amazon WorkSpaces 提供了一个完整持久的桌面，学生可以在整个教育过程中使用该桌面，而Amazon AppStream 2.0让课程教师可以针对班级的独特需求快速提供特定的应用程序。同时使用这两项服务，您可以轻松地构建学生所需的学习环境，并确保学生从一开始就能获取他们需要的课程。</p>
+<h3 id="企业兼并和收购期间系统快速集成"><a href="#企业兼并和收购期间系统快速集成" class="headerlink" title="企业兼并和收购期间系统快速集成"></a>企业兼并和收购期间系统快速集成</h3><p>经历并购的公司必须支持大量员工快速入职或离职，提供快速、简单、安全地方式访问公司应用程序和数据。他们必须通过各种设备完成此项任务，而无需花费太多资金或进行冗长复杂的整合。借助 Amazon WorkSpaces，IT 团队可以快速预配置和停用安全 WorkSpaces，以便满足不断变化的组织结构的需求。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1184,20 +1299,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1234,13 +1349,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">37k</span>
+    <span title="站点总字数">39k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">33 分钟</span>
+    <span title="站点阅读时长">35 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
