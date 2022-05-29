@@ -6,7 +6,7 @@
   <link href="https://brendaoo.github.io/atom.xml" rel="self"/>
   
   <link href="https://brendaoo.github.io/"/>
-  <updated>2022-05-26T11:41:24.388Z</updated>
+  <updated>2022-05-29T11:26:53.665Z</updated>
   <id>https://brendaoo.github.io/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>S3存储桶策略</title>
+    <link href="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/"/>
+    <id>https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/</id>
+    <published>2022-05-29T11:26:53.665Z</published>
+    <updated>2022-05-29T11:26:53.665Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;文章目的：本文主要讲述通过策略授予对Amazon S3资源的权限。&lt;/p&gt;
+&lt;p&gt;S3的访问策略主要有2种，分别是基于资源的策略和基于用户的策略。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;基于资源的策略包括存储桶策略和ACL管理访问&lt;/li&gt;
+&lt;li&gt;基于用户的策略主要是IAM用户策略&lt;/li&gt;
+&lt;/ul&gt;</summary>
+    
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/categories/AWS/"/>
+    
+    <category term="S3" scheme="https://brendaoo.github.io/categories/AWS/S3/"/>
+    
+    
+    <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
+    
+    <category term="S3" scheme="https://brendaoo.github.io/tags/S3/"/>
+    
+  </entry>
   
   <entry>
     <title>负载均衡器ELB介绍</title>
@@ -451,9 +479,9 @@
     
     <category term="AWS" scheme="https://brendaoo.github.io/tags/AWS/"/>
     
-    <category term="IAM" scheme="https://brendaoo.github.io/tags/IAM/"/>
-    
     <category term="Organizations" scheme="https://brendaoo.github.io/tags/Organizations/"/>
+    
+    <category term="IAM" scheme="https://brendaoo.github.io/tags/IAM/"/>
     
   </entry>
   

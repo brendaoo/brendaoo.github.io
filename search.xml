@@ -1,22 +1,828 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Hello World</title>
-    <url>/2022/05/09/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+    <title>AWS Organizations账户管理服务&amp;SCP</title>
+    <url>/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&amp;SCP/</url>
+    <content><![CDATA[<h1 id="AWS-Organizations账户管理服务-amp-SCP"><a href="#AWS-Organizations账户管理服务-amp-SCP" class="headerlink" title="AWS Organizations账户管理服务&amp;SCP"></a>AWS Organizations账户管理服务&amp;SCP</h1><h2 id="Part1-介绍AWS-Organizations"><a href="#Part1-介绍AWS-Organizations" class="headerlink" title="Part1 介绍AWS Organizations"></a>Part1 介绍AWS Organizations</h2><p>AWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户加入组织。</p>
+<p><strong>AWS Organizations功能</strong></p>
+<ul>
+<li>集中管理您的所有AWS账户</li>
+<li>所有成员账户的整合账单</li>
+<li>对账户进行分层分组以满足预算、安全性或合规性需求</li>
+<li>集中控制每个账户可访问的AWS服务和API操作的策略</li>
+<li>帮助在组织账户中跨资源标准化标签的策略</li>
+<li>控制AWS AI和机器学习服务可以手机和存储数据的策略</li>
+<li>为组织账户中的资源配置自动备份的策略</li>
+<li>针对AWS IAM的集成和支持</li>
+<li>与其他AWS服务集成</li>
+<li>全局访问</li>
+<li>具备最终一致性的数据复制</li>
+<li>免费使用</li>
+</ul>
+<h2 id="Part2-实验场景"><a href="#Part2-实验场景" class="headerlink" title="Part2 实验场景"></a>Part2 实验场景</h2><p>前提条件：需要2个账户，称作Account A和Account B。</p>
+<p>描述：在Account A中创建组织，并邀请Account B加入组织。在Account A中设置策略来防止Account B访问S3，在Account B上进行测试。</p>
+<p>说明：本实验demo的Account A的ID尾号为5283，Account B的ID尾号为8124</p>
+<h2 id="Part3-实验步骤"><a href="#Part3-实验步骤" class="headerlink" title="Part3 实验步骤"></a>Part3 实验步骤</h2><h3 id="3-1-实验账户说明"><a href="#3-1-实验账户说明" class="headerlink" title="3.1 实验账户说明"></a>3.1 实验账户说明</h3><p>本实验demo的Account A的ID尾号为5283，Account B的ID尾号为8124</p>
+<p>实验会在Account A账户中创建组织，即Account A是主账户，Account B是成员账户。</p>
+<h3 id="3-2-创建组织"><a href="#3-2-创建组织" class="headerlink" title="3.2 创建组织"></a>3.2 创建组织</h3><p>在Account A账户中创建组织。在Organization主页，点击“创建组织”。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png" alt="image-20220412004932107"></p>
+<p>点击之后直接就能创建组织，创建组织需要邮箱验证。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412005002268.png" alt="image-20220412005002268"></p>
+<h3 id="3-3-邀请账户"><a href="#3-3-邀请账户" class="headerlink" title="3.3 邀请账户"></a>3.3 邀请账户</h3><p>输入账户ID和要创建的键值，点击发送邀请。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011458396.png" alt="image-20220412011458396"></p>
+<p>在Account B中可以看到邀请</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011633785.png" alt="image-20220412011633785"></p>
+<p>点开邀请链接之后，接受邀请</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011714385.png" alt="image-20220412011714385"></p>
+<p>在Account A上查看组织的账户，一个主账户，一个成员账户</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011914453.png" alt="image-20220412011914453"></p>
+<h3 id="3-4-创建S3策略"><a href="#3-4-创建S3策略" class="headerlink" title="3.4 创建S3策略"></a>3.4 创建S3策略</h3><p>进入策略页面，点击“服务控制策略”</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102406807.png" alt="image-20220412102406807"></p>
+<p>启用服务控制策略</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102431828.png" alt="image-20220412102431828"></p>
+<p>加载完成之后，如下所示</p>
+<p>新创建一个策略，来阻止对S3的访问，点击创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102504986.png" alt="image-20220412102504986"></p>
+<p>策略设置</p>
+<ul>
+<li>名称：denyS3</li>
+<li>选择服务：S3，动作：All Actions</li>
+</ul>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412103202634.png" alt="image-20220412103202634"></p>
+<p>添加资源，添加完成之后点击创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412132453499.png" alt="image-20220412132453499"></p>
+<h3 id="3-5-前-Account-B访问S3测试"><a href="#3-5-前-Account-B访问S3测试" class="headerlink" title="3.5 [前]Account B访问S3测试"></a>3.5 [前]Account B访问S3测试</h3><p>目前没有给Account B账户做任何限制，Account B可以正常访问S3存储桶</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133347888.png" alt="image-20220412133347888"></p>
+<h3 id="3-6-将策略应用到Account-B"><a href="#3-6-将策略应用到Account-B" class="headerlink" title="3.6 将策略应用到Account B"></a>3.6 将策略应用到Account B</h3><p>在Account A账户的Organizations中，将denyS3策略附加到Account B</p>
+<p>选中denyS3策略，点击操作。点击附加策略</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133545337.png" alt="image-20220412133545337"></p>
+<p>选中要附加的这个账户，点击附加策略</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133640477.png" alt="image-20220412133640477"></p>
+<p>Okay，策略附加成功</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133717996.png" alt="image-20220412133717996"></p>
+<h3 id="3-7-后-Account-B访问S3测试"><a href="#3-7-后-Account-B访问S3测试" class="headerlink" title="3.7 [后]Account B访问S3测试"></a>3.7 [后]Account B访问S3测试</h3><p>Account A为Account B添加了限制S3所有权限的策略，现在Account B账户上访问S3进行测试。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133938873.png" alt="image-20220412133938873"></p>
+<p>Account B再次访问S3时出现提示：无权列出存储桶。所以可以看出策略附加成功，在Account B上已经生效。</p>
+<p>总结：本实验是一个简单的AWS Organizations创建以及测试，主要测试的服务控制策略SCP。Organizations还有很多别的功能。</p>
+<h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/zh_cn/organizations/latest/userguide/orgs_introduction.html">什么是AWS Organizations</a></li>
+</ul>
 ]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>IAM</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>Organizations</tag>
+        <tag>IAM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>AWS STS正确设计IAM用户密钥（一）</title>
+    <url>/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/</url>
+    <content><![CDATA[<h1 id="AWS-STS正确设计IAM用户密钥（一）"><a href="#AWS-STS正确设计IAM用户密钥（一）" class="headerlink" title="AWS STS正确设计IAM用户密钥（一）"></a>AWS STS正确设计IAM用户密钥（一）</h1><h2 id="PART1-IAM用户密钥设计介绍"><a href="#PART1-IAM用户密钥设计介绍" class="headerlink" title="PART1 IAM用户密钥设计介绍"></a>PART1 IAM用户密钥设计介绍</h2><p><strong>案例分析</strong></p>
+<p>case：<em><strong>张三是一个开发人员，他要在他本地的电脑测试他的代码。代码需要访问AWS S3，所以需要AWS的access &amp; secret key。那么以下哪一个方案是实现需求（分配凭证）的最佳解决方案？</strong></em></p>
+<p>A. 提供给研发人员access &amp; secret key，然后告诉他不要与其他人员共享凭证</p>
+<p>B. 提供给研发人员access &amp; secret key，然后确保凭证每90天进行一次轮换</p>
+<p>C. 允许研发人员的用户使用AWS STS服务生成临时凭证</p>
+<p><font color="blue">分析：A，根据经验，肯定会共享凭证；B，90天的轮换周期其实还是比较长的，如果凭证泄露，不安全；C，是AWS推荐的最佳实践</font></p>
+<hr>
+<p><strong>IAM用户的密钥设计</strong></p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425155411650.png" alt="image-20220425155411650"></p>
+<p>场景：开发人员账户和生产账户</p>
+<p>描述：在生产账户中创建STSAssumeRole（带入角色），这个AssumeRole可以给开发人员的用户使用，同时会给他一个临时凭证，开发人员用户使用这个凭证可以临时访问生产账户中的资源。</p>
+<h2 id="PART2-实验目的"><a href="#PART2-实验目的" class="headerlink" title="PART2 实验目的"></a>PART2 实验目的</h2><p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425165959464.png" alt="image-20220425165959464"></p>
+<p>在本地电脑上通过STSAssumeRole实现对S3存储桶的访问。访问的顺序如上图①②③。</p>
+<p>①：PC访问用户的STSAssumeRole策略</p>
+<p>②：STS返回给PC临时凭证</p>
+<p>③：PC访问存储桶S3</p>
+<h2 id="PART3-实验步骤"><a href="#PART3-实验步骤" class="headerlink" title="PART3 实验步骤"></a>PART3 实验步骤</h2><p>实验的总体步骤有3步：</p>
+<ol>
+<li>在IAM中建立一个跨账户角色（角色名：stroll）</li>
+<li>附加一个S3ReadOnly策略到IAM角色</li>
+<li>允许IAM用户使用STS Assume Role权限</li>
+</ol>
+<h3 id="3-1-创建S3只读角色"><a href="#3-1-创建S3只读角色" class="headerlink" title="3.1 创建S3只读角色"></a>3.1 创建S3只读角色</h3><p>来到IAM的角色页面，点击创建角色</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425170945467.png" alt="image-20220425170945467"></p>
+<p>受信任实体选择：AWS账户—此账户，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425171824195.png" alt="image-20220425171824195"></p>
+<p>添加权限页面，勾选S3ReadOnlyAccess，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425171918734.png" alt="image-20220425171918734"></p>
+<p>角色名称填入stroll，点击创建角色</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425172014424.png" alt="image-20220425172014424"></p>
+<p>角色创建完成之后查看stroll的信任关系</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181540291.png" alt="image-20220425181540291"></p>
+<p>stroll角色可信赖的用户为该账号下的所有用户</p>
+<h3 id="3-2-创建用户"><a href="#3-2-创建用户" class="headerlink" title="3.2 创建用户"></a>3.2 创建用户</h3><p>来到IAM的用户界面，点击添加用户</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425172116259.png" alt="image-20220425172116259"></p>
+<p>填入用户名zhangsan，AWS凭证类型选择密码，输入自定义密码，取消密码重置，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425180914683.png" alt="image-20220425180914683"></p>
+<p>一直点击下一步，直到创建用户</p>
+<h3 id="3-3-为用户创建内联策略"><a href="#3-3-为用户创建内联策略" class="headerlink" title="3.3 为用户创建内联策略"></a>3.3 为用户创建内联策略</h3><p>在用户页面下点击zhangsan，进入zhangsan的页面</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181128193.png" alt="image-20220425181128193"></p>
+<p>在权限菜单栏中点击添加内联策略，为zhangsan用户设置内联策略AssumeRole</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181159668.png" alt="image-20220425181159668"></p>
+<p>配置服务为STS、操作AssumeRole、特定资源，填入stroll角色，点击查看策略</p>
+<p>允许zhangsan用户承担stroll角色的权限</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181338228.png" alt="image-20220425181338228"></p>
+<p>输入策略名称AssumeRole，点击创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181431465.png" alt="image-20220425181431465"></p>
+<h3 id="3-4-本地PC端配置"><a href="#3-4-本地PC端配置" class="headerlink" title="3.4 本地PC端配置"></a>3.4 本地PC端配置</h3><p>在未配置凭证的情况下使用aws s3 ls命令</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425182435620.png" alt="image-20220425182435620"></p>
+<p>提示：没有本地的credentials文件，需要使用aws configure命令进行配置。</p>
+<p>aws configure配置的内容有：AWS Access Key ID、AWS Secret Access Key、Default region name、Default output format 。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425182750955.png" alt="image-20220425182750955"></p>
+<p>上述的4个配置信息需要到用户凭证下获取。进入用户zhangsan安全证书页面，点击创建访问密钥。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425183941496.png" alt="image-20220425183941496"></p>
+<p>跳出访问密钥ID和密钥页面，记录下该页面中的密钥ID和密钥。可以直接复制密钥ID和访问密钥，也可以下载.csv文件，该文件中有密钥ID和密钥。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425184024433.png" alt="image-20220425184024433"></p>
+<p>AKIAWYXWU3BJ5NFDTXWP</p>
+<p>M43LNIRZZp7mjF6KqnNRYwzzOyKB7AJt3ll5LwU7</p>
+<p>输入aws configure命令配置zhangsan用户的，填入zhangsan用户的密钥ID和密钥Key，地区region和output format可以不填。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425184348013.png" alt="image-20220425184348013"></p>
+<h3 id="3-5-获取STS临时访问凭证"><a href="#3-5-获取STS临时访问凭证" class="headerlink" title="3.5 获取STS临时访问凭证"></a>3.5 获取STS临时访问凭证</h3><p>给本地PC配置了zhangsan用户的访问ID和密钥，通过zhangsan用户的内联策略获得临时访问凭证</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws sts assume-role --role-arn arn:aws:iam::465447475283:role/stroll --role-session-name stroll</span><br><span class="line"><span class="comment">#需要将arn:aws:iam::465447475283:role/stroll替换为自己账户下stroll角色的arn</span></span><br><span class="line"><span class="comment">#--role-session-name指定会话名称</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425185044691.png" alt="image-20220425185044691"></p>
+<p>临时保存一下输出的内容，这些输出需要写入到credentials文件中</p>
+<p>编辑credentials文件，credentials文件在<code>/root/.aws/credentials</code>目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[zhangsansts]</span><br><span class="line">aws_access_key_id = ASIAWYXWU3BJXBYID2ZP</span><br><span class="line">aws_secret_access_key = Wja33FGrl17prsEsi+79vKs28ZH6sZ+Vq4q623Ir</span><br><span class="line">aws_session_token = FwoGZXIvYXdzEOT//////////wEaDKD0qspowMTiHX7DqSKqAbDkVnbb9KgrZxcXN9eS0da3CNEYw9G+IEDnTVOz/DIsYxv0oZ26PmCO/SDJKQ4lAv0c7Ts1mBMKIeyHlJyK9LrB7hOb7bvtwpfi+0P0mtb89CFBLaKuSO9z2RwETymS3GDzQi7dj1gPq/B3ZhrrpmzaWYjeD+t6ZYr12MswYxaNDr+hlHx6wxKg8cc4cMzI0WAqQneu2BbGEjUoqMRAENlwmOW6eT4rL4+CKOr5mZMGMi0SQmuEX9L0r7hQuhvCu6Ch4L4tlsfF7XEajvWQkL6vfZvVoik6A6s2mTrYIDU=</span><br></pre></td></tr></table></figure>
+
+<p>新创建[zhangsansts]，aws_access_key_id、aws_secret_access_key、aws_session_token的内容为STS给出的临时凭证</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425191240536.png" alt="image-20220425191240536"></p>
+<h3 id="3-6-使用临时凭证访问存储桶"><a href="#3-6-使用临时凭证访问存储桶" class="headerlink" title="3.6 使用临时凭证访问存储桶"></a>3.6 使用临时凭证访问存储桶</h3><p>在命令行中输入以下命令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile zhangsansts</span><br><span class="line"><span class="comment">#--profile指定访问的profile，而不再是默认的default</span></span><br></pre></td></tr></table></figure>
+
+<p>结果列出了两个存储桶</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425191608673.png" alt="image-20220425191608673"></p>
+<p>实现了临时凭证访问S3存储桶</p>
+<h2 id="PART4-小结"><a href="#PART4-小结" class="headerlink" title="PART4 小结"></a>PART4 小结</h2><p>访问流程小结：给PC配置用户zhangsan的access_key_id和access_key，使得PC有获取stroll临时访问凭证STS的权限<font color="blue">（这里也就是用户zhangsan配置了内联策略，策略指定了资源arn）</font>。PC获取到临时访问凭证，再将访问凭证配置到credentials文件中。PC可以通过新配置的凭证访问到S3存储桶。</p>
+<p>2个对应关系：</p>
+<ol>
+<li>zhangsan用户唯一有的权限就是stsAssumeRole的权限，没有S3访问权限</li>
+<li>zhangsan用户需要通过sts返回的临时凭证，使用临时凭证访问S3</li>
+</ol>
+<p>配置步骤：（最佳实践）</p>
+<ol>
+<li>创建stroll角色（S3ReadOnly）</li>
+<li>创建用户zhangsan</li>
+<li>为zhangsan配置内联策略（STSAssumeRole）</li>
+</ol>
+<p>使用上述提到的方法去设计IAM用户密钥存在一个弊端。默认情况下，临时凭证的有效时间只有3600秒，开发人员需要在1小时之后手动修改临时凭证，非常不方便。</p>
+<h2 id="PART5-参考博客"><a href="#PART5-参考博客" class="headerlink" title="PART5 参考博客"></a>PART5 参考博客</h2><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/general/latest/gr/aws-security-credentials.html">AWS安全凭证</a></li>
+<li><a href="https://aws.amazon.com/cn/iam/features/managing-user-credentials/">管理IAM凭证</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>IAM</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>IAM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>AWS IAM小结</title>
+    <url>/2022/05/15/AWS/IAM/AWS_IAM%E5%B0%8F%E7%BB%93/</url>
+    <content><![CDATA[<h1 id="AWS-IAM小结"><a href="#AWS-IAM小结" class="headerlink" title="AWS IAM小结"></a>AWS IAM小结</h1><h2 id="PART1-问题及总结"><a href="#PART1-问题及总结" class="headerlink" title="PART1 问题及总结"></a>PART1 问题及总结</h2><h3 id="什么是AWS-IAM？"><a href="#什么是AWS-IAM？" class="headerlink" title="什么是AWS IAM？"></a>什么是AWS IAM？</h3><p>AWS Identity and Access Management (IAM) 是一种 Web 服务，可以帮助您安全地控制对 AWS 资源的访问。<strong>可以使用 IAM 来控制谁通过了身份验证（准许登录）并获得授权（拥有权限）来使用资源。</strong></p>
+<h3 id="跟账户用户"><a href="#跟账户用户" class="headerlink" title="跟账户用户"></a>跟账户用户</h3><p>当您首次创建AWS 账户时，最初使用的是一个对账户中所有AWS服务和资源有完全访问权限的单点登录身份。此身份称为<strong>AWS 账户根用户</strong>，使用您创建账户时所用的电子邮件地址和密码登录，即可获得该身份。强烈建议您不使用根用户执行日常任务，即使是管理任务。相反，请遵循<a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users">仅使用根用户创建您的第一个 IAM 用户的最佳实践</a>。然后请妥善保存根用户凭证，仅用它们执行少数账户和服务管理任务。</p>
+<h3 id="IAM用户的密钥设计"><a href="#IAM用户的密钥设计" class="headerlink" title="IAM用户的密钥设计"></a>IAM用户的密钥设计</h3><ul>
+<li>所需账户：一个账户</li>
+<li>涉及服务：IAM、S3</li>
+<li>描述：只给用户分配STSAssumeRole的权限，没有访问S3的权限，用户需要通过AssumeRole返回的临时凭证去访问S3.</li>
+</ul>
+<h3 id="多账户—中央账户管理"><a href="#多账户—中央账户管理" class="headerlink" title="多账户—中央账户管理"></a>多账户—中央账户管理</h3><p>中央账户与成员账户使用AWS Organizations服务</p>
+<ul>
+<li><p>加入组织：中央账户邀请成员账户加入Organizations</p>
+</li>
+<li><p>服务控制策略：中央账户可以对成员账户实行策略上的限制，比如说，限制成员账户访问自己账户的S3存储桶。策略生效之后，成员账户的根账户也无法访问自己账户下的S3存储桶。</p>
+</li>
+</ul>
+<h3 id="多账户—跨账户IAM角色访问"><a href="#多账户—跨账户IAM角色访问" class="headerlink" title="多账户—跨账户IAM角色访问"></a>多账户—跨账户IAM角色访问</h3><ul>
+<li><p>所需账户：至少2个账户</p>
+</li>
+<li><p>涉及服务：S3存储桶、IAM</p>
+</li>
+<li><p>描述：两个账户，eg Account A和Account B，A赋予B当中的用户访问A账户S3存储桶的权限</p>
+</li>
+</ul>
+<p>2个账户场景，2个账户不需要有什么关联，即2个账户不需要在同一个组织中。</p>
+<h3 id="多账户—集中式日志存储"><a href="#多账户—集中式日志存储" class="headerlink" title="多账户—集中式日志存储"></a>多账户—集中式日志存储</h3><ul>
+<li><p>账户要求：至少需要2个账户，eg Account A 和 Account B，需要选定一个账户作为中央账户</p>
+</li>
+<li><p>涉及服务：S3存储桶、IAM、AWS CloudWatch、AWS Config等</p>
+</li>
+<li><p>描述：中央账户的S3存储桶存储其他账户的CloudWatch以及AWS Config等服务的日志</p>
+</li>
+</ul>
+<h2 id="PART2-参考文献"><a href="#PART2-参考文献" class="headerlink" title="PART2 参考文献"></a>PART2 参考文献</h2><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/IAM/latest/UserGuide/introduction.html">什么是AWS IAM</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>IAM</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>IAM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>配置CloudTrial和Config日志跨AWS账户日志存储</title>
+    <url>/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/</url>
+    <content><![CDATA[<h1 id="配置CloudTrial和Config日志跨AWS账户日志存储"><a href="#配置CloudTrial和Config日志跨AWS账户日志存储" class="headerlink" title="配置CloudTrial和Config日志跨AWS账户日志存储"></a>配置CloudTrial和Config日志跨AWS账户日志存储</h1><h2 id="Part1-集中式日志存储架构"><a href="#Part1-集中式日志存储架构" class="headerlink" title="Part1 集中式日志存储架构"></a>Part1 集中式日志存储架构</h2><p>集中式日志存储架构：将所有账户的所需日志都集中存储在一个中心区域，在这个中心区域中对日志进行定期监控和分析。架构图如下所示：</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415115536224.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415115536224"></p>
+<p><strong>集中日志管理注意事项：</strong> </p>
+<ul>
+<li>尽早定义日志保留的要求以及日志生命周期策略。选择合适的生命周期策略以节省成本。</li>
+<li>日志生命周期策略自动化。</li>
+<li>自动安装和配置日志传输代理程序。</li>
+<li>支持混合云架构。企业会想要将数据放到自己的私有云，解决方案需要适配混合云架构。</li>
+</ul>
+<p><strong>AWS提供的相关服务</strong></p>
+<p>AWS提供很多服务帮助构建集中式日志解决方案：AWS ElasticSearch Service、AWS CloudWatch Logs、Kinesis Firehose、AWS S3等。</p>
+<p>不同的AWS服务构建集中式日志解决方案的配置方式各不相同。</p>
+<h2 id="Part2-实验说明"><a href="#Part2-实验说明" class="headerlink" title="Part2 实验说明"></a>Part2 实验说明</h2><p>本次的实验demo需要<font color="red">2个账户</font>，一个作为中央账户（Account A），提供S3存储桶存储日志文件；另一个账户（Account B）的CloudTrial和Config服务的日志存到中央账户的存储桶中。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415122335696.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415122335696"></p>
+<h2 id="Part3-实验步骤"><a href="#Part3-实验步骤" class="headerlink" title="Part3 实验步骤"></a>Part3 实验步骤</h2><h3 id="3-1-A-创建存储桶"><a href="#3-1-A-创建存储桶" class="headerlink" title="3.1 [A]创建存储桶"></a>3.1 [A]创建存储桶</h3><p>在Account A账户中，创建2个S3存储桶。</p>
+<p>进入S3存储桶页面之后，点击创建存储桶。写好存储桶名称，点击创建存储桶。存储桶不需要做其他配置。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415123330910.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415123330910"></p>
+<p>创建好2个S3存储桶</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415123430223.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415123430223"></p>
+<h3 id="3-2-A-修改存储桶策略"><a href="#3-2-A-修改存储桶策略" class="headerlink" title="3.2 [A]修改存储桶策略"></a>3.2 [A]修改存储桶策略</h3><p><strong>CloudTrail</strong></p>
+<p>在存储桶列表页面，点击存储桶名称，进入存储桶的权限页面，在存储桶策略条目点击编辑。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220417231056049.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220417231056049"></p>
+<p>写入存储桶策略，策略的Resource修改为当前存储桶的arn</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418105215384.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418105215384"></p>
+<p>策略代码，策略的内容是允许CloudTrail的日志存储到存储桶</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailAclCheck20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cloudtrail.amazonaws.com&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:GetBucketAcl&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-cloudtrail&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailWrite20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cloudtrail.amazonaws.com&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:PutObject&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-cloudtrail/AWSLogs/580919038124/*&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Condition&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;StringEquals&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;s3:x-amz-acl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bucket-owner-full-control&quot;</span></span><br><span class="line">                <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><font color="red">策略允许 CloudTrail 从支持的区域将日志文件写入存储桶。使用您配置的相应值替换 <code>myBucketName</code>、<code>[optionalPrefix]/</code>、<code>myAccountID</code>。<code>myAccountID</code>为创建CloudTrail账户的Account ID。</font></p>
+<ul>
+<li>第9行的配置模板</li>
+</ul>
+<p>“Resource”: “arn:aws:s3:::<code>myBucketName</code>“</p>
+<ul>
+<li>第16行的配置模板</li>
+</ul>
+<p>“Resource”: “arn:aws:s3:::<code>myBucketName</code>&#x2F;<code>[optionalPrefix]/</code>AWSLogs&#x2F;<code>myAccountID</code>&#x2F;*”,</p>
+<p><strong>Config</strong></p>
+<p>存储桶权限配置的流程桶CloudTrail步骤一样，存储桶内容如下</p>
+<p>注意：需要将11行和20行中Resource的ARN改成对应存储桶的ARN</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailAclCheck20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;config.amazonaws.com&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:GetBucketAcl&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-config&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailWrite20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;config.amazonaws.com&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:PutObject&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-config/*&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Condition&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;StringEquals&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;s3:x-amz-acl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bucket-owner-full-control&quot;</span></span><br><span class="line">                <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="3-3-B-配置CloudTrail"><a href="#3-3-B-配置CloudTrail" class="headerlink" title="3.3 [B]配置CloudTrail"></a>3.3 [B]配置CloudTrail</h3><p>在Account B中创建CloudTrail跟踪。点击控制面板进入，而不是直接点击创建跟踪（该方式通过向导创建，不能修改日志存储的S3桶）。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418001946116.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418001946116"></p>
+<p>在控制面板页面点击创建跟踪</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418002035027.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418002035027"></p>
+<p>跟踪记录配置</p>
+<ul>
+<li>跟踪名称：Event-AccountB</li>
+<li>存储位置：使用现有的S3存储桶，填入3.1中创建的S3存储桶</li>
+<li>不启用KMS加密</li>
+</ul>
+<p>配置填完之后，点击下一个</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420192711571.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420192711571"></p>
+<p>点击下一个，之后点击创建跟踪</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418003426667.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418003426667"></p>
+<p>点击创建跟踪</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420192903553.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420192903553"></p>
+<p>CloudTrail的跟踪创建成功</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420192942709.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420192942709"></p>
+<h3 id="3-4-A-查看CloudTrail存储桶"><a href="#3-4-A-查看CloudTrail存储桶" class="headerlink" title="3.4 [A]查看CloudTrail存储桶"></a>3.4 [A]查看CloudTrail存储桶</h3><p>在Accoun A账户下，进入存储桶可以看到有AWSLogs文件夹</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420193128504.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420193128504"></p>
+<p>进入AWSLogs之下是一个以Account B ID命名的目录</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420193559417.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420193559417"></p>
+<p>进入Account B ID之下的目录中，有2个带有CloudTrail的文件夹</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420193657809.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420193657809"></p>
+<p>okay，Account B的CloudTail日志信息可以存储到Account B的S3存储桶当中。</p>
+<h3 id="3-5-B-创建Config"><a href="#3-5-B-创建Config" class="headerlink" title="3.5 [B]创建Config"></a>3.5 [B]创建Config</h3><p>进入Account B账户</p>
+<p>进入AWS Config页面，点击设置AWS Config</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420200636186.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420200636186"></p>
+<p>AWS Config设置</p>
+<ul>
+<li><p>一般设置内容保持默认</p>
+</li>
+<li><p>交付方式</p>
+<ul>
+<li>S3存储桶选择：从另一个账户选择存储桶</li>
+<li>填入存储桶名称：s3bucket-center-config</li>
+</ul>
+</li>
+</ul>
+<p>点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420200727953.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420200727953"></p>
+<p>规则这一页全选，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420201203114.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420201203114"></p>
+<p>审核无误之后点击确认</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420201334885.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420201334885"></p>
+<h3 id="3-6-A-查看Config存储桶"><a href="#3-6-A-查看Config存储桶" class="headerlink" title="3.6 [A]查看Config存储桶"></a>3.6 [A]查看Config存储桶</h3><p>进入Account A账户，进入s3bucket-center-config S3存储桶</p>
+<p>看到存储桶中有一个AWSLogs目录，用来记录Config的日志信息</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420201943933.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420201943933"></p>
+<p>一直进入到AWSLogs目录下的最底层目录之下，看到一个ConfigWritabilityCheckFile文件，checkfile文件生成表明config的跨账户日志存储配置成功。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420202153455.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420202153455"></p>
+<p>Okay，Config的日志跨账户完成。</p>
+<h2 id="Part4-注意点"><a href="#Part4-注意点" class="headerlink" title="Part4 注意点"></a>Part4 注意点</h2><ol>
+<li>Account A S3存储桶的权限配置，将代码copy到自己的存储桶中时一定要修改ARN参数</li>
+<li>3.3步骤配置Account B CloudTrail时，不能开启KMS加密。因为当前Account A中S3的策略还不支持加密，还没研究出支持KMS加密的策略。</li>
+</ol>
+<h2 id="Part5-参考文献"><a href="#Part5-参考文献" class="headerlink" title="Part5 参考文献"></a>Part5 参考文献</h2><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html">针对CloudTrail的Amazon S3存储桶策略</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>IAM</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>IAM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>VPC内子网联网</title>
+    <url>/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/</url>
+    <content><![CDATA[<h1 id="VPC内子网联网"><a href="#VPC内子网联网" class="headerlink" title="VPC内子网联网"></a>VPC内子网联网</h1><blockquote>
+<p>VPC中有2种子网类型：公共子网和私有子网</p>
+<ul>
+<li>所谓公共子网就是其对应的路由表中配置了规则将请求路由到了 <code>Internet Gateway</code></li>
+<li>私有子网就是其关联的路由表中没有配置到 <code>Internet Gatway</code> 的路由规则，因此无法对外访问。</li>
+</ul>
+<p>AWS 的 VPC 网络配置关系是：<em><strong>实例与子网关联，子网关联路由表，路由表设置网关</strong></em>。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="公共子网联网"><a href="#公共子网联网" class="headerlink" title="公共子网联网"></a>公共子网联网</h2><h3 id="介绍IGW"><a href="#介绍IGW" class="headerlink" title="介绍IGW"></a>介绍IGW</h3><p>公共子网通过IGW(Internet gateway)组件来实现VPC和Internet的相互通信。</p>
+<p>IGW提供两项功能：</p>
+<ol>
+<li>Subnet中的流量通过IGW访问Internet</li>
+<li>为配置了Public IP的Instance提供网址转换</li>
+</ol>
+<h3 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建VPC"><a href="#1-创建VPC" class="headerlink" title="1.创建VPC"></a>1.创建VPC</h4><p>手动创建VPC，即不通过向导的方式进行创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010040498.png" alt="image-20220330010040498"></p>
+<p>VPC的设置如下</p>
+<p>选择“仅VPC”</p>
+<p>命名为：my-vpc-02</p>
+<p>IPv4 CIDR：172.16.0.0&#x2F;22</p>
+<p>其他保持默认，点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010150289.png" alt="image-20220330010150289"></p>
+<p>查看创建好的VPC</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010359754.png" alt="image-20220330010359754"></p>
+<h4 id="2-创建互联网网关"><a href="#2-创建互联网网关" class="headerlink" title="2.创建互联网网关"></a>2.创建互联网网关</h4><p>点击“新建互联网网关”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010558808.png" alt="image-20220330010558808"></p>
+<p>将该互联网网关命名为：my-igw-02</p>
+<p>点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010653543.png" alt="image-20220330010653543"></p>
+<p>互联网网关已经建好，将它附加到VPC，点击下图中的1或2处都可以</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010838397.png" alt="image-20220330010838397"></p>
+<p>选择新建的VPC，my-vpc-02，连接互联网网关</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010919597.png" alt="image-20220330010919597"></p>
+<p>互联网网关成功附加到了VPC上</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011023866.png" alt="image-20220330011023866"></p>
+<h4 id="3-创建公有子网"><a href="#3-创建公有子网" class="headerlink" title="3.创建公有子网"></a>3.创建公有子网</h4><p>点击“创建子网”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011136211.png" alt="image-20220330011136211"></p>
+<p>选择新建的VPC，my-vpc-02</p>
+<p>创建一个子网，命令为：my-sub-pub-02</p>
+<p>可用区可以选择当前区域的任意可用区，此处选择“us-east-1a”</p>
+<p>IPv4 CIDR: 172.16.1.0&#x2F;24</p>
+<p>点击“创建子网”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011507485.png" alt="image-20220330011507485"></p>
+<p>子网创建成功</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011727300.png" alt="image-20220330011727300"></p>
+<p>进入到该子网的路由表，点击路由表的id进入</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011823385.png" alt="image-20220330011823385"></p>
+<p>查看该路由表的路由条目，点击“编辑路由”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012003132.png" alt="image-20220330012003132"></p>
+<p>点击“添加路由”，新的路由如下</p>
+<p>第一个空选择：0.0.0.0&#x2F;0，第二空选项“互联网网关”，随后会跳出刚创建的IGW，点击“保存更改”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012108517.png" alt="image-20220330012108517"></p>
+<p>路由表新增条目成功</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012306561.png" alt="image-20220330012306561"></p>
+<p>由于该子网添加了IGW，于是该子网成为了公共子网，给子网内的ec2分配公有子网或者弹性IP之后可以访问到Internet。</p>
+<h4 id="4-创建安全组"><a href="#4-创建安全组" class="headerlink" title="4.创建安全组"></a>4.创建安全组</h4><p>点击创建安全组</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093212864.png" alt="image-20220330093212864"></p>
+<p>安全组名称：my-Security-Group-02</p>
+<p>VPC选择my-vpc-02</p>
+<p>添加2条入站信息，分别是22端口和ICMP</p>
+<p>配置完成之后，点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093653373.png" alt="image-20220330093653373"></p>
+<p>安全组创建完成</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093716680.png" alt="image-20220330093716680"></p>
+<h4 id="5-创建EC2"><a href="#5-创建EC2" class="headerlink" title="5.创建EC2"></a>5.创建EC2</h4><p>点击“启动新实例”</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092020102.png" alt="image-20220330092020102"></p>
+<p>在AWS Marketplace中选择Centos7这个AMI</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092149765.png" alt="image-20220330092149765"></p>
+<p>实例类型选择t2.micro，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092236542.png" alt="image-20220330092236542"></p>
+<p>网络选择刚才新建的VPC，my-vpc-02</p>
+<p>子网选择公共子网，my-sub-pub-02</p>
+<p>自动分配公有IP处选择<font color="red">禁用</font>，说明稍后给ec2绑定弹性IP，而不使用创建是分配的公网IP</p>
+<p>配置完成后，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092539598.png" alt="image-20220330092539598"></p>
+<p>存储使用默认的资源配置，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093025676.png" alt="image-20220330093025676"></p>
+<p>给EC2添加标签，Name: test-pub-02，点击下一步</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095554126.png" alt="image-20220330095554126"></p>
+<p>选择现有安全组my-Security-Group-02</p>
+<p>点击审核和启动</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095703240.png" alt="image-20220330095703240"></p>
+<p>点击启动</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095726364.png" alt="image-20220330095726364"></p>
+<p>因为我之前有密钥对，所以选择“选择现有密钥对”选项。如果之前没有密钥对选择新建，输入密钥对的名字之后会进行下载。</p>
+<p>点击启动新实例</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095853535.png" alt="image-20220330095853535"></p>
+<h4 id="6-创建-amp-绑定弹性IP"><a href="#6-创建-amp-绑定弹性IP" class="headerlink" title="6.创建&amp;绑定弹性IP"></a>6.创建&amp;绑定弹性IP</h4><p>点击分配弹性IP地址</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104427148.png" alt="image-20220330104427148"></p>
+<p>设置键值对 Name: ec2-test-pub-02</p>
+<p>点击分配</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104522655.png" alt="image-20220330104522655"></p>
+<p>关联该弹性IP</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104554944.png" alt="image-20220330104554944"></p>
+<p>实例选择test-pub-02，选择私有IP地址，点击关联</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104656288.png" alt="image-20220330104656288"></p>
+<h4 id="7-测试"><a href="#7-测试" class="headerlink" title="7.测试"></a>7.测试</h4><p>访问EC2可以ping通baidu.com</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330110421486.png" alt="image-20220330110421486"></p>
+<h2 id="私有子网联网"><a href="#私有子网联网" class="headerlink" title="私有子网联网"></a>私有子网联网</h2><h3 id="介绍NAT-GW"><a href="#介绍NAT-GW" class="headerlink" title="介绍NAT GW"></a>介绍NAT GW</h3><p>NAT GW是一种网络地址转换服务。可以使用NAT网关将私有子网中的实例连接到VPC外部的服务，但是外部无法启动与这些实例的连接。</p>
+<p>在创建 NAT 网关时，指定以下连接类型之一：</p>
+<ul>
+<li><strong>公开</strong> –（默认）私有子网中的实例可以通过公共 NAT 网关连接到互联网，但不能接收来自互联网的未经请求的入站连接。<font color="red">在公有子网中创建公有 NAT 网关，并且必须在创建时将弹性 IP 地址与 NAT 网关相关联。可以将流量从 NAT 网关路由到 VPC 的互联网网关。</font>或者，您可以使用公有 NAT 网关连接到其他 VPC 或本地部署网络。在这种情况下，您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。</li>
+<li><strong>私密</strong> – 私有子网中的实例可以通过私有 NAT 网关连接到其他 VPC 或您的本地部署网络。您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。您不能将弹性 IP 地址与私有 NAT 网关相关联。您可以将互联网网关连接到具有私有 NAT 网关的 VPC，但如果您将流量从私有 NAT 网关路由到互联网网关，则互联网网关会丢弃流量。</li>
+</ul>
+<p>NAT 网关将实例的源 IP 地址替换为 NAT 网关的 IP 地址。对于公有 NAT 网关，这是 NAT 网关的弹性 IP 地址。对于私有 NAT 网关，这是 NAT 网关的私有 IP 地址。向实例发送响应流量时，NAT 设备会将地址转换回原始源 IP 地址。</p>
+<p>注意：NAT网关要给私有子网使用，其自身要在公有子网内，即需要保证它自身能够访问到互联网。</p>
+<h3 id="操作-1"><a href="#操作-1" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建私有子网"><a href="#1-创建私有子网" class="headerlink" title="1.创建私有子网"></a>1.创建私有子网</h4><p>新建子网</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112048218.png" alt="image-20220330112048218"></p>
+<p>子网配置信息</p>
+<p>VPC选择my-vpc-02</p>
+<p>子网命名为my-sub-pri-02</p>
+<p>可用区可以随意选择，最好和公共子网在两个不同的可用区</p>
+<p>IPv4 CIDR为172.16.2.0&#x2F;24</p>
+<p>配置完成之后点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112158262.png" alt="image-20220330112158262"></p>
+<h4 id="2-创建NAT网关"><a href="#2-创建NAT网关" class="headerlink" title="2.创建NAT网关"></a>2.创建NAT网关</h4><p>点击创建NAT网关</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112448923.png" alt="image-20220330112448923"></p>
+<p>nat网关设置</p>
+<p>命名为my-nat-02</p>
+<p>子网选择公有子网，类型为公有</p>
+<p>为它分配弹性IP</p>
+<p>配置完成之后点击创建</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112702279.png" alt="image-20220330112702279"></p>
+<h4 id="3-私有子网路由表关联NAT网关"><a href="#3-私有子网路由表关联NAT网关" class="headerlink" title="3.私有子网路由表关联NAT网关"></a>3.私有子网路由表关联NAT网关</h4><p>创建私网路由表</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132430858.png" alt="image-20220330132430858"></p>
+<p>为新建的路由表设置子网关联</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132953082.png" alt="image-20220330132953082"></p>
+<p>将该表关联到私有子网</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133016115.png" alt="image-20220330133016115"></p>
+<p>将公共子网使用的这张表改名，以便标识</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133149273.png" alt="image-20220330133149273"></p>
+<p>编辑私有子网的这张路由表</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133240295.png" alt="image-20220330133240295"></p>
+<p>新增一条路由到nat网关，添加好之后点击保存更改</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133310859.png" alt="image-20220330133310859"></p>
+<h4 id="4-创建EC2"><a href="#4-创建EC2" class="headerlink" title="4.创建EC2"></a>4.创建EC2</h4><p>创建步骤同在公共子网中创建EC2，省略大部分配置</p>
+<p>需要特别注意的地方如下</p>
+<p>网络选择my-vpc-02，子网选择新建的私有子网my-sub-pri-02，禁用自动分配公有IP功能</p>
+<p>其余的配置与在公共子网内的配置大同小异，无非就是命名不一致，这里就不过多赘述</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330115204934.png" alt="image-20220330115204934"></p>
+<h4 id="5-测试"><a href="#5-测试" class="headerlink" title="5.测试"></a>5.测试</h4><p>需要说明一下，访问该私有子网的EC2需要通过公共子网内的EC2作为跳板机来访问</p>
+<p>即先ssh到公共子网内的EC2，在此基础上ssh到私有子网的EC2上</p>
+<p>将密钥文件通过SCP上传到公网EC2上</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134025275.png" alt="image-20220330134025275"></p>
+<p>进行ping测试，可以成功ping通baidu.com</p>
+<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134155233.png" alt="image-20220330134155233"></p>
+<p>注意点：</p>
+<ol>
+<li>VPC默认只有一张路由表，先创建公共子网，再创建私有子网的情况下要单独为私有子网创建一张路由表</li>
+<li>NAT网关通Internet的话，要把NAT网关创建在公共子网中，并为其分配弹性IP</li>
+<li>子网（公共子网&amp;私有子网）会有一定的地址保留。Amazon会保留各个子网的前面4个IP地址和最后1个IP地址，以作IP联网之用。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>VPC</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>VPC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>S3存储桶策略</title>
+    <url>/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/</url>
+    <content><![CDATA[<p>文章目的：本文主要讲述通过策略授予对Amazon S3资源的权限。</p>
+<p>S3的访问策略主要有2种，分别是基于资源的策略和基于用户的策略。</p>
+<ul>
+<li>基于资源的策略包括存储桶策略和ACL管理访问</li>
+<li>基于用户的策略主要是IAM用户策略</li>
+</ul>
+<span id="more"></span>
+
+
+
+<h1 id="Part1-存储桶策略理论"><a href="#Part1-存储桶策略理论" class="headerlink" title="Part1 存储桶策略理论"></a>Part1 存储桶策略理论</h1><p><strong>存储桶策略</strong></p>
+<p>使用存储桶策略想存储桶及其中对象授予访问权限。是有存储桶所有者才能将策略与存储桶关联。附加到存储桶的权限适用于存储桶所有者拥有的存储桶中所有对象。这些权限不适用于其他Amazon Web Sercices账户所有的对象。</p>
+<p>存储桶策略是基于资源的Amazon Identity and Access Management(IAM)策略。</p>
+<p><strong>策略元素</strong></p>
+<p>写Json格式的策略语言时，会用到策略元素，以下做简要说明。</p>
+<ul>
+<li><p>Resource - 存储桶、对象、访问点和作业是您可以允许或拒绝其权限的Amazon S3资源。在策略中，使用Amazon Resource Name(ARN)标识资源。</p>
+</li>
+<li><p>Action - 对于每个资源，Amazon S3支持一组操作。您可使用操作关键字标识允许或拒绝的资源操作。</p>
+</li>
+<li><p>Effect - 当用户请求特定操作（可以是allow或deny）时的效果。如果没有显示授予允许对资源的访问权限，则隐式拒绝访问。您也可以显示拒绝对资源的访问。您可以执行此操作以确保用户无法访问资源，即时其他策略授予访问权限也是如此。</p>
+</li>
+<li><p>Principal - 委托人，允许访问语句中的操作和资源的账户或用户。在存储桶策略中，委托人是作为次权限的接受者的用户、账户、服务或其他实体。</p>
+</li>
+<li><p>Condition  - 策略生效时的条件。</p>
+</li>
+</ul>
+<p>关于策略：</p>
+<p>策略并不需要从头开始写，AWS有提供策略生成器，可以借助策略生成器生成策略。此外，AWS官方文档中有给出策略示例，当自己要写相关策略时可以参考策略示例。当然，需要熟悉策略中的部分语句，要求能看懂策略的意思。  </p>
+<h1 id="Part2-存储桶策略示例"><a href="#Part2-存储桶策略示例" class="headerlink" title="Part2 存储桶策略示例"></a>Part2 存储桶策略示例</h1><p>示例：限制特性IP地址访问S3存储桶</p>
+<h2 id="创建存储桶"><a href="#创建存储桶" class="headerlink" title="创建存储桶"></a>创建存储桶</h2><p>在存储桶控制台点击&lt;创建存储桶&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154653517.png" alt="image-20220529154653517"></p>
+<p>填入存储桶名称和选择AWS区域，本次实验中选择亚太地区东京区域</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154835633.png" alt="image-20220529154835633"></p>
+<p>以下部分可以不做配置，是创建S3时的默认配置</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154919166.png" alt="image-20220529154919166"></p>
+<p>点击最下边&lt;创建存储桶&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154952785.png" alt="image-20220529154952785"></p>
+<p>存储桶创建成功，最上边有提示信息。</p>
+<p>默认创建的存储桶是不公开对外访问的，即只有存储桶拥有者才可以访问。</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529155144324.png" alt="image-20220529155144324"></p>
+<h2 id="存储桶及其对象公开"><a href="#存储桶及其对象公开" class="headerlink" title="存储桶及其对象公开"></a>存储桶及其对象公开</h2><p>如果上传一个测试文件到该存储桶中，查看资源的URL是无法访问和下载的。curl访问会显示拒绝访问。</p>
+<p>如果该存储桶允许公共（可以理解为所有人）下载和访问，那么需要公开存储桶的访问权限。做以下配置。</p>
+<p>进入到对应的S3存储桶中，点击&lt;权限&gt;，点击&lt;编辑&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160232398.png" alt="image-20220529160232398"></p>
+<p>取消“阻止公有访问”的勾选，即此处不打钩，点击&lt;保存更改&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160324592.png" alt="image-20220529160324592"></p>
+<p>输入&lt;确认&gt;，点击&lt;确认&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160430971.png" alt="image-20220529160430971"></p>
+<p>此时存储桶已公开。</p>
+<p>在s3-policy-test-01存储桶中上传一个test.txt文件，文件内容就是一个简单的文本文件。</p>
+<p>点击进入s3-policy-test-01存储桶，点击&lt;上传&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529190248030.png" alt="image-20220529190248030"></p>
+<p>点击&lt;添加文件&gt;，上传测试文件test.txt</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529190317129.png" alt="image-20220529190317129"></p>
+<p>授予文件公开访问的权限，选中&lt;授予公开读取访问权限&gt;，勾选&lt;我明白&gt;，点击&lt;上传&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191041199.png" alt="image-20220529191041199"></p>
+<p>文件上传成功</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191144313.png" alt="image-20220529191144313"></p>
+<p>测试上传文件访问是否公开。点击&lt;复制URL&gt;，将url输入到浏览器，可以看到文件内容。</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191337597.png" alt="image-20220529191337597"></p>
+<p>说明文件是已公开。</p>
+<h2 id="设置存储桶策略"><a href="#设置存储桶策略" class="headerlink" title="设置存储桶策略"></a>设置存储桶策略</h2><p>编写<a href="https://s3.console.aws.amazon.com/s3/buckets/s3-policy-test-01">s3-policy-test-01</a>存储桶策略，使得它限定当前的本地环境的出口IP。</p>
+<p>进入s3-policy-test-01存储桶，点击&lt;权限&gt;，在存储桶策略处，点击&lt;编辑&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529184051446.png" alt="image-20220529184051446"></p>
+<p>策略内容如下</p>
+<p><font color="red">注意：第9行，需要将arn修改为自己创建的s3存储桶的arn；第12行要修改为自己环境下的IP地址</font></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">		<span class="punctuation">&#123;</span></span><br><span class="line">			<span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Statement1&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="string">&quot;*&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Deny&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;s3:*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3-policy-test-01/*&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Condition&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">			    <span class="attr">&quot;NotIpAddress&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">			        <span class="attr">&quot;aws:SourceIP&quot;</span><span class="punctuation">:</span> <span class="string">&quot;101.224.204.143/32&quot;</span></span><br><span class="line">			    <span class="punctuation">&#125;</span></span><br><span class="line">			<span class="punctuation">&#125;</span></span><br><span class="line">		<span class="punctuation">&#125;</span></span><br><span class="line">	<span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写好存储桶策略之后，点击&lt;保存更改&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191550505.png" alt="image-20220529191550505"></p>
+<p>在终端使用curl命令进行测试</p>
+<p>curl 存储桶中文件的url</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl https://s3-policy-test-01.s3.ap-northeast-1.amazonaws.com/test.txt</span><br></pre></td></tr></table></figure>
+
+<p>测试结果，设置IP限制之后能够访问到test.txt文件。</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191804453.png" alt="image-20220529191804453"></p>
+<h2 id="修改策略并测试"><a href="#修改策略并测试" class="headerlink" title="修改策略并测试"></a>修改策略并测试</h2><p>修改策略中的IP地址，只要IP地址不是本地环境的出口IP即可</p>
+<p>将IP地址的最后一个点分十进制143改成了145，保存更改</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191939341.png" alt="image-20220529191939341"></p>
+<p>命令行测试，输入curl 存储桶中文件的url，查看结果</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529192102889.png" alt="image-20220529192102889"></p>
+<p>本次访问就无效了，因为IP地址不匹配。</p>
+<p>Okay，以上就是本次IP地址限制的示例。</p>
+<h1 id="Part3-注意点"><a href="#Part3-注意点" class="headerlink" title="Part3 注意点"></a>Part3 注意点</h1><p>如果上传文件的过程中没有设置文件权限，即没有公开文件的acl。</p>
+<p>在文件上传完成之后，选中文件，点击&lt;操作&gt;，点击&lt;使用ACL设为公开&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529192335136.png" alt="image-20220529192335136"></p>
+<p>测试完成之后，记得清理环境。</p>
+<h1 id="Part4-参考文章"><a href="#Part4-参考文章" class="headerlink" title="Part4 参考文章"></a>Part4 参考文章</h1><ul>
+<li><p><a href="https://docs.amazonaws.cn/AmazonS3/latest/userguide/using-iam-policies.html">存储桶策略和用户策略</a></p>
+</li>
+<li><p><a href="https://docs.amazonaws.cn/AmazonS3/latest/userguide/access-policy-language-overview.html">策略和权限</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/chenjinxi/p/9815200.html#:~:text=%E8%8E%B7%E5%8F%96%E6%9C%AC%E6%9C%BA%E5%87%BA%E5%8F%A3IP%E6%96%B9%E6%B3%95%201%E3%80%81Windows%20%E6%B5%8F%E8%A7%88%E5%99%A8%E5%B8%B8%E7%94%A8%E6%96%B9%E5%BC%8F%E8%AE%BF%E9%97%AE%201%E3%80%81http%3A%2F%2Fwww.ip138.com%2F,2%E3%80%81http%3A%2F%2Ftool.chinaz.com%2F%203%E3%80%81%E5%9C%A8%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%A1%86%E5%86%85%E8%BE%93%E5%85%A5%20ip%20%E4%BC%9A%E8%87%AA%E5%8A%A8%E8%AF%86%E5%88%AB%E5%87%BA%E6%9D%A5%E5%BD%93%E5%89%8D%E7%9A%84%E5%87%BA%E5%8F%A3IP">本地出口IP查询</a></p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>S3</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>S3</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>AWS WorkSpaces入门1</title>
+    <url>/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/</url>
+    <content><![CDATA[<h1 id="AWS-WorkSpaces入门1"><a href="#AWS-WorkSpaces入门1" class="headerlink" title="AWS WorkSpaces入门1"></a>AWS WorkSpaces入门1</h1><p>本文主要介绍Amazon WorkSpaces服务。</p>
+<p>您可以使用此服务快速的在云中构建终端用户桌面，管理和维护虚拟桌面的使用，简化IT需求，提高工作效率。本文主要从服务简介、工作原理、功能对比和使用场景等角度介绍Amazon WorkSpaces。</p>
+<h2 id="Amazon-WorkSpaces简介"><a href="#Amazon-WorkSpaces简介" class="headerlink" title="Amazon WorkSpaces简介"></a>Amazon WorkSpaces简介</h2><p>Amazon WorkSpaces 是<font color="red">一种托管、安全的桌面即服务(DaaS)解决方案</font>。您可以使用 Amazon WorkSpaces 在几分钟内预配置 Windows 或 Linux 桌面，并快速扩展，从而为全球各地的员工提供数以千计的桌面。您只需要为启动的 WorkSpaces 按月付费或按小时付费。Amazon WorkSpaces 可帮助您消除管理硬件清单、操作系统版本和补丁以及虚拟桌面基础设施 (VDI) 的复杂性，从而简化您的桌面交付策略。借助 Amazon WorkSpaces，您的用户能够选择运行快速的响应式桌面，该桌面可供他们随时随地从任何受支持的设备进行访问。</p>
+<h2 id="Amazon-WorkSpaces工作原理"><a href="#Amazon-WorkSpaces工作原理" class="headerlink" title="Amazon WorkSpaces工作原理"></a>Amazon WorkSpaces工作原理</h2><p>Amazon WorkSpaces客户端应用程序使用 HTTPS 通过端口 443 端口处理所有用户身份验证及与会话相关的信息，并使用端口 4172 和PCoIP网关通信以访问WorkSpace桌面。用户身份认证及PCoIP网关都运行在AWS管理的VPC中，对于使用者不可见，您也不用再担心这些服务器的可用性。每个WorkSpace的使用状态更新都在这些网关服务器上进行处理，所有的信息同时都记录在CloudWatch中。</p>
+<p>每个 WorkSpace 都有 2 个与之关联的弹性网络接口 (ENI)：一个 ENI 用于管理和流式处理 (eth0)，另一个是主 ENI (eth1)。主 ENI 的 IP 地址由 VPC (其子网与目录所用的子网相同) 提供。这样可确保 WorkSpace 与目录服务通信，使WorkSpace可以访问企业内部数据中心的资源，同时保证WorkSpace符合企业信息管理的规范。对 VPC 中资源的访问权限由分配给主 ENI 的安全组控制。</p>
+<p>下图演示了 Amazon WorkSpaces 的架构：</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409102002866.png" alt="image-20220409102002866"></p>
+<h2 id="Amazon-WorkSpaces优势和功能"><a href="#Amazon-WorkSpaces优势和功能" class="headerlink" title="Amazon WorkSpaces优势和功能"></a>Amazon WorkSpaces优势和功能</h2><h3 id="简化桌面交付"><a href="#简化桌面交付" class="headerlink" title="简化桌面交付"></a>简化桌面交付</h3><p>运维人员对于公有云桌面资源的交付工作可以在简单的几步内完成，可以帮助节约很多传统VDI桌面内基础设施部署及维护的工作。和其他的AWS服务一样，Amazon WorkSpaces支持通过API或CLI的方式访问，通过和现有的IT系统资产系统集成可以快速完成终端用户的桌面交付工作。<br>同时WorkSpaces支持桌面资源的无限扩展，简单的动态调整桌面CPU、内存和硬盘资源，按需付费的模式避免多度购买硬件，浪费资源。</p>
+<h3 id="保证数据安全"><a href="#保证数据安全" class="headerlink" title="保证数据安全"></a>保证数据安全</h3><p>Amazon WorkSpaces 部署于 Amazon Virtual Private Network (VPC) 内，为每个用户提供对 AWS 云中持久加密存储卷的访问权限，并与 AWS Key Management Service (KMS) 集成，避免在本地基础架构环境中部署安全加密服务，在本地设备中不存储用户数据。 这有助于提高用户数据的安全性，并降低整体风险。</p>
+<h3 id="操作系统部署多样性"><a href="#操作系统部署多样性" class="headerlink" title="操作系统部署多样性"></a>操作系统部署多样性</h3><p>Amazon WorkSpaces 同时提供Windows 和Amazon Linux 2的桌面。</p>
+<h3 id="简化应用管理"><a href="#简化应用管理" class="headerlink" title="简化应用管理"></a>简化应用管理</h3><p>（中国区暂未发布）</p>
+<p>Amazon WorkSpaces 深度集成了Application manager（WAM）服务，简单且安全的应用发布流程可以有效帮助运维人员管理桌面用户的应用软件。</p>
+<p>和传统虚拟桌面VDI或物理PC的对比如下：</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409102253708.png" alt="image-20220409102253708"></p>
+<h3 id="其他功能"><a href="#其他功能" class="headerlink" title="其他功能"></a>其他功能</h3><p>Amazon WorkSpaces 使用目录来存储和管理 WorkSpace 及用户的相关信息。可以使用以下选项之一：</p>
+<ul>
+<li><strong>AD Connector</strong> — 使用现有本地部署 Microsoft Active Directory。用户可以使用其本地部署凭证登录 WorkSpace 并从其 WorkSpace 访问本地部署资源。</li>
+<li><strong>Microsoft AD</strong> — 创建在 AWS 上托管的 Microsoft Active Directory。</li>
+<li><strong>Simple AD</strong> — 创建与 Microsoft Active Directory 兼容的目录，该目录由 Samba 4 提供支持，并在 AWS 上托管<strong>（</strong><em>该功能模块中国区暂未发布</em><strong>）。</strong></li>
+<li><strong>Cross trust</strong> — 在您的 Microsoft AD 目录与本地部署域之间创建信任关系。</li>
+</ul>
+<p>关于身份认证，Amazon WorkSpaces 支持集成MFA的认证方式。在启用MFA后，用户在登录过程中除需要输入用户名和密码外，还需要输入MFA Code，如下图所示。</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409105131532.png" alt="image-20220409105131532"></p>
+<p>Amazon WorkSpaces同时支持用户的RADIUS服务器部署在本地数据中心或AWS云上，也支持其他第三方以SAAS服务方式提供RADIUS服务的合作伙伴。</p>
+<p>如果您使用的是在AWS 上托管的 Microsoft Active Directory，那会更容易的去启用MFA认证，详细请参考如何为 AWS Managed Microsoft AD 启用多重验证</p>
+<p>在 Amazon WorkSpaces 中，您可以为用户启用自助服务 WorkSpace 管理功能，使他们能够更好地控制其体验。这也可以减少 IT 支持人员的 Amazon WorkSpaces 工作负载。</p>
+<h2 id="Amazon-WorkSpaces的使用场景"><a href="#Amazon-WorkSpaces的使用场景" class="headerlink" title="Amazon WorkSpaces的使用场景"></a>Amazon WorkSpaces的使用场景</h2><p>远程和移动工作人员的快速增长，要求 IT 为其提供一种方式来使用自己选择的设备快速方便地访问企业应用程序和数据。Amazon WorkSpaces 可以提供一个在任何地方都能够使用支持的设备通过 Internet 访问的云桌面，帮助移动和远程员工访问用户所需的应用程序。</p>
+<h3 id="启用自带设备"><a href="#启用自带设备" class="headerlink" title="启用自带设备"></a>启用自带设备</h3><p>为实现自带设备 (BYOD) 计划的承诺，IT 部门必须确保员工能够通过大量不断变化的设备轻松安全地访问其应用程序和数据。Amazon WorkSpaces 可让您直接在各种不同的设备上运行云桌面，例如 PC、Mac、iPad、Kindle Fire、Android 平板电脑、Chromebook 以及 Firefox 和 Chrome 等浏览器。这为您提供了交付安全的响应式桌面体验的工具，在让用户满意的同时，帮助您实现 BYOD 计划。</p>
+<h3 id="快速预配置和扩展桌面以进行软件测试和开发"><a href="#快速预配置和扩展桌面以进行软件测试和开发" class="headerlink" title="快速预配置和扩展桌面以进行软件测试和开发"></a>快速预配置和扩展桌面以进行软件测试和开发</h3><p>开发人员和测试团队需要访问安全的高性能 WorkSpace 来完成任务，同时避免大量超规预配置的物理硬件带来的费用和清单。您可以配置包含开发人员需要的所有工具的 Amazon WorkSpaces，从而快速构建应用程序。您的源代码不会存储在开发人员的设备上，这有助于确保您的知识产权的安全性。</p>
+<h3 id="在课堂和实验室环境中快速配置持久桌面"><a href="#在课堂和实验室环境中快速配置持久桌面" class="headerlink" title="在课堂和实验室环境中快速配置持久桌面"></a>在课堂和实验室环境中快速配置持久桌面</h3><p>Amazon WorkSpaces 提供了一个完整持久的桌面，学生可以在整个教育过程中使用该桌面，而Amazon AppStream 2.0让课程教师可以针对班级的独特需求快速提供特定的应用程序。同时使用这两项服务，您可以轻松地构建学生所需的学习环境，并确保学生从一开始就能获取他们需要的课程。</p>
+<h3 id="企业兼并和收购期间系统快速集成"><a href="#企业兼并和收购期间系统快速集成" class="headerlink" title="企业兼并和收购期间系统快速集成"></a>企业兼并和收购期间系统快速集成</h3><p>经历并购的公司必须支持大量员工快速入职或离职，提供快速、简单、安全地方式访问公司应用程序和数据。他们必须通过各种设备完成此项任务，而无需花费太多资金或进行冗长复杂的整合。借助 Amazon WorkSpaces，IT 团队可以快速预配置和停用安全 WorkSpaces，以便满足不断变化的组织结构的需求。</p>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>WorkSpaces</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>WorkSpaces</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>AWS WorkSpaces入门2</title>
+    <url>/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/</url>
+    <content><![CDATA[<p>本节主要讲述的就是在AWS上创建WorkSpaces。</p>
+<p>流程：创建VPC–&gt;创建目录–&gt;创建WorkSpaces</p>
+<h1 id="Part1-创建VPC"><a href="#Part1-创建VPC" class="headerlink" title="Part1 创建VPC"></a>Part1 创建VPC</h1><p><strong>网络环境说明：</strong></p>
+<p>WorkSpaces对网络有一定的要求，以下条件中需要满足一个。</p>
+<ol>
+<li>为的 WorkSpaces 创建具有两个私有子网的 VPC 以及一个 NAT 网关。</li>
+<li>为 WorkSpaces 创建具有两个公有子网的 VPC，并将弹性 IP 地址与各个 WorkSpace 关联。</li>
+</ol>
+<p>本实验采取第2个做法，创建2个具有公有子网的VPC。</p>
+<h2 id="1-1-创建VPC"><a href="#1-1-创建VPC" class="headerlink" title="1.1 创建VPC"></a>1.1 创建VPC</h2><p>进入到控制台的VPC界面，点击创建VPC</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193448187.png" alt="image-20220418193448187"></p>
+<p>创建VPC</p>
+<ul>
+<li>选择“仅VPC”</li>
+<li>命名为test-wk-vpc-01</li>
+<li>IPv4 CIDR：192.168.0.0&#x2F;22</li>
+</ul>
+<p>点击创建VPC</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193550529.png" alt="image-20220418193550529"></p>
+<h2 id="1-2-创建子网"><a href="#1-2-创建子网" class="headerlink" title="1.2 创建子网"></a>1.2 创建子网</h2><p>进入子网页面，点击创建子网</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193136799.png" alt="image-20220418193136799"></p>
+<p>子网配置</p>
+<ul>
+<li>VPC：选择test-wk-vpc-01</li>
+<li>子网1<ul>
+<li>名称：test-wk-pub-01</li>
+<li>可用区：ap-southeast-1a</li>
+<li>IPv4 CIDR块：192.168.0.0&#x2F;24</li>
+</ul>
+</li>
+<li>子网2<ul>
+<li>名称：test-wk-pub-02</li>
+<li>可用区：ap-southeast-1b</li>
+<li>IPv4 CIDR块：192.168.1.0&#x2F;24</li>
+</ul>
+</li>
+</ul>
+<p>配置完成后点击创建子网</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193936839.png" alt="image-20220418193936839"></p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194022952.png" alt="image-20220418194022952"></p>
+<h2 id="1-3-创建互联网网关"><a href="#1-3-创建互联网网关" class="headerlink" title="1.3 创建互联网网关"></a>1.3 创建互联网网关</h2><p>进入到互联网网关页面，点击创建互联网网关</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194309938.png" alt="image-20220418194309938"></p>
+<p>给要创建的互联网网关命名为test-wk-igw，点击创建互联网网关</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194358522.png" alt="image-20220418194358522"></p>
+<p>将创建好的IGW附加到VPC，点击操作，点击附加到VPC</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194706257.png" alt="image-20220418194706257"></p>
+<p>选择test-wk-vpc-01，点击连接互联网网关</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194808415.png" alt="image-20220418194808415"></p>
+<p>查看IGW，已经成功附加到VPC上</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194848469.png" alt="image-20220418194848469"></p>
+<h2 id="1-4-配置路由表"><a href="#1-4-配置路由表" class="headerlink" title="1.4 配置路由表"></a>1.4 配置路由表</h2><p>进入Web控制台的路由表页面，根据VPC选中刚刚新建VPC的路由表。命名称为test-wk-rt，点击保存。</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195051300.png" alt="image-20220418195051300"></p>
+<p>选中路由表，点击路由，点击编辑路由</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195131076.png" alt="image-20220418195131076"></p>
+<p>点击添加路由，添加的路由条目，点击保存更改</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195224231.png" alt="image-20220418195224231"></p>
+<p>路由表中有2个路由条目</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195255850.png" alt="image-20220418195255850"></p>
+<h1 id="Part2-创建目录"><a href="#Part2-创建目录" class="headerlink" title="Part2 创建目录"></a>Part2 创建目录</h1><h2 id="2-1-创建目录"><a href="#2-1-创建目录" class="headerlink" title="2.1 创建目录"></a>2.1 创建目录</h2><p>进入到控制台的目录页面，点击设置目录</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195606749.png" alt="image-20220418195606749"></p>
+<p>选中AWS Managed Microsoft AD，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200012669.png" alt="image-20220418200012669"></p>
+<p>目录信息</p>
+<ul>
+<li>版本：标准版</li>
+<li>DNS名称：testwk01.com</li>
+<li>设置管理员密码并确认</li>
+</ul>
+<p>配置完成之后点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200149701.png" alt="image-20220418200149701"></p>
+<p>选中VPC和子网</p>
+<ul>
+<li>VPC：test-wk-vpc-01</li>
+<li>子网<ul>
+<li>test-wk-pub-01</li>
+<li>test-wk-pub-02</li>
+</ul>
+</li>
+</ul>
+<p>配置完成之后点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200354863.png" alt="image-20220418200354863"></p>
+<p>审核无误之后点击创建目录</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200428274.png" alt="image-20220418200428274"></p>
+<p>目录正在创建，创建过程略长，需要30分钟左右</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200521776.png" alt="image-20220418200521776"></p>
+<h2 id="2-2-目录注册"><a href="#2-2-目录注册" class="headerlink" title="2.2 目录注册"></a>2.2 目录注册</h2><p>目录创建完成之后，从WorkSpaces页面进入目录，选中创建好的目录进行注册</p>
+<p>选中目录</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225037491.png" alt="image-20220418225037491"></p>
+<p>点击操作，点击注册</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225158332.png" alt="image-20220418225158332"></p>
+<p>注册目录需要填入子网，分别填入ap-southeast-1a和ap-southeast-1b，点击注册</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225341599.png" alt="image-20220418225341599"></p>
+<p>注册的其实状态是Registering</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225604139.png" alt="image-20220418225604139"></p>
+<p>刷新之后注册完成后，已注册列显示“是”</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225713198.png" alt="image-20220418225713198"></p>
+<h1 id="Part3-启动WorkSpaces"><a href="#Part3-启动WorkSpaces" class="headerlink" title="Part3 启动WorkSpaces"></a>Part3 启动WorkSpaces</h1><h2 id="3-1-WorkSpaces配置"><a href="#3-1-WorkSpaces配置" class="headerlink" title="3.1 WorkSpaces配置"></a>3.1 WorkSpaces配置</h2><p>进入到WorkSpaces页面，点击启动WorkSpaces</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225804281.png" alt="image-20220418225804281"></p>
+<p>选择创建的目录testwk01.com，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230126866.png" alt="image-20220418230126866"></p>
+<p>添加用户，填写用户信息，填完之后点击创建用户</p>
+<ul>
+<li>TestUser01 User01 Test</li>
+</ul>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233230361.png" alt="image-20220418233230361"></p>
+<p>添加完成之后可以在下边的列表查看用户，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233337005.png" alt="image-20220418233337005"></p>
+<p>选择服务包，选择公用服务包、Performance，选中Windows 10 Server 2016 ，协议为PCoIP，点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233424717.png" alt="image-20220418233424717"></p>
+<p>WorkSpaces的配置页面直接点击下一步</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230937596.png" alt="image-20220418230937596"></p>
+<p>审核，审核完成之后点击启动WorkSpaces</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233455467.png" alt="image-20220418233455467"></p>
+<h2 id="3-2-WorkSpaces状态"><a href="#3-2-WorkSpaces状态" class="headerlink" title="3.2 WorkSpaces状态"></a>3.2 WorkSpaces状态</h2><p>新创建的这个WorkSpaces正在启动，目前的状态是Pending，WorkSpaces起来的时间大概需要30分钟左右。</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233551423.png" alt="image-20220418233551423"></p>
+<p>之后WorkSpaces的状态会变为Available，与此同时，用户的邮箱会收到邮件</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418235256704.png" alt="image-20220418235256704"></p>
+<h2 id="3-3-用户邮件"><a href="#3-3-用户邮件" class="headerlink" title="3.3 用户邮件"></a>3.3 用户邮件</h2><p>邮件如下</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001017275-16502982176861.png" alt="image-20220419001017275"></p>
+<h2 id="3-4-创建用户密码"><a href="#3-4-创建用户密码" class="headerlink" title="3.4 创建用户密码"></a>3.4 创建用户密码</h2><p>访问邮件链接，需要为用户设置密码</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001141871.png" alt="image-20220419001141871"></p>
+<h2 id="3-5-通过客户端访问"><a href="#3-5-通过客户端访问" class="headerlink" title="3.5 通过客户端访问"></a>3.5 通过客户端访问</h2><p>设置完成之后，使用AWS的远程桌面访问工具进行访问</p>
+<p>打开Amazon WorkSpaces软件，输入注册码，点击注册</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001449239.png" alt="image-20220419001449239"></p>
+<p>输入用户名和密码，点击Sign In</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001705940.png" alt="image-20220419001705940"></p>
+<p>正在连接</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001730160.png" alt="image-20220419001730160"></p>
+<h2 id="3-6-连接云桌面"><a href="#3-6-连接云桌面" class="headerlink" title="3.6 连接云桌面"></a>3.6 连接云桌面</h2><p>连接上之后就能进行远程桌面访问</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001816693.png" alt="image-20220419001816693"></p>
+<p>查看IP，有2张网卡</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002503835.png" alt="image-20220419002503835"></p>
+<p>Server只有一个D盘</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002608340.png" alt="image-20220419002608340"></p>
+<h1 id="Part4-其他"><a href="#Part4-其他" class="headerlink" title="Part4 其他"></a>Part4 其他</h1><p>查看WorkSpaces，它有一个公有子网内的iP</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001945730.png" alt="image-20220419001945730"></p>
+<p>通过VPC筛选，看到WorkSpaces创建了安全组，并指定了一些规则</p>
+<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002304486.png" alt="image-20220419002304486"></p>
+<h1 id="Part5-注意事项"><a href="#Part5-注意事项" class="headerlink" title="Part5 注意事项"></a>Part5 注意事项</h1><p>WorkSpaces创建之后，创建的虚拟机会一直启动。</p>
+<p>WorkSpaces停止之后，WorkSpaces就无法再次重启，只能重新创建。所以，一定要确认不会再用到WorkSpaces之后再把WorkSpaces停止掉。</p>
+<h1 id="Part6-参考文献"><a href="#Part6-参考文献" class="headerlink" title="Part6 参考文献"></a>Part6 参考文献</h1><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/directoryservice/latest/admin-guide/directory_microsoft_ad.html">AWS托管的Microsoft AD</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/workspaces/latest/adminguide/amazon-workspaces.html">什么是Amazon WorkSpaces？</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>WorkSpaces</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>WorkSpaces</tag>
+      </tags>
   </entry>
   <entry>
     <title>ALB负载均衡</title>
@@ -364,70 +1170,32 @@
       </tags>
   </entry>
   <entry>
-    <title>HTTPS自建SSl证书</title>
-    <url>/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/</url>
-    <content><![CDATA[<h1 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h1><h2 id="申请免费证书"><a href="#申请免费证书" class="headerlink" title="申请免费证书"></a>申请免费证书</h2><p>笔者申请腾讯云的免费证书。</p>
-<p>在搜索框输入“SSL证书”，进入“我的证书”页面，点击“申请免费证书”</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407155954040.png" alt="image-20220407155954040"></p>
-<p>选择证书类型，保持默认就行，点击“确定”</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407160119701.png" alt="image-20220407160119701"></p>
-<p>“提交资料”这一步只需要按照要求填写内容即可，点击“下一步”</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407160315832.png" alt="image-20220407160315832"></p>
-<p>验证方式选择推荐的DNS验证，点击“下一步”</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407160409715.png" alt="image-20220407160409715"></p>
-<p>将腾讯云上域名验证的部分，添加到托管的记录中</p>
-<p>在托管域中新增一条CNAME类型的记录，把名称和值都填进去，点击创建记录</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407203303019.png" alt="image-20220407203303019"></p>
-<p>记录创建完成之后，在腾讯云平台上进行域名验证</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407203509147.png" alt="image-20220407203509147"></p>
-<p>等待证书颁发，过程可能需要2个小时</p>
-<p>okay，证书颁发完整之后，下载证书</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408111659212.png" alt="image-20220408111659212"></p>
-<p>选择Nginx类型进行下载</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408112122014.png" alt="image-20220408112122014"></p>
-<h2 id="在ACM中导入证书"><a href="#在ACM中导入证书" class="headerlink" title="在ACM中导入证书"></a>在ACM中导入证书</h2><p>在ACM页面中选择，导入证书</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113215099.png" alt="image-20220408113215099"></p>
-<p>将下载下来证书的对应内容复制进去</p>
-<p>填写规则：</p>
-<ul>
-<li>对于 <strong>Certificate body</strong>（证书正文），粘贴要导入的 PEM 编码证书。它应以 <code>-----BEGIN CERTIFICATE-----</code> 开头并以 <code>-----END CERTIFICATE-----</code> 结尾。</li>
-<li>对于 <strong>Certificate private key（证书私有密钥）</strong>，粘贴证书的 PEM 编码的未加密私有密钥。它应以 <code>-----BEGIN PRIVATE KEY-----</code> 开头并以 <code>-----END PRIVATE KEY-----</code> 结尾。</li>
-<li>(可选) 对于 **Certificate chain (证书链)**，粘贴 PEM 编码的证书链。</li>
-</ul>
-<p>导入之后，点击“下一步”</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113452118.png" alt="image-20220408113452118"></p>
-<p>为证书添加标签，Name:modu2022.cg_SSL。标签不添加也可以。</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113709930.png" alt="image-20220408113709930"></p>
-<p>审核完成之后点击导入</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113752537.png" alt="image-20220408113752537"></p>
-<p>证书导入完毕</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408115936587.png" alt="image-20220408115936587"></p>
-<h2 id="修改负载均衡器"><a href="#修改负载均衡器" class="headerlink" title="修改负载均衡器"></a>修改负载均衡器</h2><p>在负载均衡器中添加侦听器</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408111521838.png" alt="image-20220408111521838"></p>
-<p>侦听器内容设置如下</p>
-<ul>
-<li>协议：HTTPS 443端口</li>
-<li>操作：转发<ul>
-<li>目标组：my-target-02</li>
-</ul>
-</li>
-<li>侦听器证书设置：“从ACM中”，选择新增的modu2022.cf证书</li>
-</ul>
-<p>点击添加</p>
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408120049946.png" alt="image-20220408120049946"></p>
-<p>测试访问</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-net2-02 ~]<span class="comment"># for i in $(seq 1 10); do curl https://modu2022.cf &amp;&amp;echo &quot;&quot;; done</span></span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+    <title>AWS STS正确设计IAM用户密钥（二）</title>
+    <url>/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/</url>
+    <content><![CDATA[<h1 id="AWS-STS正确设计IAM用户密钥（二）"><a href="#AWS-STS正确设计IAM用户密钥（二）" class="headerlink" title="AWS STS正确设计IAM用户密钥（二）"></a>AWS STS正确设计IAM用户密钥（二）</h1><p>上文提到可以通过临时密钥的方式确保安全性，但是存在定时手动更换密钥的问题。<br>AWS提供了一个自动化执行（一）文的方法<br>本文提出一个AWS STS获取临时凭证的自动化执行方法。</p>
+<p>Q：自动化执行的方式如何获取临时凭证？</p>
+<p>A： 配置AWS CLI，使得AWS CLI承担IAM角色。AWS CLI会自动进行AssumeRole调用。</p>
+<p>Q：如何指定AWS CLI承担角色？</p>
+<p>A：在credentials文件中增加一个profile，该profile包含2个配置项role_arn和source_profile<br>      role_arn配置为需要承担角色的arn<br>      source_profile配置为执行AssumeRole的IAM用户所在的profile</p>
+<h2 id="PART3-实验步骤"><a href="#PART3-实验步骤" class="headerlink" title="PART3 实验步骤"></a>PART3 实验步骤</h2><p>从3.5开始以后的配置与（一）中不同</p>
+<h3 id="3-5-在credentials文件中增加profile"><a href="#3-5-在credentials文件中增加profile" class="headerlink" title="3.5 在credentials文件中增加profile"></a>3.5 在credentials文件中增加profile</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[automate]</span><br><span class="line">role_arn = arn:aws:iam::465447475283:role/stroll</span><br><span class="line">source_profile = default</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408121453351.png" alt="image-20220408121453351"></p>
-<p>okay，自建证书也实现了ALB的负载均衡。</p>
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425231844401.png" alt="image-20220425231844401"></p>
+<h3 id="3-6-测试"><a href="#3-6-测试" class="headerlink" title="3.6 测试"></a>3.6 测试</h3><p>在命令行输入以下命令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile automate</span><br><span class="line"><span class="comment">#指定profile为新创建的automate</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425232136182.png" alt="image-20220425232136182"></p>
+<p>AWS的CLI成功执行了stroll角色</p>
 ]]></content>
       <categories>
         <category>AWS</category>
-        <category>ELB</category>
+        <category>IAM</category>
       </categories>
       <tags>
-        <tag>ALB</tag>
-        <tag>HTTP证书</tag>
+        <tag>AWS</tag>
+        <tag>IAM</tag>
       </tags>
   </entry>
   <entry>
@@ -555,374 +1323,6 @@
       <tags>
         <tag>AWS</tag>
         <tag>Elastic Load Balance</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>VPC内子网联网</title>
-    <url>/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/</url>
-    <content><![CDATA[<h1 id="VPC内子网联网"><a href="#VPC内子网联网" class="headerlink" title="VPC内子网联网"></a>VPC内子网联网</h1><blockquote>
-<p>VPC中有2种子网类型：公共子网和私有子网</p>
-<ul>
-<li>所谓公共子网就是其对应的路由表中配置了规则将请求路由到了 <code>Internet Gateway</code></li>
-<li>私有子网就是其关联的路由表中没有配置到 <code>Internet Gatway</code> 的路由规则，因此无法对外访问。</li>
-</ul>
-<p>AWS 的 VPC 网络配置关系是：<em><strong>实例与子网关联，子网关联路由表，路由表设置网关</strong></em>。</p>
-</blockquote>
-<span id="more"></span>
-
-<h2 id="公共子网联网"><a href="#公共子网联网" class="headerlink" title="公共子网联网"></a>公共子网联网</h2><h3 id="介绍IGW"><a href="#介绍IGW" class="headerlink" title="介绍IGW"></a>介绍IGW</h3><p>公共子网通过IGW(Internet gateway)组件来实现VPC和Internet的相互通信。</p>
-<p>IGW提供两项功能：</p>
-<ol>
-<li>Subnet中的流量通过IGW访问Internet</li>
-<li>为配置了Public IP的Instance提供网址转换</li>
-</ol>
-<h3 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建VPC"><a href="#1-创建VPC" class="headerlink" title="1.创建VPC"></a>1.创建VPC</h4><p>手动创建VPC，即不通过向导的方式进行创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010040498.png" alt="image-20220330010040498"></p>
-<p>VPC的设置如下</p>
-<p>选择“仅VPC”</p>
-<p>命名为：my-vpc-02</p>
-<p>IPv4 CIDR：172.16.0.0&#x2F;22</p>
-<p>其他保持默认，点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010150289.png" alt="image-20220330010150289"></p>
-<p>查看创建好的VPC</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010359754.png" alt="image-20220330010359754"></p>
-<h4 id="2-创建互联网网关"><a href="#2-创建互联网网关" class="headerlink" title="2.创建互联网网关"></a>2.创建互联网网关</h4><p>点击“新建互联网网关”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010558808.png" alt="image-20220330010558808"></p>
-<p>将该互联网网关命名为：my-igw-02</p>
-<p>点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010653543.png" alt="image-20220330010653543"></p>
-<p>互联网网关已经建好，将它附加到VPC，点击下图中的1或2处都可以</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010838397.png" alt="image-20220330010838397"></p>
-<p>选择新建的VPC，my-vpc-02，连接互联网网关</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330010919597.png" alt="image-20220330010919597"></p>
-<p>互联网网关成功附加到了VPC上</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011023866.png" alt="image-20220330011023866"></p>
-<h4 id="3-创建公有子网"><a href="#3-创建公有子网" class="headerlink" title="3.创建公有子网"></a>3.创建公有子网</h4><p>点击“创建子网”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011136211.png" alt="image-20220330011136211"></p>
-<p>选择新建的VPC，my-vpc-02</p>
-<p>创建一个子网，命令为：my-sub-pub-02</p>
-<p>可用区可以选择当前区域的任意可用区，此处选择“us-east-1a”</p>
-<p>IPv4 CIDR: 172.16.1.0&#x2F;24</p>
-<p>点击“创建子网”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011507485.png" alt="image-20220330011507485"></p>
-<p>子网创建成功</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011727300.png" alt="image-20220330011727300"></p>
-<p>进入到该子网的路由表，点击路由表的id进入</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330011823385.png" alt="image-20220330011823385"></p>
-<p>查看该路由表的路由条目，点击“编辑路由”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012003132.png" alt="image-20220330012003132"></p>
-<p>点击“添加路由”，新的路由如下</p>
-<p>第一个空选择：0.0.0.0&#x2F;0，第二空选项“互联网网关”，随后会跳出刚创建的IGW，点击“保存更改”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012108517.png" alt="image-20220330012108517"></p>
-<p>路由表新增条目成功</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330012306561.png" alt="image-20220330012306561"></p>
-<p>由于该子网添加了IGW，于是该子网成为了公共子网，给子网内的ec2分配公有子网或者弹性IP之后可以访问到Internet。</p>
-<h4 id="4-创建安全组"><a href="#4-创建安全组" class="headerlink" title="4.创建安全组"></a>4.创建安全组</h4><p>点击创建安全组</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093212864.png" alt="image-20220330093212864"></p>
-<p>安全组名称：my-Security-Group-02</p>
-<p>VPC选择my-vpc-02</p>
-<p>添加2条入站信息，分别是22端口和ICMP</p>
-<p>配置完成之后，点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093653373.png" alt="image-20220330093653373"></p>
-<p>安全组创建完成</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093716680.png" alt="image-20220330093716680"></p>
-<h4 id="5-创建EC2"><a href="#5-创建EC2" class="headerlink" title="5.创建EC2"></a>5.创建EC2</h4><p>点击“启动新实例”</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092020102.png" alt="image-20220330092020102"></p>
-<p>在AWS Marketplace中选择Centos7这个AMI</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092149765.png" alt="image-20220330092149765"></p>
-<p>实例类型选择t2.micro，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092236542.png" alt="image-20220330092236542"></p>
-<p>网络选择刚才新建的VPC，my-vpc-02</p>
-<p>子网选择公共子网，my-sub-pub-02</p>
-<p>自动分配公有IP处选择<font color="red">禁用</font>，说明稍后给ec2绑定弹性IP，而不使用创建是分配的公网IP</p>
-<p>配置完成后，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330092539598.png" alt="image-20220330092539598"></p>
-<p>存储使用默认的资源配置，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330093025676.png" alt="image-20220330093025676"></p>
-<p>给EC2添加标签，Name: test-pub-02，点击下一步</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095554126.png" alt="image-20220330095554126"></p>
-<p>选择现有安全组my-Security-Group-02</p>
-<p>点击审核和启动</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095703240.png" alt="image-20220330095703240"></p>
-<p>点击启动</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095726364.png" alt="image-20220330095726364"></p>
-<p>因为我之前有密钥对，所以选择“选择现有密钥对”选项。如果之前没有密钥对选择新建，输入密钥对的名字之后会进行下载。</p>
-<p>点击启动新实例</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330095853535.png" alt="image-20220330095853535"></p>
-<h4 id="6-创建-amp-绑定弹性IP"><a href="#6-创建-amp-绑定弹性IP" class="headerlink" title="6.创建&amp;绑定弹性IP"></a>6.创建&amp;绑定弹性IP</h4><p>点击分配弹性IP地址</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104427148.png" alt="image-20220330104427148"></p>
-<p>设置键值对 Name: ec2-test-pub-02</p>
-<p>点击分配</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104522655.png" alt="image-20220330104522655"></p>
-<p>关联该弹性IP</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104554944.png" alt="image-20220330104554944"></p>
-<p>实例选择test-pub-02，选择私有IP地址，点击关联</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330104656288.png" alt="image-20220330104656288"></p>
-<h4 id="7-测试"><a href="#7-测试" class="headerlink" title="7.测试"></a>7.测试</h4><p>访问EC2可以ping通baidu.com</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330110421486.png" alt="image-20220330110421486"></p>
-<h2 id="私有子网联网"><a href="#私有子网联网" class="headerlink" title="私有子网联网"></a>私有子网联网</h2><h3 id="介绍NAT-GW"><a href="#介绍NAT-GW" class="headerlink" title="介绍NAT GW"></a>介绍NAT GW</h3><p>NAT GW是一种网络地址转换服务。可以使用NAT网关将私有子网中的实例连接到VPC外部的服务，但是外部无法启动与这些实例的连接。</p>
-<p>在创建 NAT 网关时，指定以下连接类型之一：</p>
-<ul>
-<li><strong>公开</strong> –（默认）私有子网中的实例可以通过公共 NAT 网关连接到互联网，但不能接收来自互联网的未经请求的入站连接。<font color="red">在公有子网中创建公有 NAT 网关，并且必须在创建时将弹性 IP 地址与 NAT 网关相关联。可以将流量从 NAT 网关路由到 VPC 的互联网网关。</font>或者，您可以使用公有 NAT 网关连接到其他 VPC 或本地部署网络。在这种情况下，您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。</li>
-<li><strong>私密</strong> – 私有子网中的实例可以通过私有 NAT 网关连接到其他 VPC 或您的本地部署网络。您可以借助中转网关或虚拟私有网关路由来自 NAT 网关的流量。您不能将弹性 IP 地址与私有 NAT 网关相关联。您可以将互联网网关连接到具有私有 NAT 网关的 VPC，但如果您将流量从私有 NAT 网关路由到互联网网关，则互联网网关会丢弃流量。</li>
-</ul>
-<p>NAT 网关将实例的源 IP 地址替换为 NAT 网关的 IP 地址。对于公有 NAT 网关，这是 NAT 网关的弹性 IP 地址。对于私有 NAT 网关，这是 NAT 网关的私有 IP 地址。向实例发送响应流量时，NAT 设备会将地址转换回原始源 IP 地址。</p>
-<p>注意：NAT网关要给私有子网使用，其自身要在公有子网内，即需要保证它自身能够访问到互联网。</p>
-<h3 id="操作-1"><a href="#操作-1" class="headerlink" title="操作"></a>操作</h3><h4 id="1-创建私有子网"><a href="#1-创建私有子网" class="headerlink" title="1.创建私有子网"></a>1.创建私有子网</h4><p>新建子网</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112048218.png" alt="image-20220330112048218"></p>
-<p>子网配置信息</p>
-<p>VPC选择my-vpc-02</p>
-<p>子网命名为my-sub-pri-02</p>
-<p>可用区可以随意选择，最好和公共子网在两个不同的可用区</p>
-<p>IPv4 CIDR为172.16.2.0&#x2F;24</p>
-<p>配置完成之后点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112158262.png" alt="image-20220330112158262"></p>
-<h4 id="2-创建NAT网关"><a href="#2-创建NAT网关" class="headerlink" title="2.创建NAT网关"></a>2.创建NAT网关</h4><p>点击创建NAT网关</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112448923.png" alt="image-20220330112448923"></p>
-<p>nat网关设置</p>
-<p>命名为my-nat-02</p>
-<p>子网选择公有子网，类型为公有</p>
-<p>为它分配弹性IP</p>
-<p>配置完成之后点击创建</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330112702279.png" alt="image-20220330112702279"></p>
-<h4 id="3-私有子网路由表关联NAT网关"><a href="#3-私有子网路由表关联NAT网关" class="headerlink" title="3.私有子网路由表关联NAT网关"></a>3.私有子网路由表关联NAT网关</h4><p>创建私网路由表</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132430858.png" alt="image-20220330132430858"></p>
-<p>为新建的路由表设置子网关联</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330132953082.png" alt="image-20220330132953082"></p>
-<p>将该表关联到私有子网</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133016115.png" alt="image-20220330133016115"></p>
-<p>将公共子网使用的这张表改名，以便标识</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133149273.png" alt="image-20220330133149273"></p>
-<p>编辑私有子网的这张路由表</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133240295.png" alt="image-20220330133240295"></p>
-<p>新增一条路由到nat网关，添加好之后点击保存更改</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330133310859.png" alt="image-20220330133310859"></p>
-<h4 id="4-创建EC2"><a href="#4-创建EC2" class="headerlink" title="4.创建EC2"></a>4.创建EC2</h4><p>创建步骤同在公共子网中创建EC2，省略大部分配置</p>
-<p>需要特别注意的地方如下</p>
-<p>网络选择my-vpc-02，子网选择新建的私有子网my-sub-pri-02，禁用自动分配公有IP功能</p>
-<p>其余的配置与在公共子网内的配置大同小异，无非就是命名不一致，这里就不过多赘述</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330115204934.png" alt="image-20220330115204934"></p>
-<h4 id="5-测试"><a href="#5-测试" class="headerlink" title="5.测试"></a>5.测试</h4><p>需要说明一下，访问该私有子网的EC2需要通过公共子网内的EC2作为跳板机来访问</p>
-<p>即先ssh到公共子网内的EC2，在此基础上ssh到私有子网的EC2上</p>
-<p>将密钥文件通过SCP上传到公网EC2上</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134025275.png" alt="image-20220330134025275"></p>
-<p>进行ping测试，可以成功ping通baidu.com</p>
-<p><img src="/2022/05/15/AWS/Network/VPC%E5%86%85%E5%AD%90%E7%BD%91%E8%81%94%E7%BD%91/image-20220330134155233.png" alt="image-20220330134155233"></p>
-<p>注意点：</p>
-<ol>
-<li>VPC默认只有一张路由表，先创建公共子网，再创建私有子网的情况下要单独为私有子网创建一张路由表</li>
-<li>NAT网关通Internet的话，要把NAT网关创建在公共子网中，并为其分配弹性IP</li>
-<li>子网（公共子网&amp;私有子网）会有一定的地址保留。Amazon会保留各个子网的前面4个IP地址和最后1个IP地址，以作IP联网之用。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>VPC</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>VPC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>AWS WorkSpaces入门1</title>
-    <url>/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/</url>
-    <content><![CDATA[<h1 id="AWS-WorkSpaces入门1"><a href="#AWS-WorkSpaces入门1" class="headerlink" title="AWS WorkSpaces入门1"></a>AWS WorkSpaces入门1</h1><p>本文主要介绍Amazon WorkSpaces服务。</p>
-<p>您可以使用此服务快速的在云中构建终端用户桌面，管理和维护虚拟桌面的使用，简化IT需求，提高工作效率。本文主要从服务简介、工作原理、功能对比和使用场景等角度介绍Amazon WorkSpaces。</p>
-<h2 id="Amazon-WorkSpaces简介"><a href="#Amazon-WorkSpaces简介" class="headerlink" title="Amazon WorkSpaces简介"></a>Amazon WorkSpaces简介</h2><p>Amazon WorkSpaces 是<font color="red">一种托管、安全的桌面即服务(DaaS)解决方案</font>。您可以使用 Amazon WorkSpaces 在几分钟内预配置 Windows 或 Linux 桌面，并快速扩展，从而为全球各地的员工提供数以千计的桌面。您只需要为启动的 WorkSpaces 按月付费或按小时付费。Amazon WorkSpaces 可帮助您消除管理硬件清单、操作系统版本和补丁以及虚拟桌面基础设施 (VDI) 的复杂性，从而简化您的桌面交付策略。借助 Amazon WorkSpaces，您的用户能够选择运行快速的响应式桌面，该桌面可供他们随时随地从任何受支持的设备进行访问。</p>
-<h2 id="Amazon-WorkSpaces工作原理"><a href="#Amazon-WorkSpaces工作原理" class="headerlink" title="Amazon WorkSpaces工作原理"></a>Amazon WorkSpaces工作原理</h2><p>Amazon WorkSpaces客户端应用程序使用 HTTPS 通过端口 443 端口处理所有用户身份验证及与会话相关的信息，并使用端口 4172 和PCoIP网关通信以访问WorkSpace桌面。用户身份认证及PCoIP网关都运行在AWS管理的VPC中，对于使用者不可见，您也不用再担心这些服务器的可用性。每个WorkSpace的使用状态更新都在这些网关服务器上进行处理，所有的信息同时都记录在CloudWatch中。</p>
-<p>每个 WorkSpace 都有 2 个与之关联的弹性网络接口 (ENI)：一个 ENI 用于管理和流式处理 (eth0)，另一个是主 ENI (eth1)。主 ENI 的 IP 地址由 VPC (其子网与目录所用的子网相同) 提供。这样可确保 WorkSpace 与目录服务通信，使WorkSpace可以访问企业内部数据中心的资源，同时保证WorkSpace符合企业信息管理的规范。对 VPC 中资源的访问权限由分配给主 ENI 的安全组控制。</p>
-<p>下图演示了 Amazon WorkSpaces 的架构：</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409102002866.png" alt="image-20220409102002866"></p>
-<h2 id="Amazon-WorkSpaces优势和功能"><a href="#Amazon-WorkSpaces优势和功能" class="headerlink" title="Amazon WorkSpaces优势和功能"></a>Amazon WorkSpaces优势和功能</h2><h3 id="简化桌面交付"><a href="#简化桌面交付" class="headerlink" title="简化桌面交付"></a>简化桌面交付</h3><p>运维人员对于公有云桌面资源的交付工作可以在简单的几步内完成，可以帮助节约很多传统VDI桌面内基础设施部署及维护的工作。和其他的AWS服务一样，Amazon WorkSpaces支持通过API或CLI的方式访问，通过和现有的IT系统资产系统集成可以快速完成终端用户的桌面交付工作。<br>同时WorkSpaces支持桌面资源的无限扩展，简单的动态调整桌面CPU、内存和硬盘资源，按需付费的模式避免多度购买硬件，浪费资源。</p>
-<h3 id="保证数据安全"><a href="#保证数据安全" class="headerlink" title="保证数据安全"></a>保证数据安全</h3><p>Amazon WorkSpaces 部署于 Amazon Virtual Private Network (VPC) 内，为每个用户提供对 AWS 云中持久加密存储卷的访问权限，并与 AWS Key Management Service (KMS) 集成，避免在本地基础架构环境中部署安全加密服务，在本地设备中不存储用户数据。 这有助于提高用户数据的安全性，并降低整体风险。</p>
-<h3 id="操作系统部署多样性"><a href="#操作系统部署多样性" class="headerlink" title="操作系统部署多样性"></a>操作系统部署多样性</h3><p>Amazon WorkSpaces 同时提供Windows 和Amazon Linux 2的桌面。</p>
-<h3 id="简化应用管理"><a href="#简化应用管理" class="headerlink" title="简化应用管理"></a>简化应用管理</h3><p>（中国区暂未发布）</p>
-<p>Amazon WorkSpaces 深度集成了Application manager（WAM）服务，简单且安全的应用发布流程可以有效帮助运维人员管理桌面用户的应用软件。</p>
-<p>和传统虚拟桌面VDI或物理PC的对比如下：</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409102253708.png" alt="image-20220409102253708"></p>
-<h3 id="其他功能"><a href="#其他功能" class="headerlink" title="其他功能"></a>其他功能</h3><p>Amazon WorkSpaces 使用目录来存储和管理 WorkSpace 及用户的相关信息。可以使用以下选项之一：</p>
-<ul>
-<li><strong>AD Connector</strong> — 使用现有本地部署 Microsoft Active Directory。用户可以使用其本地部署凭证登录 WorkSpace 并从其 WorkSpace 访问本地部署资源。</li>
-<li><strong>Microsoft AD</strong> — 创建在 AWS 上托管的 Microsoft Active Directory。</li>
-<li><strong>Simple AD</strong> — 创建与 Microsoft Active Directory 兼容的目录，该目录由 Samba 4 提供支持，并在 AWS 上托管<strong>（</strong><em>该功能模块中国区暂未发布</em><strong>）。</strong></li>
-<li><strong>Cross trust</strong> — 在您的 Microsoft AD 目录与本地部署域之间创建信任关系。</li>
-</ul>
-<p>关于身份认证，Amazon WorkSpaces 支持集成MFA的认证方式。在启用MFA后，用户在登录过程中除需要输入用户名和密码外，还需要输入MFA Code，如下图所示。</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A81(%E7%90%86%E8%AE%BA)/image-20220409105131532.png" alt="image-20220409105131532"></p>
-<p>Amazon WorkSpaces同时支持用户的RADIUS服务器部署在本地数据中心或AWS云上，也支持其他第三方以SAAS服务方式提供RADIUS服务的合作伙伴。</p>
-<p>如果您使用的是在AWS 上托管的 Microsoft Active Directory，那会更容易的去启用MFA认证，详细请参考如何为 AWS Managed Microsoft AD 启用多重验证</p>
-<p>在 Amazon WorkSpaces 中，您可以为用户启用自助服务 WorkSpace 管理功能，使他们能够更好地控制其体验。这也可以减少 IT 支持人员的 Amazon WorkSpaces 工作负载。</p>
-<h2 id="Amazon-WorkSpaces的使用场景"><a href="#Amazon-WorkSpaces的使用场景" class="headerlink" title="Amazon WorkSpaces的使用场景"></a>Amazon WorkSpaces的使用场景</h2><p>远程和移动工作人员的快速增长，要求 IT 为其提供一种方式来使用自己选择的设备快速方便地访问企业应用程序和数据。Amazon WorkSpaces 可以提供一个在任何地方都能够使用支持的设备通过 Internet 访问的云桌面，帮助移动和远程员工访问用户所需的应用程序。</p>
-<h3 id="启用自带设备"><a href="#启用自带设备" class="headerlink" title="启用自带设备"></a>启用自带设备</h3><p>为实现自带设备 (BYOD) 计划的承诺，IT 部门必须确保员工能够通过大量不断变化的设备轻松安全地访问其应用程序和数据。Amazon WorkSpaces 可让您直接在各种不同的设备上运行云桌面，例如 PC、Mac、iPad、Kindle Fire、Android 平板电脑、Chromebook 以及 Firefox 和 Chrome 等浏览器。这为您提供了交付安全的响应式桌面体验的工具，在让用户满意的同时，帮助您实现 BYOD 计划。</p>
-<h3 id="快速预配置和扩展桌面以进行软件测试和开发"><a href="#快速预配置和扩展桌面以进行软件测试和开发" class="headerlink" title="快速预配置和扩展桌面以进行软件测试和开发"></a>快速预配置和扩展桌面以进行软件测试和开发</h3><p>开发人员和测试团队需要访问安全的高性能 WorkSpace 来完成任务，同时避免大量超规预配置的物理硬件带来的费用和清单。您可以配置包含开发人员需要的所有工具的 Amazon WorkSpaces，从而快速构建应用程序。您的源代码不会存储在开发人员的设备上，这有助于确保您的知识产权的安全性。</p>
-<h3 id="在课堂和实验室环境中快速配置持久桌面"><a href="#在课堂和实验室环境中快速配置持久桌面" class="headerlink" title="在课堂和实验室环境中快速配置持久桌面"></a>在课堂和实验室环境中快速配置持久桌面</h3><p>Amazon WorkSpaces 提供了一个完整持久的桌面，学生可以在整个教育过程中使用该桌面，而Amazon AppStream 2.0让课程教师可以针对班级的独特需求快速提供特定的应用程序。同时使用这两项服务，您可以轻松地构建学生所需的学习环境，并确保学生从一开始就能获取他们需要的课程。</p>
-<h3 id="企业兼并和收购期间系统快速集成"><a href="#企业兼并和收购期间系统快速集成" class="headerlink" title="企业兼并和收购期间系统快速集成"></a>企业兼并和收购期间系统快速集成</h3><p>经历并购的公司必须支持大量员工快速入职或离职，提供快速、简单、安全地方式访问公司应用程序和数据。他们必须通过各种设备完成此项任务，而无需花费太多资金或进行冗长复杂的整合。借助 Amazon WorkSpaces，IT 团队可以快速预配置和停用安全 WorkSpaces，以便满足不断变化的组织结构的需求。</p>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>WorkSpaces</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>WorkSpaces</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>AWS WorkSpaces入门2</title>
-    <url>/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/</url>
-    <content><![CDATA[<p>本节主要讲述的就是在AWS上创建WorkSpaces。</p>
-<p>流程：创建VPC–&gt;创建目录–&gt;创建WorkSpaces</p>
-<h1 id="Part1-创建VPC"><a href="#Part1-创建VPC" class="headerlink" title="Part1 创建VPC"></a>Part1 创建VPC</h1><p><strong>网络环境说明：</strong></p>
-<p>WorkSpaces对网络有一定的要求，以下条件中需要满足一个。</p>
-<ol>
-<li>为的 WorkSpaces 创建具有两个私有子网的 VPC 以及一个 NAT 网关。</li>
-<li>为 WorkSpaces 创建具有两个公有子网的 VPC，并将弹性 IP 地址与各个 WorkSpace 关联。</li>
-</ol>
-<p>本实验采取第2个做法，创建2个具有公有子网的VPC。</p>
-<h2 id="1-1-创建VPC"><a href="#1-1-创建VPC" class="headerlink" title="1.1 创建VPC"></a>1.1 创建VPC</h2><p>进入到控制台的VPC界面，点击创建VPC</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193448187.png" alt="image-20220418193448187"></p>
-<p>创建VPC</p>
-<ul>
-<li>选择“仅VPC”</li>
-<li>命名为test-wk-vpc-01</li>
-<li>IPv4 CIDR：192.168.0.0&#x2F;22</li>
-</ul>
-<p>点击创建VPC</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193550529.png" alt="image-20220418193550529"></p>
-<h2 id="1-2-创建子网"><a href="#1-2-创建子网" class="headerlink" title="1.2 创建子网"></a>1.2 创建子网</h2><p>进入子网页面，点击创建子网</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193136799.png" alt="image-20220418193136799"></p>
-<p>子网配置</p>
-<ul>
-<li>VPC：选择test-wk-vpc-01</li>
-<li>子网1<ul>
-<li>名称：test-wk-pub-01</li>
-<li>可用区：ap-southeast-1a</li>
-<li>IPv4 CIDR块：192.168.0.0&#x2F;24</li>
-</ul>
-</li>
-<li>子网2<ul>
-<li>名称：test-wk-pub-02</li>
-<li>可用区：ap-southeast-1b</li>
-<li>IPv4 CIDR块：192.168.1.0&#x2F;24</li>
-</ul>
-</li>
-</ul>
-<p>配置完成后点击创建子网</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418193936839.png" alt="image-20220418193936839"></p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194022952.png" alt="image-20220418194022952"></p>
-<h2 id="1-3-创建互联网网关"><a href="#1-3-创建互联网网关" class="headerlink" title="1.3 创建互联网网关"></a>1.3 创建互联网网关</h2><p>进入到互联网网关页面，点击创建互联网网关</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194309938.png" alt="image-20220418194309938"></p>
-<p>给要创建的互联网网关命名为test-wk-igw，点击创建互联网网关</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194358522.png" alt="image-20220418194358522"></p>
-<p>将创建好的IGW附加到VPC，点击操作，点击附加到VPC</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194706257.png" alt="image-20220418194706257"></p>
-<p>选择test-wk-vpc-01，点击连接互联网网关</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194808415.png" alt="image-20220418194808415"></p>
-<p>查看IGW，已经成功附加到VPC上</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418194848469.png" alt="image-20220418194848469"></p>
-<h2 id="1-4-配置路由表"><a href="#1-4-配置路由表" class="headerlink" title="1.4 配置路由表"></a>1.4 配置路由表</h2><p>进入Web控制台的路由表页面，根据VPC选中刚刚新建VPC的路由表。命名称为test-wk-rt，点击保存。</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195051300.png" alt="image-20220418195051300"></p>
-<p>选中路由表，点击路由，点击编辑路由</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195131076.png" alt="image-20220418195131076"></p>
-<p>点击添加路由，添加的路由条目，点击保存更改</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195224231.png" alt="image-20220418195224231"></p>
-<p>路由表中有2个路由条目</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195255850.png" alt="image-20220418195255850"></p>
-<h1 id="Part2-创建目录"><a href="#Part2-创建目录" class="headerlink" title="Part2 创建目录"></a>Part2 创建目录</h1><h2 id="2-1-创建目录"><a href="#2-1-创建目录" class="headerlink" title="2.1 创建目录"></a>2.1 创建目录</h2><p>进入到控制台的目录页面，点击设置目录</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418195606749.png" alt="image-20220418195606749"></p>
-<p>选中AWS Managed Microsoft AD，点击下一步</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200012669.png" alt="image-20220418200012669"></p>
-<p>目录信息</p>
-<ul>
-<li>版本：标准版</li>
-<li>DNS名称：testwk01.com</li>
-<li>设置管理员密码并确认</li>
-</ul>
-<p>配置完成之后点击下一步</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200149701.png" alt="image-20220418200149701"></p>
-<p>选中VPC和子网</p>
-<ul>
-<li>VPC：test-wk-vpc-01</li>
-<li>子网<ul>
-<li>test-wk-pub-01</li>
-<li>test-wk-pub-02</li>
-</ul>
-</li>
-</ul>
-<p>配置完成之后点击下一步</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200354863.png" alt="image-20220418200354863"></p>
-<p>审核无误之后点击创建目录</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200428274.png" alt="image-20220418200428274"></p>
-<p>目录正在创建，创建过程略长，需要30分钟左右</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418200521776.png" alt="image-20220418200521776"></p>
-<h2 id="2-2-目录注册"><a href="#2-2-目录注册" class="headerlink" title="2.2 目录注册"></a>2.2 目录注册</h2><p>目录创建完成之后，从WorkSpaces页面进入目录，选中创建好的目录进行注册</p>
-<p>选中目录</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225037491.png" alt="image-20220418225037491"></p>
-<p>点击操作，点击注册</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225158332.png" alt="image-20220418225158332"></p>
-<p>注册目录需要填入子网，分别填入ap-southeast-1a和ap-southeast-1b，点击注册</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225341599.png" alt="image-20220418225341599"></p>
-<p>注册的其实状态是Registering</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225604139.png" alt="image-20220418225604139"></p>
-<p>刷新之后注册完成后，已注册列显示“是”</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225713198.png" alt="image-20220418225713198"></p>
-<h1 id="Part3-启动WorkSpaces"><a href="#Part3-启动WorkSpaces" class="headerlink" title="Part3 启动WorkSpaces"></a>Part3 启动WorkSpaces</h1><h2 id="3-1-WorkSpaces配置"><a href="#3-1-WorkSpaces配置" class="headerlink" title="3.1 WorkSpaces配置"></a>3.1 WorkSpaces配置</h2><p>进入到WorkSpaces页面，点击启动WorkSpaces</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418225804281.png" alt="image-20220418225804281"></p>
-<p>选择创建的目录testwk01.com，点击下一步</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230126866.png" alt="image-20220418230126866"></p>
-<p>添加用户，填写用户信息，填完之后点击创建用户</p>
-<ul>
-<li>TestUser01 User01 Test</li>
-</ul>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233230361.png" alt="image-20220418233230361"></p>
-<p>添加完成之后可以在下边的列表查看用户，点击下一步</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233337005.png" alt="image-20220418233337005"></p>
-<p>选择服务包，选择公用服务包、Performance，选中Windows 10 Server 2016 ，协议为PCoIP，点击下一步</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233424717.png" alt="image-20220418233424717"></p>
-<p>WorkSpaces的配置页面直接点击下一步</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418230937596.png" alt="image-20220418230937596"></p>
-<p>审核，审核完成之后点击启动WorkSpaces</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233455467.png" alt="image-20220418233455467"></p>
-<h2 id="3-2-WorkSpaces状态"><a href="#3-2-WorkSpaces状态" class="headerlink" title="3.2 WorkSpaces状态"></a>3.2 WorkSpaces状态</h2><p>新创建的这个WorkSpaces正在启动，目前的状态是Pending，WorkSpaces起来的时间大概需要30分钟左右。</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418233551423.png" alt="image-20220418233551423"></p>
-<p>之后WorkSpaces的状态会变为Available，与此同时，用户的邮箱会收到邮件</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220418235256704.png" alt="image-20220418235256704"></p>
-<h2 id="3-3-用户邮件"><a href="#3-3-用户邮件" class="headerlink" title="3.3 用户邮件"></a>3.3 用户邮件</h2><p>邮件如下</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001017275-16502982176861.png" alt="image-20220419001017275"></p>
-<h2 id="3-4-创建用户密码"><a href="#3-4-创建用户密码" class="headerlink" title="3.4 创建用户密码"></a>3.4 创建用户密码</h2><p>访问邮件链接，需要为用户设置密码</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001141871.png" alt="image-20220419001141871"></p>
-<h2 id="3-5-通过客户端访问"><a href="#3-5-通过客户端访问" class="headerlink" title="3.5 通过客户端访问"></a>3.5 通过客户端访问</h2><p>设置完成之后，使用AWS的远程桌面访问工具进行访问</p>
-<p>打开Amazon WorkSpaces软件，输入注册码，点击注册</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001449239.png" alt="image-20220419001449239"></p>
-<p>输入用户名和密码，点击Sign In</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001705940.png" alt="image-20220419001705940"></p>
-<p>正在连接</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001730160.png" alt="image-20220419001730160"></p>
-<h2 id="3-6-连接云桌面"><a href="#3-6-连接云桌面" class="headerlink" title="3.6 连接云桌面"></a>3.6 连接云桌面</h2><p>连接上之后就能进行远程桌面访问</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001816693.png" alt="image-20220419001816693"></p>
-<p>查看IP，有2张网卡</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002503835.png" alt="image-20220419002503835"></p>
-<p>Server只有一个D盘</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002608340.png" alt="image-20220419002608340"></p>
-<h1 id="Part4-其他"><a href="#Part4-其他" class="headerlink" title="Part4 其他"></a>Part4 其他</h1><p>查看WorkSpaces，它有一个公有子网内的iP</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419001945730.png" alt="image-20220419001945730"></p>
-<p>通过VPC筛选，看到WorkSpaces创建了安全组，并指定了一些规则</p>
-<p><img src="/2022/05/15/AWS/WorkSpaces/Amazon_WorkSpaces%E5%85%A5%E9%97%A82(%E6%93%8D%E4%BD%9C)/image-20220419002304486.png" alt="image-20220419002304486"></p>
-<h1 id="Part5-注意事项"><a href="#Part5-注意事项" class="headerlink" title="Part5 注意事项"></a>Part5 注意事项</h1><p>WorkSpaces创建之后，创建的虚拟机会一直启动。</p>
-<p>WorkSpaces停止之后，WorkSpaces就无法再次重启，只能重新创建。所以，一定要确认不会再用到WorkSpaces之后再把WorkSpaces停止掉。</p>
-<h1 id="Part6-参考文献"><a href="#Part6-参考文献" class="headerlink" title="Part6 参考文献"></a>Part6 参考文献</h1><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/directoryservice/latest/admin-guide/directory_microsoft_ad.html">AWS托管的Microsoft AD</a></li>
-<li><a href="https://docs.aws.amazon.com/zh_cn/workspaces/latest/adminguide/amazon-workspaces.html">什么是Amazon WorkSpaces？</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>WorkSpaces</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>WorkSpaces</tag>
       </tags>
   </entry>
   <entry>
@@ -1107,6 +1507,238 @@
       </tags>
   </entry>
   <entry>
+    <title>跨账户IAM角色访问</title>
+    <url>/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/</url>
+    <content><![CDATA[<h1 id="跨账户IAM角色访问"><a href="#跨账户IAM角色访问" class="headerlink" title="跨账户IAM角色访问"></a>跨账户IAM角色访问</h1><h2 id="Part1-场景描述"><a href="#Part1-场景描述" class="headerlink" title="Part1 场景描述"></a>Part1 场景描述</h2><p>企业中一般会有多个账户，每个账户分管不同的内容。<br>eg.身份账户负责建立用户、密码及访问密钥、管理用户；生产环境账户则主要负责生产环境，对外来账户的做一定的权限限制。</p>
+<p>实验场景：在Account A中创建用户zhangsan，在Account B账户中创建一个允许其他账户访问该账户S3存储桶的角色，并将该角色应用到zhangsan上，最后进行测试。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220412225742193.png" alt="image-20220412225742193"></p>
+<h2 id="Part2-实验步骤"><a href="#Part2-实验步骤" class="headerlink" title="Part2 实验步骤"></a>Part2 实验步骤</h2><h3 id="2-1-A-创建用户"><a href="#2-1-A-创建用户" class="headerlink" title="2.1 [A]创建用户"></a>2.1 [A]创建用户</h3><p>在Account A账户上创建一个新用户zhangsan</p>
+<p>在Account A账户中，进入IAM的控制台界面，添加用户</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220412235056059.png" alt="image-20220412235056059"></p>
+<p>账户设置，用户名填zhangsan，密码及密钥部分可以自由发挥。点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100237286.png" alt="image-20220413100237286"></p>
+<p>权限、标签页不做任何设置，直接点击下一步，进入审核。审核完成之后点击创建用户。</p>
+<h3 id="2-2-B-创建角色"><a href="#2-2-B-创建角色" class="headerlink" title="2.2 [B]创建角色"></a>2.2 [B]创建角色</h3><p>在Account B账户中创建角色。点击创建角色。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413093754207.png" alt="image-20220413093754207"></p>
+<p>角色配置</p>
+<ul>
+<li><p>可信赖实体：AWS账户</p>
+</li>
+<li><p>AWS账户：另一个AWS账户，账户ID填入Account A的账户ID</p>
+</li>
+</ul>
+<p>点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094025123.png" alt="image-20220413094025123"></p>
+<p>添加权限，选择S3的所有权限，点击下一步</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094138085.png" alt="image-20220413094138085"></p>
+<p>角色名称填入：CA-TEST，其他内容审核无误后点击创建角色</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094404412.png" alt="image-20220413094404412"></p>
+<h3 id="2-3-A-为用户附加角色"><a href="#2-3-A-为用户附加角色" class="headerlink" title="2.3 [A]为用户附加角色"></a>2.3 [A]为用户附加角色</h3><p>在Account A的控制台上进行操作。</p>
+<p>在zhangsan的用户界面，点击添加内联策略。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100340763.png" alt="image-20220413100340763"></p>
+<p>通过JSON来创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413095137754.png" alt="image-20220413095137754"></p>
+<p>JSON部分内容如下，其中Resource的值是Account B中创建角色之后生成的</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sts:AssumeRole&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:iam::580919038124:role/CA-TEST&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413095523465.png" alt="image-20220413095523465"></p>
+<p>JSON文件确认无误之后，点击查看策略</p>
+<p>名称命名为CA-TEST，点击创建策略</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100554115.png" alt="image-20220413100554115"></p>
+<h3 id="2-4-用户测试"><a href="#2-4-用户测试" class="headerlink" title="2.4 用户测试"></a>2.4 用户测试</h3><h4 id="2-4-1-用户登录AWS平台"><a href="#2-4-1-用户登录AWS平台" class="headerlink" title="2.4.1 用户登录AWS平台"></a>2.4.1 用户登录AWS平台</h4><p>登录时选择IAM用户，输入Account A的账户ID</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101012110.png" alt="image-20220413101012110"></p>
+<p>填入zhangsan的信息，登录</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101057705.png" alt="image-20220413101057705"></p>
+<p>Okay，用户登录成功</p>
+<h4 id="2-4-2-切换到Account-B账户"><a href="#2-4-2-切换到Account-B账户" class="headerlink" title="2.4.2 切换到Account B账户"></a>2.4.2 切换到Account B账户</h4><p>在Account B中复制该处的链接，进行访问</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101213158.png" alt="image-20220413101213158"></p>
+<p>显示名称为生产账户，点击切换角色</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101410039.png" alt="image-20220413101410039"></p>
+<p>好啦，现在已经成功切换账户了</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413102229908.png" alt="image-20220413102229908"></p>
+<p>搜索进入S3，可以发现有S3相关的操作权限。可以创建S3，也可以查看S3列表。</p>
+<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413193418998.png" alt="image-20220413193418998"></p>
+<h2 id="Part3-实验小结"><a href="#Part3-实验小结" class="headerlink" title="Part3 实验小结"></a>Part3 实验小结</h2><p>本实验的整个流程比较简单，成功率也较高。</p>
+<p>不过依然有注意点。<font color="red">Account B给Account A账户开出来的用户访问Account B的S3资源权限，必须要确保Account B自身有访问自身S3存储桶的权限。</font></p>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>IAM</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>IAM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2022/05/09/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>置放群组</title>
+    <url>/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/</url>
+    <content><![CDATA[<h1 id="置放群组"><a href="#置放群组" class="headerlink" title="置放群组"></a>置放群组</h1><p>当我们启动新的EC2实例时，实例启动在哪个机柜，哪个底层硬件上，对于我们来说是透明的。EC2服务会尝试以某种方式启动实例。AWS有缺省的规则，缺省的规则可以满足大部分的需求。</p>
+<p>置放群组可以让我们按照一定的策略指定EC2物理硬件的相对位置关系。比如，想要降低EC2之间网络延迟可以把EC2的物理位置放的近一些；想要隔离硬件故障，可以将EC2分开放置在不同的机柜及物理硬件上。</p>
+<span id="more"></span>
+
+
+
+<h2 id="Part1-什么是置放群组？"><a href="#Part1-什么是置放群组？" class="headerlink" title="Part1 什么是置放群组？"></a>Part1 什么是置放群组？</h2><p>置放群组可以将启动的实例尽可能的相互靠近一点，实现启动实例间的低延迟、高吞吐量的网络或者将启动实例分散放置到不同的硬件和机柜，减少故障的影响。</p>
+<p>费用：<font color="red">创建置放群组无需支付费用。</font></p>
+<p>群组的概念就是会有多个EC2实例，也就是说以下的策略都是针对多个EC2的。</p>
+<h2 id="Part2-置放群组策略"><a href="#Part2-置放群组策略" class="headerlink" title="Part2 置放群组策略"></a>Part2 置放群组策略</h2><p>创建置放群组有3种策略：集群、分区、分布</p>
+<h3 id="2-1-集群置放群组"><a href="#2-1-集群置放群组" class="headerlink" title="2.1 集群置放群组"></a>2.1 集群置放群组</h3><p>将同一个可用区中的EC2的物理位置放的尽可能近一些，比如说放到同一可用区，同一机柜，同一底层硬件。</p>
+<ul>
+<li>将一个可用区中靠近的实例打包在一起</li>
+<li>用于可受益于低网络延迟或高网络吞吐量的应用程序</li>
+<li>适用于HPC应用程序通常使用的紧密耦合的节点到节点通信的要求</li>
+<li>一个集群置放群组<font color="red">不能跨过多个可用区</font></li>
+</ul>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518163550944.png" alt="image-20220518163550944"></p>
+<p>集群置放群组对实例有要求：免费的t2系列不支持集群置放群组</p>
+<p><strong>重点</strong></p>
+<ul>
+<li>一个集群置放群组不能跨越多个可用区</li>
+<li>集群置放群组中启动实例时，对于实例类型是有要求的（以下为限定的实例类型）<ul>
+<li>通用型：A1、M4、M5、M5a、M5ad、M5d、M5dn、M5n</li>
+<li>计算优化型：C3、C4、C5、C5d、C5n、cc2.8xlarge</li>
+<li>内存优化型：cr1.8xlarge、R3、R4、R5、R5a、R5ad、R5d、R5dn、R5n、X1、X1e、z1d</li>
+<li>存储优化：D2、H1、hs1.8xlarge、I2、I3、I3en</li>
+<li>加速计算型：F1、G2、G3、G4dn、P2、P3、P3dn</li>
+</ul>
+</li>
+<li>集群置放群组中的两个实例之间的最大网络吞吐量流量速度受2个实例中较慢实例限制</li>
+<li>使用单个启动请求在置放群组中启动所需的实例数。对置放群组中的所有实例使用相同的实例类型</li>
+<li>如果您停止置放群组中的某个实例，然后重启该实例，则其仍将在该置放群组中运行</li>
+<li>如果您在已有正在运行的实例的置放群组中启动实例时接受到容量错误信息，请在该置放群组中停止并启动所有实例，然后尝试再次启动</li>
+</ul>
+<h3 id="2-2-分区置放群组"><a href="#2-2-分区置放群组" class="headerlink" title="2.2 分区置放群组"></a>2.2 分区置放群组</h3><p>EC2将群组划分为多个逻辑段，称为分区。</p>
+<p>置放群组中每个分区有自己的一组机柜，每个机柜具有自己的网络和电源。置换群组中任何两个不同的分区将不会分享相同的机柜。因此，可以隔离硬件故障影响。</p>
+<p>以下是单可用区中2个分区的一个示例。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518190802466.png" alt="image-20220518190802466"></p>
+<p>分区1和分区2都包含多个实例，将故障影响限制在单个分区内。</p>
+<p><strong>知识点</strong></p>
+<ul>
+<li>将实例分布在不同的逻辑分区上</li>
+<li>通常为大型分布式和重复的工作负载所使用的，例如，Hadoop、Cassandra和Kafka</li>
+<li>在分区置放群组中启动实例时，EC2将尝试跨您指定数量的分区均匀分发实例</li>
+<li>对于每个可用区，一个分区置放群组最多可具有7个分区</li>
+</ul>
+<h3 id="2-3-分布置放群组"><a href="#2-3-分布置放群组" class="headerlink" title="2.3 分布置放群组"></a>2.3 分布置放群组</h3><p>分布置放群组可以将实例放在不同的机柜上，使用不同的网络和电源。</p>
+<p>eg.假设分布置放群组启动了4个实例，4个实例放在4个机柜上，每个机柜有各自的网络和电源。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191125568.png" alt="image-20220518191125568"></p>
+<p>当机柜1发生故障，剩下的实例由于在其他的机柜，将不会收到影响。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191252806.png" alt="image-20220518191252806"></p>
+<p><strong>知识点</strong></p>
+<ul>
+<li>将每个实例放置在不同的机架上</li>
+<li>关键业务的多个实例使用分布置放群组</li>
+<li>可以跨越同一区域中的多个可用区</li>
+<li>每个群组在每个可用区中最多有7个正在运行的实例</li>
+</ul>
+<h2 id="Part3-实操"><a href="#Part3-实操" class="headerlink" title="Part3 实操"></a>Part3 实操</h2><h3 id="3-1-创建集群置放群组"><a href="#3-1-创建集群置放群组" class="headerlink" title="3.1 创建集群置放群组"></a>3.1 创建集群置放群组</h3><p>进入AWS控制台的EC2页面，点击&lt;置放群组&gt;，点击&lt;创建置放群组&gt;</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518184037036.png" alt="image-20220518184037036"></p>
+<p>创建一个集群置放群组，置放策略选择&lt;集群&gt;</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191602552.png" alt="image-20220518191602552"></p>
+<h3 id="3-2-创建EC2到置放群组中"><a href="#3-2-创建EC2到置放群组中" class="headerlink" title="3.2 创建EC2到置放群组中"></a>3.2 创建EC2到置放群组中</h3><p>在EC2的实例详细配置页面中，勾选将实例放到置放群组中，选择置放群组&lt;cluster-test(cluster)&gt;</p>
+<p>只有支持置放群组的实例类型才能将它放到置放群组中。</p>
+<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191853712.png" alt="image-20220518191853712"></p>
+<p>创建ec2的其他步骤省略。</p>
+<h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
+<li><a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/WindowsGuide/placement-groups.html">置放群组</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>EC2</category>
+      </categories>
+      <tags>
+        <tag>AWS</tag>
+        <tag>EC2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTTPS自建SSl证书</title>
+    <url>/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/</url>
+    <content><![CDATA[<h1 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h1><h2 id="申请免费证书"><a href="#申请免费证书" class="headerlink" title="申请免费证书"></a>申请免费证书</h2><p>笔者申请腾讯云的免费证书。</p>
+<p>在搜索框输入“SSL证书”，进入“我的证书”页面，点击“申请免费证书”</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407155954040.png" alt="image-20220407155954040"></p>
+<p>选择证书类型，保持默认就行，点击“确定”</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407160119701.png" alt="image-20220407160119701"></p>
+<p>“提交资料”这一步只需要按照要求填写内容即可，点击“下一步”</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407160315832.png" alt="image-20220407160315832"></p>
+<p>验证方式选择推荐的DNS验证，点击“下一步”</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407160409715.png" alt="image-20220407160409715"></p>
+<p>将腾讯云上域名验证的部分，添加到托管的记录中</p>
+<p>在托管域中新增一条CNAME类型的记录，把名称和值都填进去，点击创建记录</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407203303019.png" alt="image-20220407203303019"></p>
+<p>记录创建完成之后，在腾讯云平台上进行域名验证</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220407203509147.png" alt="image-20220407203509147"></p>
+<p>等待证书颁发，过程可能需要2个小时</p>
+<p>okay，证书颁发完整之后，下载证书</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408111659212.png" alt="image-20220408111659212"></p>
+<p>选择Nginx类型进行下载</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408112122014.png" alt="image-20220408112122014"></p>
+<h2 id="在ACM中导入证书"><a href="#在ACM中导入证书" class="headerlink" title="在ACM中导入证书"></a>在ACM中导入证书</h2><p>在ACM页面中选择，导入证书</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113215099.png" alt="image-20220408113215099"></p>
+<p>将下载下来证书的对应内容复制进去</p>
+<p>填写规则：</p>
+<ul>
+<li>对于 <strong>Certificate body</strong>（证书正文），粘贴要导入的 PEM 编码证书。它应以 <code>-----BEGIN CERTIFICATE-----</code> 开头并以 <code>-----END CERTIFICATE-----</code> 结尾。</li>
+<li>对于 <strong>Certificate private key（证书私有密钥）</strong>，粘贴证书的 PEM 编码的未加密私有密钥。它应以 <code>-----BEGIN PRIVATE KEY-----</code> 开头并以 <code>-----END PRIVATE KEY-----</code> 结尾。</li>
+<li>(可选) 对于 **Certificate chain (证书链)**，粘贴 PEM 编码的证书链。</li>
+</ul>
+<p>导入之后，点击“下一步”</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113452118.png" alt="image-20220408113452118"></p>
+<p>为证书添加标签，Name:modu2022.cg_SSL。标签不添加也可以。</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113709930.png" alt="image-20220408113709930"></p>
+<p>审核完成之后点击导入</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408113752537.png" alt="image-20220408113752537"></p>
+<p>证书导入完毕</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408115936587.png" alt="image-20220408115936587"></p>
+<h2 id="修改负载均衡器"><a href="#修改负载均衡器" class="headerlink" title="修改负载均衡器"></a>修改负载均衡器</h2><p>在负载均衡器中添加侦听器</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408111521838.png" alt="image-20220408111521838"></p>
+<p>侦听器内容设置如下</p>
+<ul>
+<li>协议：HTTPS 443端口</li>
+<li>操作：转发<ul>
+<li>目标组：my-target-02</li>
+</ul>
+</li>
+<li>侦听器证书设置：“从ACM中”，选择新增的modu2022.cf证书</li>
+</ul>
+<p>点击添加</p>
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408120049946.png" alt="image-20220408120049946"></p>
+<p>测试访问</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-net2-02 ~]<span class="comment"># for i in $(seq 1 10); do curl https://modu2022.cf &amp;&amp;echo &quot;&quot;; done</span></span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-02&quot;</span>&#125;</span><br><span class="line">&#123;<span class="string">&quot;hostname&quot;</span>: <span class="string">&quot;test-net2-01&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/15/AWS/LoadBalance/HTTPS%E8%87%AA%E5%BB%BASSL%E8%AF%81%E4%B9%A6/image-20220408121453351.png" alt="image-20220408121453351"></p>
+<p>okay，自建证书也实现了ALB的负载均衡。</p>
+]]></content>
+      <categories>
+        <category>AWS</category>
+        <category>ELB</category>
+      </categories>
+      <tags>
+        <tag>ALB</tag>
+        <tag>HTTP证书</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spot实例</title>
     <url>/2022/05/19/AWS/calculate/Spot%E5%AE%9E%E4%BE%8B/</url>
     <content><![CDATA[<h1 id="Part1-介绍EC2-Spot实例"><a href="#Part1-介绍EC2-Spot实例" class="headerlink" title="Part1 介绍EC2 Spot实例"></a>Part1 介绍EC2 Spot实例</h1><ul>
@@ -1230,529 +1862,6 @@
       <tags>
         <tag>AWS</tag>
         <tag>EC2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>置放群组</title>
-    <url>/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/</url>
-    <content><![CDATA[<h1 id="置放群组"><a href="#置放群组" class="headerlink" title="置放群组"></a>置放群组</h1><p>当我们启动新的EC2实例时，实例启动在哪个机柜，哪个底层硬件上，对于我们来说是透明的。EC2服务会尝试以某种方式启动实例。AWS有缺省的规则，缺省的规则可以满足大部分的需求。</p>
-<p>置放群组可以让我们按照一定的策略指定EC2物理硬件的相对位置关系。比如，想要降低EC2之间网络延迟可以把EC2的物理位置放的近一些；想要隔离硬件故障，可以将EC2分开放置在不同的机柜及物理硬件上。</p>
-<span id="more"></span>
-
-
-
-<h2 id="Part1-什么是置放群组？"><a href="#Part1-什么是置放群组？" class="headerlink" title="Part1 什么是置放群组？"></a>Part1 什么是置放群组？</h2><p>置放群组可以将启动的实例尽可能的相互靠近一点，实现启动实例间的低延迟、高吞吐量的网络或者将启动实例分散放置到不同的硬件和机柜，减少故障的影响。</p>
-<p>费用：<font color="red">创建置放群组无需支付费用。</font></p>
-<p>群组的概念就是会有多个EC2实例，也就是说以下的策略都是针对多个EC2的。</p>
-<h2 id="Part2-置放群组策略"><a href="#Part2-置放群组策略" class="headerlink" title="Part2 置放群组策略"></a>Part2 置放群组策略</h2><p>创建置放群组有3种策略：集群、分区、分布</p>
-<h3 id="2-1-集群置放群组"><a href="#2-1-集群置放群组" class="headerlink" title="2.1 集群置放群组"></a>2.1 集群置放群组</h3><p>将同一个可用区中的EC2的物理位置放的尽可能近一些，比如说放到同一可用区，同一机柜，同一底层硬件。</p>
-<ul>
-<li>将一个可用区中靠近的实例打包在一起</li>
-<li>用于可受益于低网络延迟或高网络吞吐量的应用程序</li>
-<li>适用于HPC应用程序通常使用的紧密耦合的节点到节点通信的要求</li>
-<li>一个集群置放群组<font color="red">不能跨过多个可用区</font></li>
-</ul>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518163550944.png" alt="image-20220518163550944"></p>
-<p>集群置放群组对实例有要求：免费的t2系列不支持集群置放群组</p>
-<p><strong>重点</strong></p>
-<ul>
-<li>一个集群置放群组不能跨越多个可用区</li>
-<li>集群置放群组中启动实例时，对于实例类型是有要求的（以下为限定的实例类型）<ul>
-<li>通用型：A1、M4、M5、M5a、M5ad、M5d、M5dn、M5n</li>
-<li>计算优化型：C3、C4、C5、C5d、C5n、cc2.8xlarge</li>
-<li>内存优化型：cr1.8xlarge、R3、R4、R5、R5a、R5ad、R5d、R5dn、R5n、X1、X1e、z1d</li>
-<li>存储优化：D2、H1、hs1.8xlarge、I2、I3、I3en</li>
-<li>加速计算型：F1、G2、G3、G4dn、P2、P3、P3dn</li>
-</ul>
-</li>
-<li>集群置放群组中的两个实例之间的最大网络吞吐量流量速度受2个实例中较慢实例限制</li>
-<li>使用单个启动请求在置放群组中启动所需的实例数。对置放群组中的所有实例使用相同的实例类型</li>
-<li>如果您停止置放群组中的某个实例，然后重启该实例，则其仍将在该置放群组中运行</li>
-<li>如果您在已有正在运行的实例的置放群组中启动实例时接受到容量错误信息，请在该置放群组中停止并启动所有实例，然后尝试再次启动</li>
-</ul>
-<h3 id="2-2-分区置放群组"><a href="#2-2-分区置放群组" class="headerlink" title="2.2 分区置放群组"></a>2.2 分区置放群组</h3><p>EC2将群组划分为多个逻辑段，称为分区。</p>
-<p>置放群组中每个分区有自己的一组机柜，每个机柜具有自己的网络和电源。置换群组中任何两个不同的分区将不会分享相同的机柜。因此，可以隔离硬件故障影响。</p>
-<p>以下是单可用区中2个分区的一个示例。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518190802466.png" alt="image-20220518190802466"></p>
-<p>分区1和分区2都包含多个实例，将故障影响限制在单个分区内。</p>
-<p><strong>知识点</strong></p>
-<ul>
-<li>将实例分布在不同的逻辑分区上</li>
-<li>通常为大型分布式和重复的工作负载所使用的，例如，Hadoop、Cassandra和Kafka</li>
-<li>在分区置放群组中启动实例时，EC2将尝试跨您指定数量的分区均匀分发实例</li>
-<li>对于每个可用区，一个分区置放群组最多可具有7个分区</li>
-</ul>
-<h3 id="2-3-分布置放群组"><a href="#2-3-分布置放群组" class="headerlink" title="2.3 分布置放群组"></a>2.3 分布置放群组</h3><p>分布置放群组可以将实例放在不同的机柜上，使用不同的网络和电源。</p>
-<p>eg.假设分布置放群组启动了4个实例，4个实例放在4个机柜上，每个机柜有各自的网络和电源。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191125568.png" alt="image-20220518191125568"></p>
-<p>当机柜1发生故障，剩下的实例由于在其他的机柜，将不会收到影响。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191252806.png" alt="image-20220518191252806"></p>
-<p><strong>知识点</strong></p>
-<ul>
-<li>将每个实例放置在不同的机架上</li>
-<li>关键业务的多个实例使用分布置放群组</li>
-<li>可以跨越同一区域中的多个可用区</li>
-<li>每个群组在每个可用区中最多有7个正在运行的实例</li>
-</ul>
-<h2 id="Part3-实操"><a href="#Part3-实操" class="headerlink" title="Part3 实操"></a>Part3 实操</h2><h3 id="3-1-创建集群置放群组"><a href="#3-1-创建集群置放群组" class="headerlink" title="3.1 创建集群置放群组"></a>3.1 创建集群置放群组</h3><p>进入AWS控制台的EC2页面，点击&lt;置放群组&gt;，点击&lt;创建置放群组&gt;</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518184037036.png" alt="image-20220518184037036"></p>
-<p>创建一个集群置放群组，置放策略选择&lt;集群&gt;</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191602552.png" alt="image-20220518191602552"></p>
-<h3 id="3-2-创建EC2到置放群组中"><a href="#3-2-创建EC2到置放群组中" class="headerlink" title="3.2 创建EC2到置放群组中"></a>3.2 创建EC2到置放群组中</h3><p>在EC2的实例详细配置页面中，勾选将实例放到置放群组中，选择置放群组&lt;cluster-test(cluster)&gt;</p>
-<p>只有支持置放群组的实例类型才能将它放到置放群组中。</p>
-<p><img src="/2022/05/18/AWS/calculate/%E7%BD%AE%E6%94%BE%E7%BE%A4%E7%BB%84/image-20220518191853712.png" alt="image-20220518191853712"></p>
-<p>创建ec2的其他步骤省略。</p>
-<h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/WindowsGuide/placement-groups.html">置放群组</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>EC2</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>EC2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>AWS IAM小结</title>
-    <url>/2022/05/15/AWS/IAM/AWS_IAM%E5%B0%8F%E7%BB%93/</url>
-    <content><![CDATA[<h1 id="AWS-IAM小结"><a href="#AWS-IAM小结" class="headerlink" title="AWS IAM小结"></a>AWS IAM小结</h1><h2 id="PART1-问题及总结"><a href="#PART1-问题及总结" class="headerlink" title="PART1 问题及总结"></a>PART1 问题及总结</h2><h3 id="什么是AWS-IAM？"><a href="#什么是AWS-IAM？" class="headerlink" title="什么是AWS IAM？"></a>什么是AWS IAM？</h3><p>AWS Identity and Access Management (IAM) 是一种 Web 服务，可以帮助您安全地控制对 AWS 资源的访问。<strong>可以使用 IAM 来控制谁通过了身份验证（准许登录）并获得授权（拥有权限）来使用资源。</strong></p>
-<h3 id="跟账户用户"><a href="#跟账户用户" class="headerlink" title="跟账户用户"></a>跟账户用户</h3><p>当您首次创建AWS 账户时，最初使用的是一个对账户中所有AWS服务和资源有完全访问权限的单点登录身份。此身份称为<strong>AWS 账户根用户</strong>，使用您创建账户时所用的电子邮件地址和密码登录，即可获得该身份。强烈建议您不使用根用户执行日常任务，即使是管理任务。相反，请遵循<a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users">仅使用根用户创建您的第一个 IAM 用户的最佳实践</a>。然后请妥善保存根用户凭证，仅用它们执行少数账户和服务管理任务。</p>
-<h3 id="IAM用户的密钥设计"><a href="#IAM用户的密钥设计" class="headerlink" title="IAM用户的密钥设计"></a>IAM用户的密钥设计</h3><ul>
-<li>所需账户：一个账户</li>
-<li>涉及服务：IAM、S3</li>
-<li>描述：只给用户分配STSAssumeRole的权限，没有访问S3的权限，用户需要通过AssumeRole返回的临时凭证去访问S3.</li>
-</ul>
-<h3 id="多账户—中央账户管理"><a href="#多账户—中央账户管理" class="headerlink" title="多账户—中央账户管理"></a>多账户—中央账户管理</h3><p>中央账户与成员账户使用AWS Organizations服务</p>
-<ul>
-<li><p>加入组织：中央账户邀请成员账户加入Organizations</p>
-</li>
-<li><p>服务控制策略：中央账户可以对成员账户实行策略上的限制，比如说，限制成员账户访问自己账户的S3存储桶。策略生效之后，成员账户的根账户也无法访问自己账户下的S3存储桶。</p>
-</li>
-</ul>
-<h3 id="多账户—跨账户IAM角色访问"><a href="#多账户—跨账户IAM角色访问" class="headerlink" title="多账户—跨账户IAM角色访问"></a>多账户—跨账户IAM角色访问</h3><ul>
-<li><p>所需账户：至少2个账户</p>
-</li>
-<li><p>涉及服务：S3存储桶、IAM</p>
-</li>
-<li><p>描述：两个账户，eg Account A和Account B，A赋予B当中的用户访问A账户S3存储桶的权限</p>
-</li>
-</ul>
-<p>2个账户场景，2个账户不需要有什么关联，即2个账户不需要在同一个组织中。</p>
-<h3 id="多账户—集中式日志存储"><a href="#多账户—集中式日志存储" class="headerlink" title="多账户—集中式日志存储"></a>多账户—集中式日志存储</h3><ul>
-<li><p>账户要求：至少需要2个账户，eg Account A 和 Account B，需要选定一个账户作为中央账户</p>
-</li>
-<li><p>涉及服务：S3存储桶、IAM、AWS CloudWatch、AWS Config等</p>
-</li>
-<li><p>描述：中央账户的S3存储桶存储其他账户的CloudWatch以及AWS Config等服务的日志</p>
-</li>
-</ul>
-<h2 id="PART2-参考文献"><a href="#PART2-参考文献" class="headerlink" title="PART2 参考文献"></a>PART2 参考文献</h2><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/IAM/latest/UserGuide/introduction.html">什么是AWS IAM</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>IAM</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>IAM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>AWS Organizations账户管理服务&amp;SCP</title>
-    <url>/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&amp;SCP/</url>
-    <content><![CDATA[<h1 id="AWS-Organizations账户管理服务-amp-SCP"><a href="#AWS-Organizations账户管理服务-amp-SCP" class="headerlink" title="AWS Organizations账户管理服务&amp;SCP"></a>AWS Organizations账户管理服务&amp;SCP</h1><h2 id="Part1-介绍AWS-Organizations"><a href="#Part1-介绍AWS-Organizations" class="headerlink" title="Part1 介绍AWS Organizations"></a>Part1 介绍AWS Organizations</h2><p>AWS Organizations 是一项账户管理服务，使您能够将多个AWS 账户整合到您创建并集中管理的组织中。AWS Organizations 包含账户管理和整合账单功能，可利用这些功能更好地满足企业的预算、安全性和合规性需求。作为组织的管理员，您可以在组织中创建账户并邀请现有账户加入组织。</p>
-<p><strong>AWS Organizations功能</strong></p>
-<ul>
-<li>集中管理您的所有AWS账户</li>
-<li>所有成员账户的整合账单</li>
-<li>对账户进行分层分组以满足预算、安全性或合规性需求</li>
-<li>集中控制每个账户可访问的AWS服务和API操作的策略</li>
-<li>帮助在组织账户中跨资源标准化标签的策略</li>
-<li>控制AWS AI和机器学习服务可以手机和存储数据的策略</li>
-<li>为组织账户中的资源配置自动备份的策略</li>
-<li>针对AWS IAM的集成和支持</li>
-<li>与其他AWS服务集成</li>
-<li>全局访问</li>
-<li>具备最终一致性的数据复制</li>
-<li>免费使用</li>
-</ul>
-<h2 id="Part2-实验场景"><a href="#Part2-实验场景" class="headerlink" title="Part2 实验场景"></a>Part2 实验场景</h2><p>前提条件：需要2个账户，称作Account A和Account B。</p>
-<p>描述：在Account A中创建组织，并邀请Account B加入组织。在Account A中设置策略来防止Account B访问S3，在Account B上进行测试。</p>
-<p>说明：本实验demo的Account A的ID尾号为5283，Account B的ID尾号为8124</p>
-<h2 id="Part3-实验步骤"><a href="#Part3-实验步骤" class="headerlink" title="Part3 实验步骤"></a>Part3 实验步骤</h2><h3 id="3-1-实验账户说明"><a href="#3-1-实验账户说明" class="headerlink" title="3.1 实验账户说明"></a>3.1 实验账户说明</h3><p>本实验demo的Account A的ID尾号为5283，Account B的ID尾号为8124</p>
-<p>实验会在Account A账户中创建组织，即Account A是主账户，Account B是成员账户。</p>
-<h3 id="3-2-创建组织"><a href="#3-2-创建组织" class="headerlink" title="3.2 创建组织"></a>3.2 创建组织</h3><p>在Account A账户中创建组织。在Organization主页，点击“创建组织”。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412004932107.png" alt="image-20220412004932107"></p>
-<p>点击之后直接就能创建组织，创建组织需要邮箱验证。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412005002268.png" alt="image-20220412005002268"></p>
-<h3 id="3-3-邀请账户"><a href="#3-3-邀请账户" class="headerlink" title="3.3 邀请账户"></a>3.3 邀请账户</h3><p>输入账户ID和要创建的键值，点击发送邀请。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011458396.png" alt="image-20220412011458396"></p>
-<p>在Account B中可以看到邀请</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011633785.png" alt="image-20220412011633785"></p>
-<p>点开邀请链接之后，接受邀请</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011714385.png" alt="image-20220412011714385"></p>
-<p>在Account A上查看组织的账户，一个主账户，一个成员账户</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412011914453.png" alt="image-20220412011914453"></p>
-<h3 id="3-4-创建S3策略"><a href="#3-4-创建S3策略" class="headerlink" title="3.4 创建S3策略"></a>3.4 创建S3策略</h3><p>进入策略页面，点击“服务控制策略”</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102406807.png" alt="image-20220412102406807"></p>
-<p>启用服务控制策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102431828.png" alt="image-20220412102431828"></p>
-<p>加载完成之后，如下所示</p>
-<p>新创建一个策略，来阻止对S3的访问，点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412102504986.png" alt="image-20220412102504986"></p>
-<p>策略设置</p>
-<ul>
-<li>名称：denyS3</li>
-<li>选择服务：S3，动作：All Actions</li>
-</ul>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412103202634.png" alt="image-20220412103202634"></p>
-<p>添加资源，添加完成之后点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412132453499.png" alt="image-20220412132453499"></p>
-<h3 id="3-5-前-Account-B访问S3测试"><a href="#3-5-前-Account-B访问S3测试" class="headerlink" title="3.5 [前]Account B访问S3测试"></a>3.5 [前]Account B访问S3测试</h3><p>目前没有给Account B账户做任何限制，Account B可以正常访问S3存储桶</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133347888.png" alt="image-20220412133347888"></p>
-<h3 id="3-6-将策略应用到Account-B"><a href="#3-6-将策略应用到Account-B" class="headerlink" title="3.6 将策略应用到Account B"></a>3.6 将策略应用到Account B</h3><p>在Account A账户的Organizations中，将denyS3策略附加到Account B</p>
-<p>选中denyS3策略，点击操作。点击附加策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133545337.png" alt="image-20220412133545337"></p>
-<p>选中要附加的这个账户，点击附加策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133640477.png" alt="image-20220412133640477"></p>
-<p>Okay，策略附加成功</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133717996.png" alt="image-20220412133717996"></p>
-<h3 id="3-7-后-Account-B访问S3测试"><a href="#3-7-后-Account-B访问S3测试" class="headerlink" title="3.7 [后]Account B访问S3测试"></a>3.7 [后]Account B访问S3测试</h3><p>Account A为Account B添加了限制S3所有权限的策略，现在Account B账户上访问S3进行测试。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_Organizations%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1&SCP/image-20220412133938873.png" alt="image-20220412133938873"></p>
-<p>Account B再次访问S3时出现提示：无权列出存储桶。所以可以看出策略附加成功，在Account B上已经生效。</p>
-<p>总结：本实验是一个简单的AWS Organizations创建以及测试，主要测试的服务控制策略SCP。Organizations还有很多别的功能。</p>
-<h2 id="Part4-参考文献"><a href="#Part4-参考文献" class="headerlink" title="Part4 参考文献"></a>Part4 参考文献</h2><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/zh_cn/organizations/latest/userguide/orgs_introduction.html">什么是AWS Organizations</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>IAM</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>IAM</tag>
-        <tag>Organizations</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>AWS STS正确设计IAM用户密钥（一）</title>
-    <url>/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/</url>
-    <content><![CDATA[<h1 id="AWS-STS正确设计IAM用户密钥（一）"><a href="#AWS-STS正确设计IAM用户密钥（一）" class="headerlink" title="AWS STS正确设计IAM用户密钥（一）"></a>AWS STS正确设计IAM用户密钥（一）</h1><h2 id="PART1-IAM用户密钥设计介绍"><a href="#PART1-IAM用户密钥设计介绍" class="headerlink" title="PART1 IAM用户密钥设计介绍"></a>PART1 IAM用户密钥设计介绍</h2><p><strong>案例分析</strong></p>
-<p>case：<em><strong>张三是一个开发人员，他要在他本地的电脑测试他的代码。代码需要访问AWS S3，所以需要AWS的access &amp; secret key。那么以下哪一个方案是实现需求（分配凭证）的最佳解决方案？</strong></em></p>
-<p>A. 提供给研发人员access &amp; secret key，然后告诉他不要与其他人员共享凭证</p>
-<p>B. 提供给研发人员access &amp; secret key，然后确保凭证每90天进行一次轮换</p>
-<p>C. 允许研发人员的用户使用AWS STS服务生成临时凭证</p>
-<p><font color="blue">分析：A，根据经验，肯定会共享凭证；B，90天的轮换周期其实还是比较长的，如果凭证泄露，不安全；C，是AWS推荐的最佳实践</font></p>
-<hr>
-<p><strong>IAM用户的密钥设计</strong></p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425155411650.png" alt="image-20220425155411650"></p>
-<p>场景：开发人员账户和生产账户</p>
-<p>描述：在生产账户中创建STSAssumeRole（带入角色），这个AssumeRole可以给开发人员的用户使用，同时会给他一个临时凭证，开发人员用户使用这个凭证可以临时访问生产账户中的资源。</p>
-<h2 id="PART2-实验目的"><a href="#PART2-实验目的" class="headerlink" title="PART2 实验目的"></a>PART2 实验目的</h2><p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425165959464.png" alt="image-20220425165959464"></p>
-<p>在本地电脑上通过STSAssumeRole实现对S3存储桶的访问。访问的顺序如上图①②③。</p>
-<p>①：PC访问用户的STSAssumeRole策略</p>
-<p>②：STS返回给PC临时凭证</p>
-<p>③：PC访问存储桶S3</p>
-<h2 id="PART3-实验步骤"><a href="#PART3-实验步骤" class="headerlink" title="PART3 实验步骤"></a>PART3 实验步骤</h2><p>实验的总体步骤有3步：</p>
-<ol>
-<li>在IAM中建立一个跨账户角色（角色名：stroll）</li>
-<li>附加一个S3ReadOnly策略到IAM角色</li>
-<li>允许IAM用户使用STS Assume Role权限</li>
-</ol>
-<h3 id="3-1-创建S3只读角色"><a href="#3-1-创建S3只读角色" class="headerlink" title="3.1 创建S3只读角色"></a>3.1 创建S3只读角色</h3><p>来到IAM的角色页面，点击创建角色</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425170945467.png" alt="image-20220425170945467"></p>
-<p>受信任实体选择：AWS账户—此账户，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425171824195.png" alt="image-20220425171824195"></p>
-<p>添加权限页面，勾选S3ReadOnlyAccess，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425171918734.png" alt="image-20220425171918734"></p>
-<p>角色名称填入stroll，点击创建角色</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425172014424.png" alt="image-20220425172014424"></p>
-<p>角色创建完成之后查看stroll的信任关系</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181540291.png" alt="image-20220425181540291"></p>
-<p>stroll角色可信赖的用户为该账号下的所有用户</p>
-<h3 id="3-2-创建用户"><a href="#3-2-创建用户" class="headerlink" title="3.2 创建用户"></a>3.2 创建用户</h3><p>来到IAM的用户界面，点击添加用户</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425172116259.png" alt="image-20220425172116259"></p>
-<p>填入用户名zhangsan，AWS凭证类型选择密码，输入自定义密码，取消密码重置，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425180914683.png" alt="image-20220425180914683"></p>
-<p>一直点击下一步，直到创建用户</p>
-<h3 id="3-3-为用户创建内联策略"><a href="#3-3-为用户创建内联策略" class="headerlink" title="3.3 为用户创建内联策略"></a>3.3 为用户创建内联策略</h3><p>在用户页面下点击zhangsan，进入zhangsan的页面</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181128193.png" alt="image-20220425181128193"></p>
-<p>在权限菜单栏中点击添加内联策略，为zhangsan用户设置内联策略AssumeRole</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181159668.png" alt="image-20220425181159668"></p>
-<p>配置服务为STS、操作AssumeRole、特定资源，填入stroll角色，点击查看策略</p>
-<p>允许zhangsan用户承担stroll角色的权限</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181338228.png" alt="image-20220425181338228"></p>
-<p>输入策略名称AssumeRole，点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425181431465.png" alt="image-20220425181431465"></p>
-<h3 id="3-4-本地PC端配置"><a href="#3-4-本地PC端配置" class="headerlink" title="3.4 本地PC端配置"></a>3.4 本地PC端配置</h3><p>在未配置凭证的情况下使用aws s3 ls命令</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425182435620.png" alt="image-20220425182435620"></p>
-<p>提示：没有本地的credentials文件，需要使用aws configure命令进行配置。</p>
-<p>aws configure配置的内容有：AWS Access Key ID、AWS Secret Access Key、Default region name、Default output format 。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425182750955.png" alt="image-20220425182750955"></p>
-<p>上述的4个配置信息需要到用户凭证下获取。进入用户zhangsan安全证书页面，点击创建访问密钥。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425183941496.png" alt="image-20220425183941496"></p>
-<p>跳出访问密钥ID和密钥页面，记录下该页面中的密钥ID和密钥。可以直接复制密钥ID和访问密钥，也可以下载.csv文件，该文件中有密钥ID和密钥。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425184024433.png" alt="image-20220425184024433"></p>
-<p>AKIAWYXWU3BJ5NFDTXWP</p>
-<p>M43LNIRZZp7mjF6KqnNRYwzzOyKB7AJt3ll5LwU7</p>
-<p>输入aws configure命令配置zhangsan用户的，填入zhangsan用户的密钥ID和密钥Key，地区region和output format可以不填。</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425184348013.png" alt="image-20220425184348013"></p>
-<h3 id="3-5-获取STS临时访问凭证"><a href="#3-5-获取STS临时访问凭证" class="headerlink" title="3.5 获取STS临时访问凭证"></a>3.5 获取STS临时访问凭证</h3><p>给本地PC配置了zhangsan用户的访问ID和密钥，通过zhangsan用户的内联策略获得临时访问凭证</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws sts assume-role --role-arn arn:aws:iam::465447475283:role/stroll --role-session-name stroll</span><br><span class="line"><span class="comment">#需要将arn:aws:iam::465447475283:role/stroll替换为自己账户下stroll角色的arn</span></span><br><span class="line"><span class="comment">#--role-session-name指定会话名称</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425185044691.png" alt="image-20220425185044691"></p>
-<p>临时保存一下输出的内容，这些输出需要写入到credentials文件中</p>
-<p>编辑credentials文件，credentials文件在<code>/root/.aws/credentials</code>目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[zhangsansts]</span><br><span class="line">aws_access_key_id = ASIAWYXWU3BJXBYID2ZP</span><br><span class="line">aws_secret_access_key = Wja33FGrl17prsEsi+79vKs28ZH6sZ+Vq4q623Ir</span><br><span class="line">aws_session_token = FwoGZXIvYXdzEOT//////////wEaDKD0qspowMTiHX7DqSKqAbDkVnbb9KgrZxcXN9eS0da3CNEYw9G+IEDnTVOz/DIsYxv0oZ26PmCO/SDJKQ4lAv0c7Ts1mBMKIeyHlJyK9LrB7hOb7bvtwpfi+0P0mtb89CFBLaKuSO9z2RwETymS3GDzQi7dj1gPq/B3ZhrrpmzaWYjeD+t6ZYr12MswYxaNDr+hlHx6wxKg8cc4cMzI0WAqQneu2BbGEjUoqMRAENlwmOW6eT4rL4+CKOr5mZMGMi0SQmuEX9L0r7hQuhvCu6Ch4L4tlsfF7XEajvWQkL6vfZvVoik6A6s2mTrYIDU=</span><br></pre></td></tr></table></figure>
-
-<p>新创建[zhangsansts]，aws_access_key_id、aws_secret_access_key、aws_session_token的内容为STS给出的临时凭证</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425191240536.png" alt="image-20220425191240536"></p>
-<h3 id="3-6-使用临时凭证访问存储桶"><a href="#3-6-使用临时凭证访问存储桶" class="headerlink" title="3.6 使用临时凭证访问存储桶"></a>3.6 使用临时凭证访问存储桶</h3><p>在命令行中输入以下命令</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile zhangsansts</span><br><span class="line"><span class="comment">#--profile指定访问的profile，而不再是默认的default</span></span><br></pre></td></tr></table></figure>
-
-<p>结果列出了两个存储桶</p>
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A51/image-20220425191608673.png" alt="image-20220425191608673"></p>
-<p>实现了临时凭证访问S3存储桶</p>
-<h2 id="PART4-小结"><a href="#PART4-小结" class="headerlink" title="PART4 小结"></a>PART4 小结</h2><p>访问流程小结：给PC配置用户zhangsan的access_key_id和access_key，使得PC有获取stroll临时访问凭证STS的权限<font color="blue">（这里也就是用户zhangsan配置了内联策略，策略指定了资源arn）</font>。PC获取到临时访问凭证，再将访问凭证配置到credentials文件中。PC可以通过新配置的凭证访问到S3存储桶。</p>
-<p>2个对应关系：</p>
-<ol>
-<li>zhangsan用户唯一有的权限就是stsAssumeRole的权限，没有S3访问权限</li>
-<li>zhangsan用户需要通过sts返回的临时凭证，使用临时凭证访问S3</li>
-</ol>
-<p>配置步骤：（最佳实践）</p>
-<ol>
-<li>创建stroll角色（S3ReadOnly）</li>
-<li>创建用户zhangsan</li>
-<li>为zhangsan配置内联策略（STSAssumeRole）</li>
-</ol>
-<p>使用上述提到的方法去设计IAM用户密钥存在一个弊端。默认情况下，临时凭证的有效时间只有3600秒，开发人员需要在1小时之后手动修改临时凭证，非常不方便。</p>
-<h2 id="PART5-参考博客"><a href="#PART5-参考博客" class="headerlink" title="PART5 参考博客"></a>PART5 参考博客</h2><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/general/latest/gr/aws-security-credentials.html">AWS安全凭证</a></li>
-<li><a href="https://aws.amazon.com/cn/iam/features/managing-user-credentials/">管理IAM凭证</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>IAM</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>IAM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>AWS STS正确设计IAM用户密钥（二）</title>
-    <url>/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/</url>
-    <content><![CDATA[<h1 id="AWS-STS正确设计IAM用户密钥（二）"><a href="#AWS-STS正确设计IAM用户密钥（二）" class="headerlink" title="AWS STS正确设计IAM用户密钥（二）"></a>AWS STS正确设计IAM用户密钥（二）</h1><p>上文提到可以通过临时密钥的方式确保安全性，但是存在定时手动更换密钥的问题。<br>AWS提供了一个自动化执行（一）文的方法<br>本文提出一个AWS STS获取临时凭证的自动化执行方法。</p>
-<p>Q：自动化执行的方式如何获取临时凭证？</p>
-<p>A： 配置AWS CLI，使得AWS CLI承担IAM角色。AWS CLI会自动进行AssumeRole调用。</p>
-<p>Q：如何指定AWS CLI承担角色？</p>
-<p>A：在credentials文件中增加一个profile，该profile包含2个配置项role_arn和source_profile<br>      role_arn配置为需要承担角色的arn<br>      source_profile配置为执行AssumeRole的IAM用户所在的profile</p>
-<h2 id="PART3-实验步骤"><a href="#PART3-实验步骤" class="headerlink" title="PART3 实验步骤"></a>PART3 实验步骤</h2><p>从3.5开始以后的配置与（一）中不同</p>
-<h3 id="3-5-在credentials文件中增加profile"><a href="#3-5-在credentials文件中增加profile" class="headerlink" title="3.5 在credentials文件中增加profile"></a>3.5 在credentials文件中增加profile</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[default]</span><br><span class="line">aws_access_key_id = AKIAWYXWU3BJ5NFDTXWP</span><br><span class="line">aws_secret_access_key = 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</span><br><span class="line"></span><br><span class="line">[automate]</span><br><span class="line">role_arn = arn:aws:iam::465447475283:role/stroll</span><br><span class="line">source_profile = default</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425231844401.png" alt="image-20220425231844401"></p>
-<h3 id="3-6-测试"><a href="#3-6-测试" class="headerlink" title="3.6 测试"></a>3.6 测试</h3><p>在命令行输入以下命令</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">aws s3 <span class="built_in">ls</span> --profile automate</span><br><span class="line"><span class="comment">#指定profile为新创建的automate</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p><img src="/2022/05/15/AWS/IAM/AWS_STS%E6%AD%A3%E7%A1%AE%E8%AE%BE%E8%AE%A1IAM%E7%94%A8%E6%88%B7%E5%AF%86%E9%92%A52/image-20220425232136182.png" alt="image-20220425232136182"></p>
-<p>AWS的CLI成功执行了stroll角色</p>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>IAM</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>IAM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>跨账户IAM角色访问</title>
-    <url>/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/</url>
-    <content><![CDATA[<h1 id="跨账户IAM角色访问"><a href="#跨账户IAM角色访问" class="headerlink" title="跨账户IAM角色访问"></a>跨账户IAM角色访问</h1><h2 id="Part1-场景描述"><a href="#Part1-场景描述" class="headerlink" title="Part1 场景描述"></a>Part1 场景描述</h2><p>企业中一般会有多个账户，每个账户分管不同的内容。<br>eg.身份账户负责建立用户、密码及访问密钥、管理用户；生产环境账户则主要负责生产环境，对外来账户的做一定的权限限制。</p>
-<p>实验场景：在Account A中创建用户zhangsan，在Account B账户中创建一个允许其他账户访问该账户S3存储桶的角色，并将该角色应用到zhangsan上，最后进行测试。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220412225742193.png" alt="image-20220412225742193"></p>
-<h2 id="Part2-实验步骤"><a href="#Part2-实验步骤" class="headerlink" title="Part2 实验步骤"></a>Part2 实验步骤</h2><h3 id="2-1-A-创建用户"><a href="#2-1-A-创建用户" class="headerlink" title="2.1 [A]创建用户"></a>2.1 [A]创建用户</h3><p>在Account A账户上创建一个新用户zhangsan</p>
-<p>在Account A账户中，进入IAM的控制台界面，添加用户</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220412235056059.png" alt="image-20220412235056059"></p>
-<p>账户设置，用户名填zhangsan，密码及密钥部分可以自由发挥。点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100237286.png" alt="image-20220413100237286"></p>
-<p>权限、标签页不做任何设置，直接点击下一步，进入审核。审核完成之后点击创建用户。</p>
-<h3 id="2-2-B-创建角色"><a href="#2-2-B-创建角色" class="headerlink" title="2.2 [B]创建角色"></a>2.2 [B]创建角色</h3><p>在Account B账户中创建角色。点击创建角色。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413093754207.png" alt="image-20220413093754207"></p>
-<p>角色配置</p>
-<ul>
-<li><p>可信赖实体：AWS账户</p>
-</li>
-<li><p>AWS账户：另一个AWS账户，账户ID填入Account A的账户ID</p>
-</li>
-</ul>
-<p>点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094025123.png" alt="image-20220413094025123"></p>
-<p>添加权限，选择S3的所有权限，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094138085.png" alt="image-20220413094138085"></p>
-<p>角色名称填入：CA-TEST，其他内容审核无误后点击创建角色</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413094404412.png" alt="image-20220413094404412"></p>
-<h3 id="2-3-A-为用户附加角色"><a href="#2-3-A-为用户附加角色" class="headerlink" title="2.3 [A]为用户附加角色"></a>2.3 [A]为用户附加角色</h3><p>在Account A的控制台上进行操作。</p>
-<p>在zhangsan的用户界面，点击添加内联策略。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100340763.png" alt="image-20220413100340763"></p>
-<p>通过JSON来创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413095137754.png" alt="image-20220413095137754"></p>
-<p>JSON部分内容如下，其中Resource的值是Account B中创建角色之后生成的</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sts:AssumeRole&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:iam::580919038124:role/CA-TEST&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413095523465.png" alt="image-20220413095523465"></p>
-<p>JSON文件确认无误之后，点击查看策略</p>
-<p>名称命名为CA-TEST，点击创建策略</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413100554115.png" alt="image-20220413100554115"></p>
-<h3 id="2-4-用户测试"><a href="#2-4-用户测试" class="headerlink" title="2.4 用户测试"></a>2.4 用户测试</h3><h4 id="2-4-1-用户登录AWS平台"><a href="#2-4-1-用户登录AWS平台" class="headerlink" title="2.4.1 用户登录AWS平台"></a>2.4.1 用户登录AWS平台</h4><p>登录时选择IAM用户，输入Account A的账户ID</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101012110.png" alt="image-20220413101012110"></p>
-<p>填入zhangsan的信息，登录</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101057705.png" alt="image-20220413101057705"></p>
-<p>Okay，用户登录成功</p>
-<h4 id="2-4-2-切换到Account-B账户"><a href="#2-4-2-切换到Account-B账户" class="headerlink" title="2.4.2 切换到Account B账户"></a>2.4.2 切换到Account B账户</h4><p>在Account B中复制该处的链接，进行访问</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101213158.png" alt="image-20220413101213158"></p>
-<p>显示名称为生产账户，点击切换角色</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413101410039.png" alt="image-20220413101410039"></p>
-<p>好啦，现在已经成功切换账户了</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413102229908.png" alt="image-20220413102229908"></p>
-<p>搜索进入S3，可以发现有S3相关的操作权限。可以创建S3，也可以查看S3列表。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E8%B7%A8%E8%B4%A6%E6%88%B7IAM%E8%A7%92%E8%89%B2%E8%AE%BF%E9%97%AE/image-20220413193418998.png" alt="image-20220413193418998"></p>
-<h2 id="Part3-实验小结"><a href="#Part3-实验小结" class="headerlink" title="Part3 实验小结"></a>Part3 实验小结</h2><p>本实验的整个流程比较简单，成功率也较高。</p>
-<p>不过依然有注意点。<font color="red">Account B给Account A账户开出来的用户访问Account B的S3资源权限，必须要确保Account B自身有访问自身S3存储桶的权限。</font></p>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>IAM</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>IAM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>配置CloudTrial和Config日志跨AWS账户日志存储</title>
-    <url>/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/</url>
-    <content><![CDATA[<h1 id="配置CloudTrial和Config日志跨AWS账户日志存储"><a href="#配置CloudTrial和Config日志跨AWS账户日志存储" class="headerlink" title="配置CloudTrial和Config日志跨AWS账户日志存储"></a>配置CloudTrial和Config日志跨AWS账户日志存储</h1><h2 id="Part1-集中式日志存储架构"><a href="#Part1-集中式日志存储架构" class="headerlink" title="Part1 集中式日志存储架构"></a>Part1 集中式日志存储架构</h2><p>集中式日志存储架构：将所有账户的所需日志都集中存储在一个中心区域，在这个中心区域中对日志进行定期监控和分析。架构图如下所示：</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415115536224.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415115536224"></p>
-<p><strong>集中日志管理注意事项：</strong> </p>
-<ul>
-<li>尽早定义日志保留的要求以及日志生命周期策略。选择合适的生命周期策略以节省成本。</li>
-<li>日志生命周期策略自动化。</li>
-<li>自动安装和配置日志传输代理程序。</li>
-<li>支持混合云架构。企业会想要将数据放到自己的私有云，解决方案需要适配混合云架构。</li>
-</ul>
-<p><strong>AWS提供的相关服务</strong></p>
-<p>AWS提供很多服务帮助构建集中式日志解决方案：AWS ElasticSearch Service、AWS CloudWatch Logs、Kinesis Firehose、AWS S3等。</p>
-<p>不同的AWS服务构建集中式日志解决方案的配置方式各不相同。</p>
-<h2 id="Part2-实验说明"><a href="#Part2-实验说明" class="headerlink" title="Part2 实验说明"></a>Part2 实验说明</h2><p>本次的实验demo需要<font color="red">2个账户</font>，一个作为中央账户（Account A），提供S3存储桶存储日志文件；另一个账户（Account B）的CloudTrial和Config服务的日志存到中央账户的存储桶中。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415122335696.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415122335696"></p>
-<h2 id="Part3-实验步骤"><a href="#Part3-实验步骤" class="headerlink" title="Part3 实验步骤"></a>Part3 实验步骤</h2><h3 id="3-1-A-创建存储桶"><a href="#3-1-A-创建存储桶" class="headerlink" title="3.1 [A]创建存储桶"></a>3.1 [A]创建存储桶</h3><p>在Account A账户中，创建2个S3存储桶。</p>
-<p>进入S3存储桶页面之后，点击创建存储桶。写好存储桶名称，点击创建存储桶。存储桶不需要做其他配置。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415123330910.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415123330910"></p>
-<p>创建好2个S3存储桶</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220415123430223.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220415123430223"></p>
-<h3 id="3-2-A-修改存储桶策略"><a href="#3-2-A-修改存储桶策略" class="headerlink" title="3.2 [A]修改存储桶策略"></a>3.2 [A]修改存储桶策略</h3><p><strong>CloudTrail</strong></p>
-<p>在存储桶列表页面，点击存储桶名称，进入存储桶的权限页面，在存储桶策略条目点击编辑。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220417231056049.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220417231056049"></p>
-<p>写入存储桶策略，策略的Resource修改为当前存储桶的arn</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418105215384.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418105215384"></p>
-<p>策略代码，策略的内容是允许CloudTrail的日志存储到存储桶</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailAclCheck20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cloudtrail.amazonaws.com&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:GetBucketAcl&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-cloudtrail&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailWrite20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cloudtrail.amazonaws.com&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:PutObject&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-cloudtrail/AWSLogs/580919038124/*&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Condition&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;StringEquals&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;s3:x-amz-acl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bucket-owner-full-control&quot;</span></span><br><span class="line">                <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p><font color="red">策略允许 CloudTrail 从支持的区域将日志文件写入存储桶。使用您配置的相应值替换 <code>myBucketName</code>、<code>[optionalPrefix]/</code>、<code>myAccountID</code>。<code>myAccountID</code>为创建CloudTrail账户的Account ID。</font></p>
-<ul>
-<li>第9行的配置模板</li>
-</ul>
-<p>“Resource”: “arn:aws:s3:::<code>myBucketName</code>“</p>
-<ul>
-<li>第16行的配置模板</li>
-</ul>
-<p>“Resource”: “arn:aws:s3:::<code>myBucketName</code>&#x2F;<code>[optionalPrefix]/</code>AWSLogs&#x2F;<code>myAccountID</code>&#x2F;*”,</p>
-<p><strong>Config</strong></p>
-<p>存储桶权限配置的流程桶CloudTrail步骤一样，存储桶内容如下</p>
-<p>注意：需要将11行和20行中Resource的ARN改成对应存储桶的ARN</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailAclCheck20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;config.amazonaws.com&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:GetBucketAcl&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-config&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AWSCloudTrailWrite20150319&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;Service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;config.amazonaws.com&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;s3:PutObject&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3bucket-center-config/*&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;Condition&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;StringEquals&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;s3:x-amz-acl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bucket-owner-full-control&quot;</span></span><br><span class="line">                <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="3-3-B-配置CloudTrail"><a href="#3-3-B-配置CloudTrail" class="headerlink" title="3.3 [B]配置CloudTrail"></a>3.3 [B]配置CloudTrail</h3><p>在Account B中创建CloudTrail跟踪。点击控制面板进入，而不是直接点击创建跟踪（该方式通过向导创建，不能修改日志存储的S3桶）。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418001946116.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418001946116"></p>
-<p>在控制面板页面点击创建跟踪</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418002035027.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418002035027"></p>
-<p>跟踪记录配置</p>
-<ul>
-<li>跟踪名称：Event-AccountB</li>
-<li>存储位置：使用现有的S3存储桶，填入3.1中创建的S3存储桶</li>
-<li>不启用KMS加密</li>
-</ul>
-<p>配置填完之后，点击下一个</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420192711571.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420192711571"></p>
-<p>点击下一个，之后点击创建跟踪</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220418003426667.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220418003426667"></p>
-<p>点击创建跟踪</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420192903553.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420192903553"></p>
-<p>CloudTrail的跟踪创建成功</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420192942709.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420192942709"></p>
-<h3 id="3-4-A-查看CloudTrail存储桶"><a href="#3-4-A-查看CloudTrail存储桶" class="headerlink" title="3.4 [A]查看CloudTrail存储桶"></a>3.4 [A]查看CloudTrail存储桶</h3><p>在Accoun A账户下，进入存储桶可以看到有AWSLogs文件夹</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420193128504.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420193128504"></p>
-<p>进入AWSLogs之下是一个以Account B ID命名的目录</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420193559417.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420193559417"></p>
-<p>进入Account B ID之下的目录中，有2个带有CloudTrail的文件夹</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420193657809.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420193657809"></p>
-<p>okay，Account B的CloudTail日志信息可以存储到Account B的S3存储桶当中。</p>
-<h3 id="3-5-B-创建Config"><a href="#3-5-B-创建Config" class="headerlink" title="3.5 [B]创建Config"></a>3.5 [B]创建Config</h3><p>进入Account B账户</p>
-<p>进入AWS Config页面，点击设置AWS Config</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420200636186.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420200636186"></p>
-<p>AWS Config设置</p>
-<ul>
-<li><p>一般设置内容保持默认</p>
-</li>
-<li><p>交付方式</p>
-<ul>
-<li>S3存储桶选择：从另一个账户选择存储桶</li>
-<li>填入存储桶名称：s3bucket-center-config</li>
-</ul>
-</li>
-</ul>
-<p>点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420200727953.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420200727953"></p>
-<p>规则这一页全选，点击下一步</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420201203114.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420201203114"></p>
-<p>审核无误之后点击确认</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420201334885.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420201334885"></p>
-<h3 id="3-6-A-查看Config存储桶"><a href="#3-6-A-查看Config存储桶" class="headerlink" title="3.6 [A]查看Config存储桶"></a>3.6 [A]查看Config存储桶</h3><p>进入Account A账户，进入s3bucket-center-config S3存储桶</p>
-<p>看到存储桶中有一个AWSLogs目录，用来记录Config的日志信息</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420201943933.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420201943933"></p>
-<p>一直进入到AWSLogs目录下的最底层目录之下，看到一个ConfigWritabilityCheckFile文件，checkfile文件生成表明config的跨账户日志存储配置成功。</p>
-<p><img src="/2022/05/15/AWS/IAM/%E9%85%8D%E7%BD%AECloudTrial%E5%92%8CConfig%E6%97%A5%E5%BF%97%E8%B7%A8AWS%E8%B4%A6%E6%88%B7%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/image-20220420202153455.png" alt="./配置CloudTrial和Config日志跨AWS账户日志存储/image-20220420202153455"></p>
-<p>Okay，Config的日志跨账户完成。</p>
-<h2 id="Part4-注意点"><a href="#Part4-注意点" class="headerlink" title="Part4 注意点"></a>Part4 注意点</h2><ol>
-<li>Account A S3存储桶的权限配置，将代码copy到自己的存储桶中时一定要修改ARN参数</li>
-<li>3.3步骤配置Account B CloudTrail时，不能开启KMS加密。因为当前Account A中S3的策略还不支持加密，还没研究出支持KMS加密的策略。</li>
-</ol>
-<h2 id="Part5-参考文献"><a href="#Part5-参考文献" class="headerlink" title="Part5 参考文献"></a>Part5 参考文献</h2><ul>
-<li><a href="https://docs.aws.amazon.com/zh_cn/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html">针对CloudTrail的Amazon S3存储桶策略</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>AWS</category>
-        <category>IAM</category>
-      </categories>
-      <tags>
-        <tag>AWS</tag>
-        <tag>IAM</tag>
       </tags>
   </entry>
 </search>

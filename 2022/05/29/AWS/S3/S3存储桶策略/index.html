@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"brendaoo.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="文章目的：本文主要讲述通过策略授予对Amazon S3资源的权限。 S3的访问策略主要有2种，分别是基于资源的策略和基于用户的策略。  基于资源的策略包括存储桶策略和ACL管理访问 基于用户的策略主要是IAM用户策略">
+<meta property="og:type" content="article">
+<meta property="og:title" content="S3存储桶策略">
+<meta property="og:url" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/index.html">
+<meta property="og:site_name" content="Logs">
+<meta property="og:description" content="文章目的：本文主要讲述通过策略授予对Amazon S3资源的权限。 S3的访问策略主要有2种，分别是基于资源的策略和基于用户的策略。  基于资源的策略包括存储桶策略和ACL管理访问 基于用户的策略主要是IAM用户策略">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154653517.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154835633.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154919166.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154952785.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529155144324.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160232398.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160324592.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160430971.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529190248030.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529190317129.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191041199.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191144313.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191337597.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529184051446.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191550505.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191804453.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191939341.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529192102889.png">
+<meta property="og:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529192335136.png">
+<meta property="article:published_time" content="2022-05-29T11:26:53.665Z">
+<meta property="article:modified_time" content="2022-05-29T11:26:53.665Z">
+<meta property="article:author" content="Brenda">
+<meta property="article:tag" content="AWS">
+<meta property="article:tag" content="S3">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154653517.png">
+
+<link rel="canonical" href="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>S3存储桶策略 | Logs</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Logs" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Logs</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Brenda">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Logs">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          S3存储桶策略
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-29 19:26:53" itemprop="dateCreated datePublished" datetime="2022-05-29T19:26:53+08:00">2022-05-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/S3/" itemprop="url" rel="index"><span itemprop="name">S3</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>文章目的：本文主要讲述通过策略授予对Amazon S3资源的权限。</p>
+<p>S3的访问策略主要有2种，分别是基于资源的策略和基于用户的策略。</p>
+<ul>
+<li>基于资源的策略包括存储桶策略和ACL管理访问</li>
+<li>基于用户的策略主要是IAM用户策略</li>
+</ul>
+<span id="more"></span>
+
+
+
+<h1 id="Part1-存储桶策略理论"><a href="#Part1-存储桶策略理论" class="headerlink" title="Part1 存储桶策略理论"></a>Part1 存储桶策略理论</h1><p><strong>存储桶策略</strong></p>
+<p>使用存储桶策略想存储桶及其中对象授予访问权限。是有存储桶所有者才能将策略与存储桶关联。附加到存储桶的权限适用于存储桶所有者拥有的存储桶中所有对象。这些权限不适用于其他Amazon Web Sercices账户所有的对象。</p>
+<p>存储桶策略是基于资源的Amazon Identity and Access Management(IAM)策略。</p>
+<p><strong>策略元素</strong></p>
+<p>写Json格式的策略语言时，会用到策略元素，以下做简要说明。</p>
+<ul>
+<li><p>Resource - 存储桶、对象、访问点和作业是您可以允许或拒绝其权限的Amazon S3资源。在策略中，使用Amazon Resource Name(ARN)标识资源。</p>
+</li>
+<li><p>Action - 对于每个资源，Amazon S3支持一组操作。您可使用操作关键字标识允许或拒绝的资源操作。</p>
+</li>
+<li><p>Effect - 当用户请求特定操作（可以是allow或deny）时的效果。如果没有显示授予允许对资源的访问权限，则隐式拒绝访问。您也可以显示拒绝对资源的访问。您可以执行此操作以确保用户无法访问资源，即时其他策略授予访问权限也是如此。</p>
+</li>
+<li><p>Principal - 委托人，允许访问语句中的操作和资源的账户或用户。在存储桶策略中，委托人是作为次权限的接受者的用户、账户、服务或其他实体。</p>
+</li>
+<li><p>Condition  - 策略生效时的条件。</p>
+</li>
+</ul>
+<p>关于策略：</p>
+<p>策略并不需要从头开始写，AWS有提供策略生成器，可以借助策略生成器生成策略。此外，AWS官方文档中有给出策略示例，当自己要写相关策略时可以参考策略示例。当然，需要熟悉策略中的部分语句，要求能看懂策略的意思。  </p>
+<h1 id="Part2-存储桶策略示例"><a href="#Part2-存储桶策略示例" class="headerlink" title="Part2 存储桶策略示例"></a>Part2 存储桶策略示例</h1><p>示例：限制特性IP地址访问S3存储桶</p>
+<h2 id="创建存储桶"><a href="#创建存储桶" class="headerlink" title="创建存储桶"></a>创建存储桶</h2><p>在存储桶控制台点击&lt;创建存储桶&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154653517.png" alt="image-20220529154653517"></p>
+<p>填入存储桶名称和选择AWS区域，本次实验中选择亚太地区东京区域</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154835633.png" alt="image-20220529154835633"></p>
+<p>以下部分可以不做配置，是创建S3时的默认配置</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154919166.png" alt="image-20220529154919166"></p>
+<p>点击最下边&lt;创建存储桶&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529154952785.png" alt="image-20220529154952785"></p>
+<p>存储桶创建成功，最上边有提示信息。</p>
+<p>默认创建的存储桶是不公开对外访问的，即只有存储桶拥有者才可以访问。</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529155144324.png" alt="image-20220529155144324"></p>
+<h2 id="存储桶及其对象公开"><a href="#存储桶及其对象公开" class="headerlink" title="存储桶及其对象公开"></a>存储桶及其对象公开</h2><p>如果上传一个测试文件到该存储桶中，查看资源的URL是无法访问和下载的。curl访问会显示拒绝访问。</p>
+<p>如果该存储桶允许公共（可以理解为所有人）下载和访问，那么需要公开存储桶的访问权限。做以下配置。</p>
+<p>进入到对应的S3存储桶中，点击&lt;权限&gt;，点击&lt;编辑&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160232398.png" alt="image-20220529160232398"></p>
+<p>取消“阻止公有访问”的勾选，即此处不打钩，点击&lt;保存更改&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160324592.png" alt="image-20220529160324592"></p>
+<p>输入&lt;确认&gt;，点击&lt;确认&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529160430971.png" alt="image-20220529160430971"></p>
+<p>此时存储桶已公开。</p>
+<p>在s3-policy-test-01存储桶中上传一个test.txt文件，文件内容就是一个简单的文本文件。</p>
+<p>点击进入s3-policy-test-01存储桶，点击&lt;上传&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529190248030.png" alt="image-20220529190248030"></p>
+<p>点击&lt;添加文件&gt;，上传测试文件test.txt</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529190317129.png" alt="image-20220529190317129"></p>
+<p>授予文件公开访问的权限，选中&lt;授予公开读取访问权限&gt;，勾选&lt;我明白&gt;，点击&lt;上传&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191041199.png" alt="image-20220529191041199"></p>
+<p>文件上传成功</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191144313.png" alt="image-20220529191144313"></p>
+<p>测试上传文件访问是否公开。点击&lt;复制URL&gt;，将url输入到浏览器，可以看到文件内容。</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191337597.png" alt="image-20220529191337597"></p>
+<p>说明文件是已公开。</p>
+<h2 id="设置存储桶策略"><a href="#设置存储桶策略" class="headerlink" title="设置存储桶策略"></a>设置存储桶策略</h2><p>编写<a target="_blank" rel="noopener" href="https://s3.console.aws.amazon.com/s3/buckets/s3-policy-test-01">s3-policy-test-01</a>存储桶策略，使得它限定当前的本地环境的出口IP。</p>
+<p>进入s3-policy-test-01存储桶，点击&lt;权限&gt;，在存储桶策略处，点击&lt;编辑&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529184051446.png" alt="image-20220529184051446"></p>
+<p>策略内容如下</p>
+<p><font color="red">注意：第9行，需要将arn修改为自己创建的s3存储桶的arn；第12行要修改为自己环境下的IP地址</font></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">		<span class="punctuation">&#123;</span></span><br><span class="line">			<span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Statement1&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Principal&quot;</span><span class="punctuation">:</span> <span class="string">&quot;*&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Deny&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;s3:*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:s3:::s3-policy-test-01/*&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;Condition&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">			    <span class="attr">&quot;NotIpAddress&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">			        <span class="attr">&quot;aws:SourceIP&quot;</span><span class="punctuation">:</span> <span class="string">&quot;101.224.204.143/32&quot;</span></span><br><span class="line">			    <span class="punctuation">&#125;</span></span><br><span class="line">			<span class="punctuation">&#125;</span></span><br><span class="line">		<span class="punctuation">&#125;</span></span><br><span class="line">	<span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写好存储桶策略之后，点击&lt;保存更改&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191550505.png" alt="image-20220529191550505"></p>
+<p>在终端使用curl命令进行测试</p>
+<p>curl 存储桶中文件的url</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://s3-policy-test-01.s3.ap-northeast-1.amazonaws.com/test.txt</span><br></pre></td></tr></table></figure>
+
+<p>测试结果，设置IP限制之后能够访问到test.txt文件。</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191804453.png" alt="image-20220529191804453"></p>
+<h2 id="修改策略并测试"><a href="#修改策略并测试" class="headerlink" title="修改策略并测试"></a>修改策略并测试</h2><p>修改策略中的IP地址，只要IP地址不是本地环境的出口IP即可</p>
+<p>将IP地址的最后一个点分十进制143改成了145，保存更改</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529191939341.png" alt="image-20220529191939341"></p>
+<p>命令行测试，输入curl 存储桶中文件的url，查看结果</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529192102889.png" alt="image-20220529192102889"></p>
+<p>本次访问就无效了，因为IP地址不匹配。</p>
+<p>Okay，以上就是本次IP地址限制的示例。</p>
+<h1 id="Part3-注意点"><a href="#Part3-注意点" class="headerlink" title="Part3 注意点"></a>Part3 注意点</h1><p>如果上传文件的过程中没有设置文件权限，即没有公开文件的acl。</p>
+<p>在文件上传完成之后，选中文件，点击&lt;操作&gt;，点击&lt;使用ACL设为公开&gt;</p>
+<p><img src="/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/image-20220529192335136.png" alt="image-20220529192335136"></p>
+<p>测试完成之后，记得清理环境。</p>
+<h1 id="Part4-参考文章"><a href="#Part4-参考文章" class="headerlink" title="Part4 参考文章"></a>Part4 参考文章</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://docs.amazonaws.cn/AmazonS3/latest/userguide/using-iam-policies.html">存储桶策略和用户策略</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://docs.amazonaws.cn/AmazonS3/latest/userguide/access-policy-language-overview.html">策略和权限</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/chenjinxi/p/9815200.html#:~:text=%E8%8E%B7%E5%8F%96%E6%9C%AC%E6%9C%BA%E5%87%BA%E5%8F%A3IP%E6%96%B9%E6%B3%95%201%E3%80%81Windows%20%E6%B5%8F%E8%A7%88%E5%99%A8%E5%B8%B8%E7%94%A8%E6%96%B9%E5%BC%8F%E8%AE%BF%E9%97%AE%201%E3%80%81http%3A%2F%2Fwww.ip138.com%2F,2%E3%80%81http%3A%2F%2Ftool.chinaz.com%2F%203%E3%80%81%E5%9C%A8%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%A1%86%E5%86%85%E8%BE%93%E5%85%A5%20ip%20%E4%BC%9A%E8%87%AA%E5%8A%A8%E8%AF%86%E5%88%AB%E5%87%BA%E6%9D%A5%E5%BD%93%E5%89%8D%E7%9A%84%E5%87%BA%E5%8F%A3IP">本地出口IP查询</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_Organizations账户管理服务&SCP/" rel="bookmark">AWS Organizations账户管理服务&SCP</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_STS正确设计IAM用户密钥1/" rel="bookmark">AWS STS正确设计IAM用户密钥（一）</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/AWS_IAM小结/" rel="bookmark">AWS IAM小结</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/IAM/配置CloudTrial和Config日志跨AWS账户日志存储/" rel="bookmark">配置CloudTrial和Config日志跨AWS账户日志存储</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/05/15/AWS/Network/VPC内子网联网/" rel="bookmark">VPC内子网联网</a></div>
+    </li>
+  </ul>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Brenda
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://brendaoo.github.io/2022/05/29/AWS/S3/S3%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5/" title="S3存储桶策略">https://brendaoo.github.io/2022/05/29/AWS/S3/S3存储桶策略/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AWS/" rel="tag"># AWS</a>
+              <a href="/tags/S3/" rel="tag"># S3</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/26/AWS/LoadBalance/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8ELB%E4%BB%8B%E7%BB%8D/" rel="prev" title="负载均衡器ELB介绍">
+      <i class="fa fa-chevron-left"></i> 负载均衡器ELB介绍
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Part1-%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5%E7%90%86%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">Part1 存储桶策略理论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part2-%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">Part2 存储桶策略示例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%AD%98%E5%82%A8%E6%A1%B6"><span class="nav-number">2.1.</span> <span class="nav-text">创建存储桶</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E6%A1%B6%E5%8F%8A%E5%85%B6%E5%AF%B9%E8%B1%A1%E5%85%AC%E5%BC%80"><span class="nav-number">2.2.</span> <span class="nav-text">存储桶及其对象公开</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%AD%98%E5%82%A8%E6%A1%B6%E7%AD%96%E7%95%A5"><span class="nav-number">2.3.</span> <span class="nav-text">设置存储桶策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%AD%96%E7%95%A5%E5%B9%B6%E6%B5%8B%E8%AF%95"><span class="nav-number">2.4.</span> <span class="nav-text">修改策略并测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part3-%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">Part3 注意点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part4-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">4.</span> <span class="nav-text">Part4 参考文章</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Brenda</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Brenda</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">41k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">37 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
